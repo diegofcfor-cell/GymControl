@@ -1,0 +1,85 @@
+# Blueprint de Render para Gym Control (Laravel 12 + MySQL 8)
+# Uso: Render Dashboard → New → Blueprint → seleccionar el repositorio de GitHub.
+services:
+  # ---------- Aplicación web (Docker) ----------
+  - type: web
+    name: gym-control
+    runtime: docker
+    plan: starter            # los discos persistentes requieren un plan pago
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    autoDeploy: true
+    disk:
+      name: certificados
+      mountPath: /var/www/html/storage/app/certificados
+      sizeGB: 1
+    envVars:
+      - key: APP_NAME
+        value: Gym Control
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        sync: false          # completar con la URL pública, p. ej. https://gym-control.onrender.com
+      - key: APP_TIMEZONE
+        value: America/Argentina/Buenos_Aires
+      - key: APP_LOCALE
+        value: es
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        fromService:
+          type: pserv
+          name: gym-control-db
+          property: host
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        value: gym_control
+      - key: DB_USERNAME
+        value: gym
+      - key: DB_PASSWORD
+        fromService:
+          type: pserv
+          name: gym-control-db
+          envVarKey: MYSQL_PASSWORD
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: ADMIN_NAME
+        value: Administrador
+      - key: ADMIN_EMAIL
+        sync: false          # correo del administrador inicial
+      - key: ADMIN_PASSWORD
+        sync: false          # contraseña del administrador inicial (mínimo 8 caracteres)
+      - key: SEED_DEMO
+        value: "false"       # "true" carga socios de demostración (solo para la presentación)
+
+  # ---------- Base de datos MySQL 8 (servicio privado con disco) ----------
+  - type: pserv
+    name: gym-control-db
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./docker/mysql.Dockerfile
+    dockerContext: .
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 5
+    envVars:
+      - key: MYSQL_DATABASE
+        value: gym_control
+      - key: MYSQL_USER
+        value: gym
+      - key: MYSQL_PASSWORD
+        generateValue: true
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true

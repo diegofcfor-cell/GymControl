@@ -1,0 +1,33 @@
+# Entorno local: docker compose up --build   →   http://localhost:8000
+services:
+  app:
+    build: .
+    ports: ["8000:10000"]
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      APP_KEY: base64:Zm9yLWxvY2FsLWRldi1vbmx5LTMyLWJ5dGVzISEhISE=
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: gym_control
+      DB_USERNAME: gym
+      DB_PASSWORD: secret
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      SEED_DEMO: "true"
+    volumes:
+      - certificados:/var/www/html/storage/app/certificados
+    depends_on: [db]
+  db:
+    build: { context: ., dockerfile: docker/mysql.Dockerfile }
+    environment:
+      MYSQL_DATABASE: gym_control
+      MYSQL_USER: gym
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    volumes: [dbdata:/var/lib/mysql]
+volumes:
+  certificados:
+  dbdata:
