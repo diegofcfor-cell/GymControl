@@ -17,6 +17,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | Aptos físicos | Carga del certificado (PDF/imagen, almacenado en disco privado) y control de vigencia |
 | **Pantalla de acceso** | Ingreso/egreso con PIN o QR (lector USB o cámara). Valida socio activo + cuota vigente + apto vigente. El egreso siempre se permite y calcula el tiempo de permanencia |
 | Historial de asistencias | Filtros por socio y fechas, permanencia, informe PDF |
+| **Portal del socio** | En `/socio`, el socio ingresa con su DNI + PIN (bloqueo tras 5 intentos fallidos por DNI) y consulta su membresía, cuota, apto físico y sus últimas asistencias con la permanencia |
 | Dashboard (admin) | Socios al día/vencidos, presentes ahora, ingresos del día/mes, asistencias de 7 días |
 
 Roles: el **administrador** puede todo; el **recepcionista** opera socios, aptos, pagos, acceso e historiales, pero no accede a operadores, membresías, bajas ni dashboard económico.
@@ -49,6 +50,10 @@ php artisan serve         # → http://localhost:8000
 1. Iniciar sesión → *Pantalla de acceso*.
 2. Ingresar un PIN (se ve en la ficha de cada socio). Primer ingreso = **ingreso**; el mismo PIN otra vez = **egreso** con el tiempo de permanencia.
 3. Casos de demostración: Ana Benítez (cuota vencida) y Martín Acosta (sin apto físico) deben ser **denegados**.
+
+### Probar el portal del socio
+1. Abrir `http://localhost:8000/socio`.
+2. Ingresar el DNI y el PIN de un socio (el PIN se ve en su ficha).
 
 ## Pruebas automatizadas
 ```bash
