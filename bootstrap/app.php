@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\RolMiddleware;
+use App\Http\Middleware\SocioAutenticado;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->alias([
             'rol' => RolMiddleware::class,
+            'socio' => SocioAutenticado::class,
         ]);
         $middleware->redirectGuestsTo(fn () => route('login'));
     })

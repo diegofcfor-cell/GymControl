@@ -7,6 +7,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\Portal\AuthSocioController;
+use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\SocioController;
 use App\Livewire\PantallaAcceso;
 use App\Livewire\SociosIndex;
@@ -57,5 +59,16 @@ Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function (
         Route::post('/socios/{socio}/reactivar', [SocioController::class, 'restore'])->name('socios.restore')->withTrashed();
         Route::resource('membresias', MembresiaController::class)->except(['show', 'destroy']);
         Route::resource('operadores', OperadorController::class)->parameters(['operadores' => 'operador'])->except(['show', 'destroy']);
+    });
+});
+
+// Portal del socio: sesión propia (PIN + DNI), separada del login de operadores.
+Route::prefix('socio')->name('portal.')->group(function () {
+    Route::get('/login', [AuthSocioController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthSocioController::class, 'login'])->middleware('throttle:10,1');
+
+    Route::middleware('socio')->group(function () {
+        Route::post('/logout', [AuthSocioController::class, 'logout'])->name('logout');
+        Route::get('/', [PortalController::class, 'inicio'])->name('inicio');
     });
 });
