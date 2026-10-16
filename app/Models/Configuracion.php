@@ -11,9 +11,20 @@ class Configuracion extends Model
 
     protected $fillable = ['clave', 'valor'];
 
+    /** Datos que se muestran en la página web pública (y que usa el chatbot). */
+    public const DATOS_WEB = ['descripcion', 'servicios', 'horarios', 'direccion', 'telefono', 'email', 'instagram'];
+
     public static function obtener(string $clave, ?string $porDefecto = null): ?string
     {
         return self::where('clave', $clave)->value('valor') ?? $porDefecto;
+    }
+
+    /** @return array<string,?string> clave => valor (null si no se cargó) */
+    public static function varios(array $claves): array
+    {
+        $valores = self::whereIn('clave', $claves)->pluck('valor', 'clave');
+
+        return collect($claves)->mapWithKeys(fn ($c) => [$c => $valores[$c] ?? null])->all();
     }
 
     public static function guardar(string $clave, ?string $valor): void

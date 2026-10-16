@@ -14,9 +14,13 @@ use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\Portal\PreguntasController;
 use App\Http\Controllers\PreguntaFrecuenteController;
 use App\Http\Controllers\SocioController;
+use App\Http\Controllers\WebController;
 use App\Livewire\PantallaAcceso;
 use App\Livewire\SociosIndex;
 use Illuminate\Support\Facades\Route;
+
+// Página web pública del gimnasio (los operadores con sesión son redirigidos a su panel).
+Route::get('/', [WebController::class, 'inicio'])->name('web');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -25,7 +29,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/', fn () => auth()->user()->esAdministrador()
+    Route::get('/panel', fn () => auth()->user()->esAdministrador()
         ? redirect()->route('dashboard')
         : redirect()->route('acceso'))->name('inicio');
 

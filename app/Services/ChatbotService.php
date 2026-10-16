@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Configuracion;
 use App\Models\Membresia;
 use App\Models\PreguntaFrecuente;
 use Illuminate\Support\Collection;
@@ -10,7 +11,8 @@ use Illuminate\Support\Str;
 /**
  * Chatbot de preguntas frecuentes sin IA (sin costo de uso):
  *  - Busca la pregunta frecuente cuyas palabras clave y texto mejor coinciden con el mensaje.
- *  - Responde con datos en vivo para dos temas: planes/precios (membresías activas) y aforo actual.
+ *  - Responde con datos en vivo: planes/precios (membresías activas), aforo actual y, si el admin
+ *    los cargó en Configuración, horarios y datos de contacto.
  *  - Si nada coincide lo suficiente, sugiere preguntas y deriva a recepción.
  */
 class ChatbotService
@@ -19,7 +21,7 @@ class ChatbotService
     public const PUNTAJE_MINIMO = 3;
 
     protected const VACIAS = [
-        'a', 'al', 'algo', 'como', 'con', 'cual', 'cuales', 'cuando', 'de', 'del', 'donde', 'el', 'en', 'es', 'esta',
+        'a', 'al', 'algo', 'como', 'con', 'cual', 'cuales', 'cuando', 'de', 'del', 'el', 'en', 'es', 'esta',
         'hay', 'la', 'las', 'le', 'lo', 'los', 'me', 'mi', 'para', 'por', 'puedo', 'que', 'se', 'si', 'su', 'te',
         'tiene', 'tienen', 'un', 'una', 'y', 'o', 'hola', 'quiero', 'saber', 'gym', 'gimnasio',
     ];
@@ -28,6 +30,8 @@ class ChatbotService
     protected const TEMAS_EN_VIVO = [
         'planes' => ['precio', 'precios', 'cuesta', 'cuestan', 'valor', 'cuota', 'plan', 'planes', 'membresia', 'membresias', 'tarifa', 'tarifas'],
         'aforo' => ['gente', 'personas', 'lleno', 'aforo', 'ocupado', 'concurrido', 'ahora'],
+        'horarios' => ['horario', 'horarios', 'hora', 'horas', 'abren', 'abre', 'cierran', 'cierra', 'abierto', 'cerrado', 'sabado', 'domingo', 'feriado', 'feriados'],
+        'contacto' => ['direccion', 'donde', 'ubicacion', 'ubicados', 'queda', 'quedan', 'telefono', 'whatsapp', 'contacto', 'llamar', 'mail', 'correo', 'email', 'instagram'],
     ];
 
     public function __construct(protected AforoService $aforo) {}
@@ -107,6 +111,9 @@ class ChatbotService
     {
         $mejor = null;
         foreach (self::TEMAS_EN_VIVO as $nombre => $claves) {
+            if (! $this->temaDisponible($nombre)) {
+                continue;
+            }
             $puntos = 3 * count(array_filter($palabras, fn ($w) => in_array($w, $claves, true)));
             if ($puntos > 0 && (! $mejor || $puntos > $mejor['puntaje'])) {
                 $mejor = ['nombre' => $nombre, 'puntaje' => $puntos];
@@ -116,8 +123,34 @@ class ChatbotService
         return $mejor;
     }
 
+    /** Horarios y contacto solo se responden en vivo si el admin los cargó. */
+    protected function temaDisponible(string $tema): bool
+    {
+        return match ($tema) {
+            'horarios' => filled(Configuracion::obtener('horarios')),
+            'contacto' => collect(Configuracion::varios(['direccion', 'telefono', 'email', 'instagram']))->filter()->isNotEmpty(),
+            default => true,
+        };
+    }
+
     protected function respuestaEnVivo(string $tema): string
     {
+        if ($tema === 'horarios') {
+            return "Nuestros horarios:\n".trim(Configuracion::obtener('horarios'));
+        }
+
+        if ($tema === 'contacto') {
+            $c = Configuracion::varios(['direccion', 'telefono', 'email', 'instagram']);
+            $lineas = array_filter([
+                $c['direccion'] ? "Dirección: {$c['direccion']}" : null,
+                $c['telefono'] ? "Teléfono / WhatsApp: {$c['telefono']}" : null,
+                $c['email'] ? "Correo: {$c['email']}" : null,
+                $c['instagram'] ? 'Instagram: @'.ltrim($c['instagram'], '@') : null,
+            ]);
+
+            return "Datos de contacto:\n".implode("\n", $lineas);
+        }
+
         if ($tema === 'aforo') {
             $e = $this->aforo->estado();
 

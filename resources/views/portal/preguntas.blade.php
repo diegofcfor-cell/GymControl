@@ -6,7 +6,7 @@
 @if ($preguntas->isNotEmpty())
     <section class="mt-6 rounded-xl bg-white p-5 shadow-sm">
         <h2 class="mb-2 font-semibold">Todas las preguntas</h2>
-        <div class="divide-y">
+        <div class="divide-y divide-slate-200">
             @foreach ($preguntas as $p)
                 <details class="py-2">
                     <summary class="cursor-pointer text-sm font-medium">{{ $p->pregunta }}</summary>
