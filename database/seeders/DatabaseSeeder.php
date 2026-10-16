@@ -8,6 +8,7 @@ use App\Models\Configuracion;
 use App\Models\Membresia;
 use App\Models\PreguntaFrecuente;
 use App\Models\Socio;
+use App\Models\SolicitudRutina;
 use App\Models\User;
 use App\Services\PagoService;
 use Illuminate\Database\Seeder;
@@ -45,6 +46,11 @@ class DatabaseSeeder extends Seeder
             ['email' => 'recepcion@gymcontrol.test'],
             ['name' => 'María Recepción', 'password' => 'Recepcion1234!', 'rol' => User::ROL_RECEPCION, 'activo' => true]
         );
+        User::firstOrCreate(
+            ['email' => 'profesor@gymcontrol.test'],
+            ['name' => 'Pablo Profesor', 'password' => 'Profesor1234!', 'rol' => User::ROL_PROFESOR, 'activo' => true]
+        );
+
         $preguntas = [
             ['¿Cuál es el horario del gimnasio?', 'De lunes a viernes de 7 a 23 h y los sábados de 8 a 13 h. Domingos y feriados cerrado.', 'horario, hora, abren, cierran, abierto, sabado, domingo, feriado'],
             ['¿Qué necesito para empezar?', 'Presentarte en recepción con tu DNI y un apto físico vigente, elegir un plan y abonar la primera cuota.', 'empezar, inscribirme, anotarme, requisitos, alta, apto, certificado'],
@@ -99,5 +105,8 @@ class DatabaseSeeder extends Seeder
                 }
             }
         }
+
+        SolicitudRutina::create(['socio_id' => Socio::where('dni', '30111222')->value('id'), 'objetivo' => 'Ganar masa muscular',
+            'dias_por_semana' => 3, 'nivel' => 'principiante', 'comentarios' => 'Tuve una molestia en el hombro derecho.', 'estado' => 'pendiente']);
     }
 }

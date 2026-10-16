@@ -12,15 +12,16 @@
 @php
     $u = auth()->user();
     $enlaces = [
-        ['dashboard', 'Dashboard', 'administrador'],
-        ['acceso', 'Pantalla de acceso', null],
-        ['socios.index', 'Socios', null],
-        ['pagos.index', 'Pagos', null],
-        ['asistencias.index', 'Asistencias', null],
-        ['membresias.index', 'Membresías', 'administrador'],
-        ['operadores.index', 'Operadores', 'administrador'],
-        ['preguntas.index', 'Preguntas', 'administrador'],
-        ['configuracion.edit', 'Configuración', 'administrador'],
+        ['dashboard', 'Dashboard', ['administrador']],
+        ['acceso', 'Pantalla de acceso', ['administrador', 'recepcionista']],
+        ['socios.index', 'Socios', ['administrador', 'recepcionista']],
+        ['pagos.index', 'Pagos', ['administrador', 'recepcionista']],
+        ['asistencias.index', 'Asistencias', ['administrador', 'recepcionista']],
+        ['rutinas.index', 'Rutinas', ['administrador', 'profesor']],
+        ['membresias.index', 'Membresías', ['administrador']],
+        ['operadores.index', 'Operadores', ['administrador']],
+        ['preguntas.index', 'Preguntas', ['administrador']],
+        ['configuracion.edit', 'Configuración', ['administrador']],
     ];
 @endphp
 <nav class="bg-slate-900 text-white" x-data="{ abierto: false }">
@@ -28,8 +29,8 @@
         <a href="{{ route('inicio') }}" class="text-lg font-bold tracking-tight">🏋️ Gym Control <span class="text-xs font-normal text-slate-400">· Gimnasio Fénix</span></a>
         <button class="md:hidden rounded p-2 hover:bg-slate-800" x-on:click="abierto = !abierto" aria-label="Menú">☰</button>
         <div class="hidden items-center gap-1 md:flex">
-            @foreach ($enlaces as [$ruta, $texto, $rol])
-                @if (! $rol || $u->rol === $rol)
+            @foreach ($enlaces as [$ruta, $texto, $roles])
+                @if (in_array($u->rol, $roles, true))
                     <a href="{{ route($ruta) }}" class="rounded px-3 py-1.5 text-sm hover:bg-slate-700 {{ request()->routeIs(explode('.', $ruta)[0].'*') ? 'bg-slate-700' : '' }}">{{ $texto }}</a>
                 @endif
             @endforeach
@@ -41,8 +42,8 @@
         </div>
     </div>
     <div class="space-y-1 px-4 pb-3 md:hidden" x-show="abierto" x-cloak>
-        @foreach ($enlaces as [$ruta, $texto, $rol])
-            @if (! $rol || $u->rol === $rol)
+        @foreach ($enlaces as [$ruta, $texto, $roles])
+            @if (in_array($u->rol, $roles, true))
                 <a href="{{ route($ruta) }}" class="block rounded px-3 py-2 text-sm hover:bg-slate-700">{{ $texto }}</a>
             @endif
         @endforeach

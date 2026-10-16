@@ -13,7 +13,9 @@ use App\Http\Controllers\Portal\AuthSocioController;
 use App\Http\Controllers\Portal\HistorialController;
 use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\Portal\PreguntasController;
+use App\Http\Controllers\Portal\RutinaSocioController;
 use App\Http\Controllers\PreguntaFrecuenteController;
+use App\Http\Controllers\RutinaController;
 use App\Http\Controllers\SocioController;
 use App\Http\Controllers\WebController;
 use App\Livewire\PantallaAcceso;
@@ -28,11 +30,21 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 });
 
-Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function () {
+Route::middleware(['auth', 'rol:administrador,recepcionista,profesor'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/panel', fn () => auth()->user()->esAdministrador()
-        ? redirect()->route('dashboard')
-        : redirect()->route('acceso'))->name('inicio');
+    Route::get('/panel', fn () => redirect()->route(auth()->user()->rutaInicio()))->name('inicio');
+});
+
+// Rutinas: las arma un profesor (o el administrador) a pedido del socio.
+Route::middleware(['auth', 'rol:administrador,profesor'])->group(function () {
+    Route::get('/rutinas', [RutinaController::class, 'index'])->name('rutinas.index');
+    Route::get('/rutinas/pedidos/{solicitud}/armar', [RutinaController::class, 'create'])->name('rutinas.create');
+    Route::post('/rutinas/pedidos/{solicitud}', [RutinaController::class, 'store'])->name('rutinas.store');
+    Route::get('/rutinas/{rutina}/editar', [RutinaController::class, 'edit'])->name('rutinas.edit');
+    Route::put('/rutinas/{rutina}', [RutinaController::class, 'update'])->name('rutinas.update');
+});
+
+Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function () {
 
     // Pantalla de acceso (ingreso / egreso por PIN o QR)
     Route::get('/acceso', PantallaAcceso::class)->name('acceso');
@@ -87,6 +99,8 @@ Route::prefix('socio')->name('portal.')->group(function () {
         Route::get('/pagos/{pago}/comprobante', [HistorialController::class, 'comprobante'])->name('pagos.comprobante');
         Route::get('/apto', [HistorialController::class, 'aptos'])->name('aptos');
         Route::get('/apto/{apto}/archivo', [HistorialController::class, 'aptoArchivo'])->name('aptos.archivo');
+        Route::get('/rutina', [RutinaSocioController::class, 'show'])->name('rutina');
+        Route::post('/rutina/pedido', [RutinaSocioController::class, 'solicitar'])->name('rutina.solicitar');
         Route::get('/aforo', [AforoController::class, 'index'])->name('aforo');
         Route::get('/preguntas', [PreguntasController::class, 'index'])->name('preguntas');
     });

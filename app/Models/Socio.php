@@ -71,6 +71,21 @@ class Socio extends Model
         return $this->hasMany(Asistencia::class);
     }
 
+    public function rutinas(): HasMany
+    {
+        return $this->hasMany(Rutina::class);
+    }
+
+    public function rutinaActiva(): ?Rutina
+    {
+        return $this->rutinas()->where('activa', true)->latest('id')->first();
+    }
+
+    public function solicitudesRutina(): HasMany
+    {
+        return $this->hasMany(SolicitudRutina::class);
+    }
+
     public function getNombreCompletoAttribute(): string
     {
         return $this->apellido.', '.$this->nombre;

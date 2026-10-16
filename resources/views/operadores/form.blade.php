@@ -9,6 +9,7 @@
     <div><label for="rol" class="mb-1 block text-sm font-medium">Rol</label>
         <select id="rol" name="rol" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
             <option value="recepcionista" @selected(old('rol', $operador->rol) === 'recepcionista')>Recepcionista</option>
+            <option value="profesor" @selected(old('rol', $operador->rol) === 'profesor')>Profesor (arma rutinas)</option>
             <option value="administrador" @selected(old('rol', $operador->rol) === 'administrador')>Administrador</option></select></div>
     @if ($operador->exists)
         <label class="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" name="activo" value="1" @checked(old('activo', $operador->activo)) class="rounded"> Usuario activo</label>

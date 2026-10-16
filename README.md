@@ -9,7 +9,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 
 | Módulo | Descripción |
 |---|---|
-| Autenticación y roles | Login/logout, roles `administrador` y `recepcionista`, middleware `rol:`, operadores activos/inactivos |
+| Autenticación y roles | Login/logout, roles `administrador`, `recepcionista` y `profesor`, middleware `rol:`, operadores activos/inactivos |
 | Socios | Alta, edición, baja lógica, búsqueda reactiva (Livewire) por nombre, DNI o PIN, ficha en PDF |
 | PIN y QR | PIN único de 6 dígitos + código QR (UUID) por socio; credencial imprimible |
 | Membresías | Planes Básica / Media / Premium (pase libre) con precio, duración y tope de horas diarias |
@@ -21,6 +21,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | **Portal del socio** | En `/socio`, el socio ingresa con su DNI + PIN (bloqueo tras 5 intentos fallidos por DNI) y consulta su membresía y cuota, el historial completo de asistencias con filtro por fechas, sus pagos con comprobante en PDF y sus constancias médicas (vigencia y descarga del archivo) |
 | **Aforo en vivo** | En `/socio/aforo` el socio ve cuántas personas hay ahora respecto de la capacidad del local (verde / amarillo / rojo, se actualiza cada 30 s) y un gráfico de horas pico por día de la semana con el promedio de las últimas 4 semanas. El administrador define la capacidad en *Configuración* |
 | **Chatbot de preguntas frecuentes** | En `/socio/preguntas` el socio chatea con un asistente sin IA (sin costo de uso) que busca la respuesta por palabras clave, ignorando tildes y plurales. Planes/precios y "cuánta gente hay" se responden con los datos del sistema. El administrador carga las preguntas en *Preguntas* |
+| **Rutinas con profesor** | En `/socio/rutina` el socio pide una rutina (objetivo, nivel, días por semana y comentarios). El profesor ve los pedidos en *Rutinas*, arma los ejercicios por día (series, repeticiones, descanso y notas) y el socio la ve en su portal. Una rutina nueva reemplaza a la anterior y el profesor puede editarla. El rol `profesor` solo accede a *Rutinas* |
 | Dashboard (admin) | Socios al día/vencidos, presentes ahora, ingresos del día/mes, asistencias de 7 días |
 
 Roles: el **administrador** puede todo; el **recepcionista** opera socios, aptos, pagos, acceso e historiales, pero no accede a operadores, membresías, bajas ni dashboard económico.
@@ -46,6 +47,7 @@ php artisan serve         # → http://localhost:8000
 |---|---|---|
 | Administrador | `admin@gymcontrol.test` | `Admin1234!` |
 | Recepcionista | `recepcion@gymcontrol.test` | `Recepcion1234!` |
+| Profesor | `profesor@gymcontrol.test` | `Profesor1234!` |
 
 **Cambiar estas contraseñas en producción** (variables `ADMIN_EMAIL` / `ADMIN_PASSWORD`).
 
@@ -57,6 +59,13 @@ php artisan serve         # → http://localhost:8000
 ### Probar el portal del socio
 1. Abrir `http://localhost:8000/socio`.
 2. Ingresar el DNI y el PIN de un socio (el PIN se ve en su ficha).
+
+### Probar las rutinas
+1. En el portal, entrar a *Mi rutina* y enviar un pedido.
+2. Iniciar sesión como profesor → *Rutinas* → *Armar rutina* en el pedido.
+3. Volver al portal: la rutina aparece agrupada por día.
+
+En una base ya instalada, correr `php artisan migrate` para crear las tablas de rutinas.
 
 ## Pruebas automatizadas
 ```bash
@@ -72,6 +81,6 @@ Ver `DEPLOY.md`.
 app/Services/AccesoService.php   reglas de ingreso/egreso y permanencia
 app/Services/PagoService.php     alta de pagos y cálculo de vencimiento
 app/Livewire/                    PantallaAcceso, SociosIndex
-app/Http/Controllers/            Socios, Pagos, Aptos, Asistencias, Membresías, Operadores, Dashboard
+app/Http/Controllers/            Socios, Pagos, Aptos, Asistencias, Membresías, Operadores, Rutinas, Dashboard
 database/migrations/             modelo ER (users, membresias, socios, pagos, aptos_fisicos, asistencias)
 ```

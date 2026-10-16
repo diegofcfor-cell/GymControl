@@ -24,7 +24,7 @@ class OperadorController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'rol' => ['required', Rule::in([User::ROL_ADMIN, User::ROL_RECEPCION])],
+            'rol' => ['required', Rule::in(User::ROLES)],
         ]);
         User::create($datos + ['activo' => true]);
 
@@ -42,7 +42,7 @@ class OperadorController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($operador->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'rol' => ['required', Rule::in([User::ROL_ADMIN, User::ROL_RECEPCION])],
+            'rol' => ['required', Rule::in(User::ROLES)],
             'activo' => ['nullable', 'boolean'],
         ]);
 
