@@ -17,6 +17,7 @@
             @if ($planes->isNotEmpty())<a href="#planes" class="rounded px-3 py-1.5 hover:bg-white/10">Planes</a>@endif
             @if ($horarios)<a href="#horarios" class="rounded px-3 py-1.5 hover:bg-white/10">Horarios</a>@endif
             <a href="#contacto" class="rounded px-3 py-1.5 hover:bg-white/10">Contacto</a>
+            @auth<a href="{{ route('inicio') }}" class="ml-2 rounded-lg border border-white/30 px-4 py-1.5 font-medium hover:bg-white/10">Ir al panel</a>@endauth
             <a href="{{ route('portal.login') }}" class="ml-2 rounded-lg bg-white px-4 py-1.5 font-medium text-slate-900 hover:bg-slate-200">Soy socio</a>
         </nav>
         <button class="rounded p-2 hover:bg-white/10 md:hidden" x-on:click="abierto = !abierto" aria-label="Menú">☰</button>
@@ -26,6 +27,7 @@
         @if ($planes->isNotEmpty())<a href="#planes" class="block rounded px-3 py-2 hover:bg-white/10">Planes</a>@endif
         @if ($horarios)<a href="#horarios" class="block rounded px-3 py-2 hover:bg-white/10">Horarios</a>@endif
         <a href="#contacto" class="block rounded px-3 py-2 hover:bg-white/10">Contacto</a>
+        @auth<a href="{{ route('inicio') }}" class="block rounded px-3 py-2 hover:bg-white/10">Ir al panel</a>@endauth
         <a href="{{ route('portal.login') }}" class="block rounded bg-white px-3 py-2 font-medium text-slate-900">Soy socio</a>
     </nav>
 </header>

@@ -10,11 +10,6 @@ class WebController extends Controller
 {
     public function inicio()
     {
-        // Los operadores con sesión van directo a su panel, como antes.
-        if ($u = auth()->user()) {
-            return redirect()->route($u->rutaInicio());
-        }
-
         $web = Configuracion::varios(Configuracion::DATOS_WEB);
 
         return view('web.inicio', [

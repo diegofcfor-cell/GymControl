@@ -19,6 +19,7 @@
     <x-input name="password" label="Contraseña" type="password" required autocomplete="current-password" />
     <label class="flex items-center gap-2 text-sm text-slate-600"><input type="checkbox" name="recordar" class="rounded"> Mantener sesión iniciada</label>
     <button class="w-full rounded-lg bg-slate-900 px-4 py-2.5 font-medium text-white hover:bg-slate-700">Ingresar</button>
+    <p class="text-center text-sm"><a href="{{ route('web') }}" class="text-slate-500 underline">Ir a la página del gimnasio</a></p>
 </form>
 </body>
 </html>
