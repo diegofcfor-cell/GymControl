@@ -15,7 +15,7 @@
             @endif
         @endforeach
     </div>
-    <form wire:submit="enviar" x-on:submit="$dispatch('mensaje-enviado')" class="flex gap-2 border-t p-3">
+    <form wire:submit="enviar" x-on:submit="$dispatch('mensaje-enviado')" class="flex gap-2 border-t border-slate-200 p-3">
         <input wire:model="mensaje" type="text" maxlength="300" placeholder="Escribí tu pregunta…" aria-label="Tu pregunta" autocomplete="off"
                class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300">
         <button class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" wire:loading.attr="disabled">Enviar</button>

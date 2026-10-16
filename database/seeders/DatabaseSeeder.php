@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\AptoFisico;
 use App\Models\Asistencia;
+use App\Models\Configuracion;
 use App\Models\Membresia;
 use App\Models\PreguntaFrecuente;
 use App\Models\Socio;
@@ -53,6 +54,19 @@ class DatabaseSeeder extends Seeder
         ];
         foreach ($preguntas as $i => [$pregunta, $respuesta, $claves]) {
             PreguntaFrecuente::firstOrCreate(['pregunta' => $pregunta], ['respuesta' => $respuesta, 'palabras_clave' => $claves, 'orden' => $i + 1, 'activa' => true]);
+        }
+
+        $web = [
+            'descripcion' => 'Gimnasio de musculación y entrenamiento funcional en Formosa, con profesores en sala y aforo en vivo.',
+            'servicios' => "Musculación\nEntrenamiento funcional\nCardio\nRutinas personalizadas\nVestuarios con duchas",
+            'horarios' => "Lunes a viernes: 7 a 23 h\nSábados: 8 a 13 h\nDomingos y feriados: cerrado",
+            'direccion' => 'Av. Ejemplo 123, Formosa',
+            'telefono' => '370 400-0000',
+        ];
+        foreach ($web as $clave => $valor) {
+            if (Configuracion::obtener($clave) === null) {
+                Configuracion::guardar($clave, $valor);
+            }
         }
 
         if (Socio::count() > 0) {

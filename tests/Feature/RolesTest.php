@@ -21,7 +21,7 @@ class RolesTest extends TestCase
         $u = User::factory()->administrador()->create(['password' => 'secreta123']);
 
         $this->post('/login', ['email' => $u->email, 'password' => 'mala'])->assertSessionHasErrors('email');
-        $this->post('/login', ['email' => $u->email, 'password' => 'secreta123'])->assertRedirect('/');
+        $this->post('/login', ['email' => $u->email, 'password' => 'secreta123'])->assertRedirect('/panel');
         $this->assertAuthenticatedAs($u);
     }
 

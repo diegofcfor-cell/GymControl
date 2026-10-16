@@ -19,6 +19,7 @@
     <x-input name="pin" label="PIN de acceso" type="password" inputmode="numeric" maxlength="6" required autocomplete="current-password"
              ayuda="Es el mismo PIN de 6 dígitos que usás para entrar al gimnasio." />
     <button class="w-full rounded-lg bg-slate-900 px-4 py-2.5 font-medium text-white hover:bg-slate-700">Ingresar</button>
+    <p class="text-center text-sm"><a href="{{ route('web') }}" class="text-slate-500 underline">Volver a la página del gimnasio</a></p>
 </form>
 </body>
 </html>
