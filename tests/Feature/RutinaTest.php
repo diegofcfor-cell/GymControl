@@ -137,7 +137,7 @@ class RutinaTest extends TestCase
             $this->actingAs($this->profesor)->get($ruta)->assertForbidden();
         }
         $this->actingAs($this->profesor)->get('/panel')->assertRedirect('/rutinas');
-        $this->actingAs($this->profesor)->get('/')->assertRedirect('/rutinas');
+        $this->actingAs($this->profesor)->get('/')->assertOk()->assertSee('Ir al panel');
         $this->actingAs($this->profesor)->post('/logout')->assertRedirect('/login');
     }
 

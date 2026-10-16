@@ -17,7 +17,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | Aptos físicos | Carga del certificado (PDF/imagen, almacenado en disco privado) y control de vigencia |
 | **Pantalla de acceso** | Ingreso/egreso con PIN o QR (lector USB o cámara). Valida socio activo + cuota vigente + apto vigente. El egreso siempre se permite y calcula el tiempo de permanencia |
 | Historial de asistencias | Filtros por socio y fechas, permanencia, informe PDF |
-| **Página web pública** | En `/` se muestra la web del gimnasio: presentación, servicios, planes y precios (de las membresías activas), horarios, contacto, aforo en vivo, chatbot flotante y acceso al portal del socio. El administrador edita los textos en *Configuración*. Los operadores con sesión son redirigidos a su panel |
+| **Página web pública** | En `/` se muestra la web del gimnasio: presentación, servicios, planes y precios (de las membresías activas), horarios, contacto, aforo en vivo, chatbot flotante y acceso al portal del socio. El administrador edita los textos en *Configuración*. Con sesión de operador, la web muestra el botón *Ir al panel* y el panel tiene el enlace *Ver web* |
 | **Portal del socio** | En `/socio`, el socio ingresa con su DNI + PIN (bloqueo tras 5 intentos fallidos por DNI) y consulta su membresía y cuota, el historial completo de asistencias con filtro por fechas, sus pagos con comprobante en PDF y sus constancias médicas (vigencia y descarga del archivo) |
 | **Aforo en vivo** | En `/socio/aforo` el socio ve cuántas personas hay ahora respecto de la capacidad del local (verde / amarillo / rojo, se actualiza cada 30 s) y un gráfico de horas pico por día de la semana con el promedio de las últimas 4 semanas. El administrador define la capacidad en *Configuración* |
 | **Chatbot de preguntas frecuentes** | En `/socio/preguntas` el socio chatea con un asistente sin IA (sin costo de uso) que busca la respuesta por palabras clave, ignorando tildes y plurales. Planes/precios y "cuánta gente hay" se responden con los datos del sistema. El administrador carga las preguntas en *Preguntas* |
@@ -61,6 +61,8 @@ php artisan serve         # → http://localhost:8000
 2. Ingresar el DNI y el PIN de un socio (el PIN se ve en su ficha).
 
 ### Probar las rutinas
+El usuario profesor de prueba solo existe si la base se sembró con `SEED_DEMO=true`. En cualquier instalación (por ejemplo Render), el administrador lo crea en *Operadores* eligiendo el rol *Profesor*.
+
 1. En el portal, entrar a *Mi rutina* y enviar un pedido.
 2. Iniciar sesión como profesor → *Rutinas* → *Armar rutina* en el pedido.
 3. Volver al portal: la rutina aparece agrupada por día.

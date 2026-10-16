@@ -33,10 +33,17 @@ class WebTest extends TestCase
         $this->get('/')->assertOk()->assertDontSee('id="horarios"', false)->assertSee('Consultanos en recepción');
     }
 
-    public function test_los_operadores_con_sesion_van_a_su_panel(): void
+    public function test_los_operadores_con_sesion_ven_la_web_con_acceso_al_panel(): void
     {
-        $this->actingAs(User::factory()->administrador()->create())->get('/')->assertRedirect('/dashboard');
-        $this->actingAs(User::factory()->create())->get('/')->assertRedirect('/acceso');
+        $this->get('/')->assertOk()->assertDontSee('Ir al panel');
+        $this->actingAs(User::factory()->administrador()->create())->get('/')->assertOk()->assertSee('Ir al panel');
+        $this->get('/panel')->assertRedirect('/dashboard');
+        $this->get('/socios')->assertOk()->assertSee('Ver web');
+    }
+
+    public function test_el_login_de_operadores_enlaza_la_web(): void
+    {
+        $this->get('/login')->assertOk()->assertSee('Ir a la página del gimnasio');
     }
 
     public function test_el_admin_carga_los_datos_de_la_web(): void
