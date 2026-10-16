@@ -10,6 +10,7 @@ use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\Portal\AforoController;
 use App\Http\Controllers\Portal\AuthSocioController;
+use App\Http\Controllers\Portal\HistorialController;
 use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\Portal\PreguntasController;
 use App\Http\Controllers\PreguntaFrecuenteController;
@@ -81,6 +82,11 @@ Route::prefix('socio')->name('portal.')->group(function () {
     Route::middleware('socio')->group(function () {
         Route::post('/logout', [AuthSocioController::class, 'logout'])->name('logout');
         Route::get('/', [PortalController::class, 'inicio'])->name('inicio');
+        Route::get('/asistencias', [HistorialController::class, 'asistencias'])->name('asistencias');
+        Route::get('/pagos', [HistorialController::class, 'pagos'])->name('pagos');
+        Route::get('/pagos/{pago}/comprobante', [HistorialController::class, 'comprobante'])->name('pagos.comprobante');
+        Route::get('/apto', [HistorialController::class, 'aptos'])->name('aptos');
+        Route::get('/apto/{apto}/archivo', [HistorialController::class, 'aptoArchivo'])->name('aptos.archivo');
         Route::get('/aforo', [AforoController::class, 'index'])->name('aforo');
         Route::get('/preguntas', [PreguntasController::class, 'index'])->name('preguntas');
     });

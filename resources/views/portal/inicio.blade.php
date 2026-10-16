@@ -27,7 +27,7 @@
 @endunless
 
 <section class="mt-6 rounded-xl bg-white p-5 shadow-sm">
-    <h2 class="mb-3 font-semibold">Mis últimas asistencias</h2>
+    <div class="mb-3 flex items-center justify-between"><h2 class="font-semibold">Mis últimas asistencias</h2><a href="{{ route('portal.asistencias') }}" class="text-sm text-blue-700 hover:underline">Ver todas</a></div>
     @if ($asistencias->isEmpty())
         <p class="text-sm text-slate-500">Todavía no registrás asistencias.</p>
     @else

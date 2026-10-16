@@ -10,15 +10,21 @@
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900 antialiased">
 <header class="bg-slate-900 text-white">
-    <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-        <div class="flex items-center gap-1">
-            <a href="{{ route('portal.inicio') }}" class="mr-2 font-bold">🏋️ Fénix</a>
-            <a href="{{ route('portal.inicio') }}" class="rounded px-3 py-1 text-sm hover:bg-slate-700 {{ request()->routeIs('portal.inicio') ? 'bg-slate-700' : '' }}">Mi cuenta</a>
-            <a href="{{ route('portal.aforo') }}" class="rounded px-3 py-1 text-sm hover:bg-slate-700 {{ request()->routeIs('portal.aforo') ? 'bg-slate-700' : '' }}">Aforo</a>
-            <a href="{{ route('portal.preguntas') }}" class="rounded px-3 py-1 text-sm hover:bg-slate-700 {{ request()->routeIs('portal.preguntas') ? 'bg-slate-700' : '' }}">Preguntas</a>
-        </div>
+    @php
+        $enlaces = [
+            ['portal.inicio', 'Mi cuenta'], ['portal.asistencias', 'Asistencias'], ['portal.pagos', 'Pagos'],
+            ['portal.aptos', 'Apto médico'], ['portal.aforo', 'Aforo'], ['portal.preguntas', 'Preguntas'],
+        ];
+    @endphp
+    <div class="mx-auto flex max-w-3xl items-center justify-between px-4 pt-3">
+        <a href="{{ route('portal.inicio') }}" class="font-bold">🏋️ Gimnasio Fénix</a>
         <form method="POST" action="{{ route('portal.logout') }}">@csrf<button class="rounded-lg border border-white/30 px-3 py-1 text-sm hover:bg-white/10">Salir</button></form>
     </div>
+    <nav class="mx-auto flex max-w-3xl flex-wrap gap-1 px-4 py-2 text-sm">
+        @foreach ($enlaces as [$ruta, $texto])
+            <a href="{{ route($ruta) }}" class="whitespace-nowrap rounded px-3 py-1 hover:bg-slate-700 {{ request()->routeIs($ruta.'*') ? 'bg-slate-700' : '' }}">{{ $texto }}</a>
+        @endforeach
+    </nav>
 </header>
 <main class="mx-auto max-w-3xl px-4 py-6">
 {{ $slot }}
