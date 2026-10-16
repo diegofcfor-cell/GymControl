@@ -13,7 +13,7 @@
     @php
         $enlaces = [
             ['portal.inicio', 'Mi cuenta'], ['portal.asistencias', 'Asistencias'], ['portal.pagos', 'Pagos'],
-            ['portal.aptos', 'Apto médico'], ['portal.aforo', 'Aforo'], ['portal.preguntas', 'Preguntas'],
+            ['portal.aptos', 'Apto médico'], ['portal.rutina', 'Mi rutina'], ['portal.aforo', 'Aforo'], ['portal.preguntas', 'Preguntas'],
         ];
     @endphp
     <div class="mx-auto flex max-w-3xl items-center justify-between px-4 pt-3">
@@ -27,6 +27,9 @@
     </nav>
 </header>
 <main class="mx-auto max-w-3xl px-4 py-6">
+@if (session('ok'))
+    <div class="mb-4 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('ok') }}</div>
+@endif
 {{ $slot }}
 </main>
 @livewireScripts
