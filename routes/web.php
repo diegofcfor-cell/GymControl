@@ -3,10 +3,12 @@
 use App\Http\Controllers\AptoFisicoController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\Portal\AforoController;
 use App\Http\Controllers\Portal\AuthSocioController;
 use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\SocioController;
@@ -58,6 +60,8 @@ Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function (
         Route::delete('/socios/{socio}', [SocioController::class, 'destroy'])->name('socios.destroy');
         Route::post('/socios/{socio}/reactivar', [SocioController::class, 'restore'])->name('socios.restore')->withTrashed();
         Route::resource('membresias', MembresiaController::class)->except(['show', 'destroy']);
+        Route::get('/configuracion', [ConfiguracionController::class, 'edit'])->name('configuracion.edit');
+        Route::put('/configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
         Route::resource('operadores', OperadorController::class)->parameters(['operadores' => 'operador'])->except(['show', 'destroy']);
     });
 });
@@ -70,5 +74,6 @@ Route::prefix('socio')->name('portal.')->group(function () {
     Route::middleware('socio')->group(function () {
         Route::post('/logout', [AuthSocioController::class, 'logout'])->name('logout');
         Route::get('/', [PortalController::class, 'inicio'])->name('inicio');
+        Route::get('/aforo', [AforoController::class, 'index'])->name('aforo');
     });
 });

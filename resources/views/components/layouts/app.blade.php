@@ -19,6 +19,7 @@
         ['asistencias.index', 'Asistencias', null],
         ['membresias.index', 'Membresías', 'administrador'],
         ['operadores.index', 'Operadores', 'administrador'],
+        ['configuracion.edit', 'Configuración', 'administrador'],
     ];
 @endphp
 <nav class="bg-slate-900 text-white" x-data="{ abierto: false }">

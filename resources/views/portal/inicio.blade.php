@@ -6,6 +6,8 @@
     </p>
 </div>
 
+<div class="mb-4"><livewire:aforo-en-vivo /> <a href="{{ route('portal.aforo') }}" class="mt-2 inline-block text-sm text-slate-600 underline">Ver horas pico</a></div>
+
 <div class="grid gap-4 sm:grid-cols-3">
     <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-xs uppercase text-slate-500">Membresía</p>
         <p class="mt-1 text-lg font-semibold">{{ $socio->membresia->nombre }}</p>
