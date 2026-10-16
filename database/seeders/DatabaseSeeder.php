@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\AptoFisico;
 use App\Models\Asistencia;
 use App\Models\Membresia;
+use App\Models\PreguntaFrecuente;
 use App\Models\Socio;
 use App\Models\User;
 use App\Services\PagoService;
@@ -43,6 +44,17 @@ class DatabaseSeeder extends Seeder
             ['email' => 'recepcion@gymcontrol.test'],
             ['name' => 'María Recepción', 'password' => 'Recepcion1234!', 'rol' => User::ROL_RECEPCION, 'activo' => true]
         );
+        $preguntas = [
+            ['¿Cuál es el horario del gimnasio?', 'De lunes a viernes de 7 a 23 h y los sábados de 8 a 13 h. Domingos y feriados cerrado.', 'horario, hora, abren, cierran, abierto, sabado, domingo, feriado'],
+            ['¿Qué necesito para empezar?', 'Presentarte en recepción con tu DNI y un apto físico vigente, elegir un plan y abonar la primera cuota.', 'empezar, inscribirme, anotarme, requisitos, alta, apto, certificado'],
+            ['¿Cómo pago la cuota?', 'En recepción, en efectivo, débito o transferencia. La cuota se renueva desde la fecha de vencimiento.', 'pagar, pago, efectivo, transferencia, tarjeta, debito, renovar'],
+            ['¿Hay profesores o clases?', 'Hay profesores en sala en todo el horario. Consultá en recepción la grilla de clases grupales.', 'profesor, profe, instructor, clases, rutina, entrenador'],
+            ['¿Tienen vestuarios y duchas?', 'Sí, hay vestuarios con duchas y lockers. Traé tu candado.', 'vestuario, ducha, locker, banos, candado'],
+        ];
+        foreach ($preguntas as $i => [$pregunta, $respuesta, $claves]) {
+            PreguntaFrecuente::firstOrCreate(['pregunta' => $pregunta], ['respuesta' => $respuesta, 'palabras_clave' => $claves, 'orden' => $i + 1, 'activa' => true]);
+        }
+
         if (Socio::count() > 0) {
             return;
         }

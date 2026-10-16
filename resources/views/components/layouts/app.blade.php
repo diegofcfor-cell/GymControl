@@ -19,6 +19,7 @@
         ['asistencias.index', 'Asistencias', null],
         ['membresias.index', 'Membresías', 'administrador'],
         ['operadores.index', 'Operadores', 'administrador'],
+        ['preguntas.index', 'Preguntas', 'administrador'],
         ['configuracion.edit', 'Configuración', 'administrador'],
     ];
 @endphp

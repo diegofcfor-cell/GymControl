@@ -11,6 +11,8 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\Portal\AforoController;
 use App\Http\Controllers\Portal\AuthSocioController;
 use App\Http\Controllers\Portal\PortalController;
+use App\Http\Controllers\Portal\PreguntasController;
+use App\Http\Controllers\PreguntaFrecuenteController;
 use App\Http\Controllers\SocioController;
 use App\Livewire\PantallaAcceso;
 use App\Livewire\SociosIndex;
@@ -60,6 +62,7 @@ Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function (
         Route::delete('/socios/{socio}', [SocioController::class, 'destroy'])->name('socios.destroy');
         Route::post('/socios/{socio}/reactivar', [SocioController::class, 'restore'])->name('socios.restore')->withTrashed();
         Route::resource('membresias', MembresiaController::class)->except(['show', 'destroy']);
+        Route::resource('preguntas', PreguntaFrecuenteController::class)->except(['show']);
         Route::get('/configuracion', [ConfiguracionController::class, 'edit'])->name('configuracion.edit');
         Route::put('/configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
         Route::resource('operadores', OperadorController::class)->parameters(['operadores' => 'operador'])->except(['show', 'destroy']);
@@ -75,5 +78,6 @@ Route::prefix('socio')->name('portal.')->group(function () {
         Route::post('/logout', [AuthSocioController::class, 'logout'])->name('logout');
         Route::get('/', [PortalController::class, 'inicio'])->name('inicio');
         Route::get('/aforo', [AforoController::class, 'index'])->name('aforo');
+        Route::get('/preguntas', [PreguntasController::class, 'index'])->name('preguntas');
     });
 });

@@ -19,6 +19,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | Historial de asistencias | Filtros por socio y fechas, permanencia, informe PDF |
 | **Portal del socio** | En `/socio`, el socio ingresa con su DNI + PIN (bloqueo tras 5 intentos fallidos por DNI) y consulta su membresía, cuota, apto físico y sus últimas asistencias con la permanencia |
 | **Aforo en vivo** | En `/socio/aforo` el socio ve cuántas personas hay ahora respecto de la capacidad del local (verde / amarillo / rojo, se actualiza cada 30 s) y un gráfico de horas pico por día de la semana con el promedio de las últimas 4 semanas. El administrador define la capacidad en *Configuración* |
+| **Chatbot de preguntas frecuentes** | En `/socio/preguntas` el socio chatea con un asistente sin IA (sin costo de uso) que busca la respuesta por palabras clave, ignorando tildes y plurales. Planes/precios y "cuánta gente hay" se responden con los datos del sistema. El administrador carga las preguntas en *Preguntas* |
 | Dashboard (admin) | Socios al día/vencidos, presentes ahora, ingresos del día/mes, asistencias de 7 días |
 
 Roles: el **administrador** puede todo; el **recepcionista** opera socios, aptos, pagos, acceso e historiales, pero no accede a operadores, membresías, bajas ni dashboard económico.

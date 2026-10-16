@@ -15,6 +15,7 @@
             <a href="{{ route('portal.inicio') }}" class="mr-2 font-bold">🏋️ Fénix</a>
             <a href="{{ route('portal.inicio') }}" class="rounded px-3 py-1 text-sm hover:bg-slate-700 {{ request()->routeIs('portal.inicio') ? 'bg-slate-700' : '' }}">Mi cuenta</a>
             <a href="{{ route('portal.aforo') }}" class="rounded px-3 py-1 text-sm hover:bg-slate-700 {{ request()->routeIs('portal.aforo') ? 'bg-slate-700' : '' }}">Aforo</a>
+            <a href="{{ route('portal.preguntas') }}" class="rounded px-3 py-1 text-sm hover:bg-slate-700 {{ request()->routeIs('portal.preguntas') ? 'bg-slate-700' : '' }}">Preguntas</a>
         </div>
         <form method="POST" action="{{ route('portal.logout') }}">@csrf<button class="rounded-lg border border-white/30 px-3 py-1 text-sm hover:bg-white/10">Salir</button></form>
     </div>
