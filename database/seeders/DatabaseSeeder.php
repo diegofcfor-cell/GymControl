@@ -75,12 +75,6 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        if (Socio::count() > 0) {
-            return;
-        }
-
-        $pagos = app(PagoService::class);
-        $planes = Membresia::orderBy('precio')->get()->keyBy('nombre');
         $demo = [
             ['Juan', 'Pérez', '30111222', 'Básica', 0, true, '111111'],
             ['Lucía', 'Gómez', '32555666', 'Media', 0, true, '222222'],
@@ -88,6 +82,20 @@ class DatabaseSeeder extends Seeder
             ['Ana', 'Benítez', '35222111', 'Media', 45, true, '444444'],   // cuota vencida
             ['Martín', 'Acosta', '31999888', 'Básica', 0, false, '555555'], // sin apto físico
         ];
+
+        // Si la base ya tiene socios (no se borró entre deploys), solo se dejan los PIN de demostración como están documentados.
+        if (Socio::count() > 0) {
+            foreach ($demo as [, , $dni, , , , $pin]) {
+                if (! Socio::withTrashed()->where('pin', $pin)->where('dni', '!=', $dni)->exists()) {
+                    Socio::withTrashed()->where('dni', $dni)->update(['pin' => $pin]);
+                }
+            }
+
+            return;
+        }
+
+        $pagos = app(PagoService::class);
+        $planes = Membresia::orderBy('precio')->get()->keyBy('nombre');
         foreach ($demo as [$nombre, $apellido, $dni, $plan, $diasAtras, $conApto, $pin]) {
             $socio = Socio::create([
                 'membresia_id' => $planes[$plan]->id, 'user_id' => $recep->id, 'nombre' => $nombre, 'apellido' => $apellido,
