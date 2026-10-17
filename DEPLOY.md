@@ -25,6 +25,27 @@ git push -u origin main
 
 Para la presentación puede ponerse `SEED_DEMO=true` (socios de ejemplo) y volver a `false` después.
 
+## 2-bis. Alternativa gratuita para la demo (un solo Web Service, sin MySQL)
+Render → **New → Web Service** → repositorio GymControl → *Language: Docker* → plan *Free*. En *Environment Variables* cargar:
+
+| Name | Value |
+|---|---|
+| `APP_KEY` | botón *Generate* de Render |
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_URL` | la URL del servicio, p. ej. `https://gym-control.onrender.com` |
+| `APP_TIMEZONE` | `America/Argentina/Buenos_Aires` |
+| `APP_LOCALE` | `es` |
+| `LOG_CHANNEL` | `stderr` |
+| `DB_CONNECTION` | `sqlite` |
+| `SESSION_DRIVER` | `database` |
+| `CACHE_STORE` | `database` |
+| `ADMIN_EMAIL` | correo del administrador |
+| `ADMIN_PASSWORD` | contraseña del administrador (mínimo 8 caracteres) |
+| `SEED_DEMO` | `true` |
+
+La base SQLite vive dentro del contenedor: **se borra en cada deploy o reinicio** y vuelve a cargarse con los datos de demostración. Sirve para mostrar el sistema, no para usarlo en el gimnasio.
+
 ## 3. Verificación
 - `https://<tu-app>.onrender.com/up` responde 200.
 - Crear un socio → cargar apto → registrar pago → probar el PIN en *Pantalla de acceso*.
