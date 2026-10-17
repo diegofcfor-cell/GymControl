@@ -52,7 +52,7 @@ php artisan serve         # → http://localhost:8000
 **Cambiar estas contraseñas en producción** (variables `ADMIN_EMAIL` / `ADMIN_PASSWORD`).
 
 ### Probar el acceso
-1. Iniciar sesión → *Pantalla de acceso*.
+1. Iniciar sesión y abrir *Pantalla de acceso* desde el menú.
 2. Ingresar un PIN (se ve en la ficha de cada socio). Primer ingreso = **ingreso**; el mismo PIN otra vez = **egreso** con el tiempo de permanencia.
 3. Casos de demostración: Ana Benítez (cuota vencida) y Martín Acosta (sin apto físico) deben ser **denegados**.
 

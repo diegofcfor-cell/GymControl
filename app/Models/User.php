@@ -54,7 +54,7 @@ class User extends Authenticatable
         return match ($this->rol) {
             self::ROL_ADMIN => 'dashboard',
             self::ROL_PROFESOR => 'rutinas.index',
-            default => 'acceso',
+            default => 'socios.index',
         };
     }
 }
