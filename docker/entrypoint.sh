@@ -23,7 +23,13 @@ case "$APP_KEY" in
 esac
 
 mkdir -p storage/app/certificados storage/framework/cache storage/framework/sessions storage/framework/views
-chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+
+# Sin MySQL (por ejemplo, un único Web Service gratuito de Render) se usa SQLite dentro de storage/
+if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+  DB_DATABASE="${DB_DATABASE:-/var/www/html/storage/database.sqlite}"
+  export DB_DATABASE
+  touch "$DB_DATABASE"
+fi
 
 # Esperar a la base de datos (hasta ~60 s) y migrar
 if [ "${DB_CONNECTION:-sqlite}" = "mysql" ]; then
@@ -39,6 +45,9 @@ php artisan db:seed --force      # idempotente: crea planes y administrador si n
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+# Al final, para que Apache (www-data) pueda escribir también lo que crearon los comandos anteriores
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
 # Tareas programadas (vencimientos de aptos) cada minuto, en segundo plano
 ( while true; do php artisan schedule:run >> /dev/null 2>&1; sleep 60; done ) &
