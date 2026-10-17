@@ -32,6 +32,13 @@ class RolesTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_recepcionista_vuelve_a_socios_desde_la_pantalla_de_acceso(): void
+    {
+        $r = User::factory()->create();
+        $this->actingAs($r)->get('/acceso')->assertOk()->assertSee(route('inicio'));
+        $this->actingAs($r)->get('/panel')->assertRedirect('/socios');
+    }
+
     public function test_recepcionista_no_accede_a_secciones_de_administrador(): void
     {
         $r = User::factory()->create();
