@@ -82,16 +82,16 @@ class DatabaseSeeder extends Seeder
         $pagos = app(PagoService::class);
         $planes = Membresia::orderBy('precio')->get()->keyBy('nombre');
         $demo = [
-            ['Juan', 'Pérez', '30111222', 'Básica', 0, true],
-            ['Lucía', 'Gómez', '32555666', 'Media', 0, true],
-            ['Carlos', 'Romero', '28444333', 'Premium', 0, true],
-            ['Ana', 'Benítez', '35222111', 'Media', 45, true],   // cuota vencida
-            ['Martín', 'Acosta', '31999888', 'Básica', 0, false], // sin apto físico
+            ['Juan', 'Pérez', '30111222', 'Básica', 0, true, '111111'],
+            ['Lucía', 'Gómez', '32555666', 'Media', 0, true, '222222'],
+            ['Carlos', 'Romero', '28444333', 'Premium', 0, true, '333333'],
+            ['Ana', 'Benítez', '35222111', 'Media', 45, true, '444444'],   // cuota vencida
+            ['Martín', 'Acosta', '31999888', 'Básica', 0, false, '555555'], // sin apto físico
         ];
-        foreach ($demo as [$nombre, $apellido, $dni, $plan, $diasAtras, $conApto]) {
+        foreach ($demo as [$nombre, $apellido, $dni, $plan, $diasAtras, $conApto, $pin]) {
             $socio = Socio::create([
                 'membresia_id' => $planes[$plan]->id, 'user_id' => $recep->id, 'nombre' => $nombre, 'apellido' => $apellido,
-                'dni' => $dni, 'telefono' => '37045'.substr($dni, -5), 'estado' => 'activo', 'fecha_alta' => today()->subDays(60),
+                'dni' => $dni, 'pin' => $pin, 'telefono' => '37045'.substr($dni, -5), 'estado' => 'activo', 'fecha_alta' => today()->subDays(60),
             ]);
             $pagos->registrar($socio, $planes[$plan], 'efectivo', $recep, today()->subDays($diasAtras ?: 5));
             if ($conApto) {

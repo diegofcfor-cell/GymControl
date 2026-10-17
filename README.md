@@ -53,7 +53,7 @@ php artisan serve         # → http://localhost:8000
 
 ### Probar el acceso
 1. Iniciar sesión y abrir *Pantalla de acceso* desde el menú.
-2. Ingresar un PIN (se ve en la ficha de cada socio). Primer ingreso = **ingreso**; el mismo PIN otra vez = **egreso** con el tiempo de permanencia.
+2. Ingresar un PIN (se ve en la ficha de cada socio). Los socios de demostración tienen PIN fijo: Juan Pérez `111111`, Lucía Gómez `222222`, Carlos Romero `333333`, Ana Benítez `444444`, Martín Acosta `555555`; con su DNI y ese PIN también entran al portal del socio. Primer ingreso = **ingreso**; el mismo PIN otra vez = **egreso** con el tiempo de permanencia.
 3. Casos de demostración: Ana Benítez (cuota vencida) y Martín Acosta (sin apto físico) deben ser **denegados**.
 
 ### Probar el portal del socio
