@@ -12,7 +12,8 @@
     <div class="text-center">
         <p class="text-4xl">🏋️</p>
         <h1 class="mt-2 text-2xl font-bold text-slate-900">Gym Control</h1>
-        <p class="text-sm text-slate-500">Gimnasio Fénix · Acceso de operadores</p>
+        <p class="text-sm text-slate-500">Gimnasio Fénix · Acceso del personal</p>
+        <p class="mt-1 text-xs text-slate-400">Administración, recepción y profesores</p>
     </div>
     @error('email')<div class="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">{{ $message }}</div>@enderror
     <x-input name="email" label="Correo electrónico" type="email" required autofocus autocomplete="username" />
