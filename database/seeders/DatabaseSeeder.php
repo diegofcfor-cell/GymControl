@@ -106,15 +106,40 @@ class DatabaseSeeder extends Seeder
                 AptoFisico::create(['socio_id' => $socio->id, 'user_id' => $recep->id, 'fecha_emision' => today()->subMonths(2),
                     'fecha_vencimiento' => today()->addMonths(10), 'estado' => 'vigente']);
             }
-            if ($diasAtras === 0 && $conApto) {
-                foreach ([1, 2, 3] as $d) {
-                    Asistencia::create(['socio_id' => $socio->id, 'fecha' => today()->subDays($d)->toDateString(),
-                        'hora_ingreso' => '18:00:00', 'hora_salida' => '19:30:00', 'tiempo_permanencia' => '01:30:00']);
-                }
-            }
         }
+
+        $this->asistenciasDemo();
 
         SolicitudRutina::create(['socio_id' => Socio::where('dni', '30111222')->value('id'), 'objetivo' => 'Ganar masa muscular',
             'dias_por_semana' => 3, 'nivel' => 'principiante', 'comentarios' => 'Tuve una molestia en el hombro derecho.', 'estado' => 'pendiente']);
+    }
+
+    /**
+     * Cuatro semanas de ingresos con horarios típicos de gimnasio (mañana temprano y
+     * después del trabajo), para que el gráfico semanal de aforo tenga datos.
+     */
+    protected function asistenciasDemo(): void
+    {
+        // [DNI, días de la semana (0 = domingo), hora de ingreso, minutos]
+        $habitos = [
+            ['30111222', [1, 3, 5], '19:00', 90],
+            ['32555666', [2, 4, 6], '08:00', 75],
+            ['28444333', [1, 2, 3, 4, 5], '18:30', 90],
+            ['35222111', [1, 3], '19:30', 60],
+            ['31999888', [2, 4], '07:00', 60],
+        ];
+        foreach ($habitos as [$dni, $dias, $hora, $minutos]) {
+            $socioId = Socio::where('dni', $dni)->value('id');
+            for ($d = 1; $d <= 28; $d++) {
+                $fecha = today()->subDays($d);
+                if (! in_array($fecha->dayOfWeek, $dias, true)) {
+                    continue;
+                }
+                $ingreso = $fecha->copy()->setTimeFromTimeString($hora)->addMinutes(($d * 7) % 25); // variación de unos minutos
+                $salida = $ingreso->copy()->addMinutes($minutos);
+                Asistencia::create(['socio_id' => $socioId, 'fecha' => $fecha->toDateString(), 'hora_ingreso' => $ingreso->format('H:i:s'),
+                    'hora_salida' => $salida->format('H:i:s'), 'tiempo_permanencia' => sprintf('%02d:%02d:00', intdiv($minutos, 60), $minutos % 60)]);
+            }
+        }
     }
 }

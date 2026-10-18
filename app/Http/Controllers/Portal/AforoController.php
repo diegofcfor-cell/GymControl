@@ -13,9 +13,13 @@ class AforoController extends Controller
         $dia = (int) $request->integer('dia', today()->dayOfWeek);
         $dia = $dia >= 0 && $dia <= 6 ? $dia : today()->dayOfWeek;
 
-        $horas = $aforo->horasPico($dia);
+        $mapa = $aforo->mapaSemanal();
+        $horas = $mapa[$dia];
 
         return view('portal.aforo', [
+            'mapa' => $mapa,
+            'maxMapa' => max(1, ...array_map('max', $mapa)),
+            'masConcurridas' => $aforo->franjasMasConcurridas($mapa),
             'dia' => $dia,
             'horas' => $horas,
             'maxHoras' => max(1, max($horas)),

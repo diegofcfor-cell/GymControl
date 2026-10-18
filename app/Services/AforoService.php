@@ -69,13 +69,23 @@ class AforoService
      */
     public function horasPico(int $diaSemana): array
     {
+        return $this->mapaSemanal()[$diaSemana];
+    }
+
+    /**
+     * Horas pico de toda la semana en una sola consulta.
+     *
+     * @return array<int,array<int,float>> día de la semana (0 = domingo) => hora => promedio
+     */
+    public function mapaSemanal(): array
+    {
         $horas = array_fill_keys(range(self::HORA_APERTURA, self::HORA_CIERRE), 0);
+        $conteo = array_fill(0, 7, $horas);
 
         $desde = today()->subWeeks(self::SEMANAS_HISTORIAL);
         $asistencias = Asistencia::whereDate('fecha', '>=', $desde)
             ->whereDate('fecha', '<', today())
-            ->get(['fecha', 'hora_ingreso', 'hora_salida'])
-            ->filter(fn ($a) => $a->fecha->dayOfWeek === $diaSemana);
+            ->get(['fecha', 'hora_ingreso', 'hora_salida']);
 
         foreach ($asistencias as $a) {
             $ingreso = $a->momentoIngreso();
@@ -87,19 +97,41 @@ class AforoService
             foreach (array_keys($horas) as $h) {
                 $inicio = $a->fecha->copy()->setTime($h, 0);
                 if ($ingreso->lt($inicio->copy()->addHour()) && $salida->gt($inicio)) {
-                    $horas[$h]++;
+                    $conteo[$a->fecha->dayOfWeek][$h]++;
                 }
             }
         }
 
-        // Cantidad de días de ese tipo dentro del período (para promediar).
-        $dias = 0;
+        // Cantidad de días de cada tipo dentro del período (para promediar).
+        $dias = array_fill(0, 7, 0);
         for ($d = $desde->copy(); $d->lt(today()); $d->addDay()) {
-            if ($d->dayOfWeek === $diaSemana) {
-                $dias++;
-            }
+            $dias[$d->dayOfWeek]++;
         }
 
-        return array_map(fn ($n) => round($n / max(1, $dias), 1), $horas);
+        foreach ($conteo as $dia => $porHora) {
+            $conteo[$dia] = array_map(fn ($n) => round($n / max(1, $dias[$dia]), 1), $porHora);
+        }
+
+        return $conteo;
+    }
+
+    /**
+     * Las franjas (día y hora) con más gente en promedio, de mayor a menor.
+     *
+     * @return list<array{dia:int,hora:int,promedio:float}>
+     */
+    public function franjasMasConcurridas(array $mapa, int $cantidad = 3): array
+    {
+        $franjas = [];
+        foreach ($mapa as $dia => $porHora) {
+            foreach ($porHora as $hora => $promedio) {
+                if ($promedio > 0) {
+                    $franjas[] = ['dia' => $dia, 'hora' => $hora, 'promedio' => $promedio];
+                }
+            }
+        }
+        usort($franjas, fn ($a, $b) => [$b['promedio'], $a['dia'], $a['hora']] <=> [$a['promedio'], $b['dia'], $b['hora']]);
+
+        return array_slice($franjas, 0, $cantidad);
     }
 }

@@ -121,4 +121,38 @@ class AforoTest extends TestCase
 
         $this->assertSame(80, app(AforoService::class)->capacidad());
     }
+
+    public function test_mapa_semanal_y_franjas_mas_concurridas(): void
+    {
+        $a = $this->socio();
+        $b = $this->socio();
+        $lunes = today()->subWeek()->startOfWeek(); // lunes de la semana pasada
+        foreach ([$a, $b] as $s) {
+            Asistencia::create(['socio_id' => $s->id, 'fecha' => $lunes, 'hora_ingreso' => '19:00:00', 'hora_salida' => '19:50:00']);
+        }
+        Asistencia::create(['socio_id' => $a->id, 'fecha' => $lunes->copy()->addDay(), 'hora_ingreso' => '08:00:00', 'hora_salida' => '08:40:00']);
+
+        $aforo = app(AforoService::class);
+        $mapa = $aforo->mapaSemanal();
+
+        $this->assertSame([0, 1, 2, 3, 4, 5, 6], array_keys($mapa));
+        $this->assertSame(0.5, $mapa[1][19]); // 2 personas repartidas en los lunes del período
+        $this->assertSame(0.0, $mapa[1][20]);
+        $this->assertSame($mapa[1], $aforo->horasPico(1));
+
+        $top = $aforo->franjasMasConcurridas($mapa);
+        $this->assertCount(2, $top);
+        $this->assertSame(['dia' => 1, 'hora' => 19], ['dia' => $top[0]['dia'], 'hora' => $top[0]['hora']]);
+        $this->assertSame(2, $top[1]['dia']);
+
+        $this->withSession(['socio_id' => $a->id])->get('/socio/aforo')->assertOk()
+            ->assertSee('días y horarios con más gente')->assertSee('Lunes de 19 a 20 h')->assertSee('Martes de 8 a 9 h');
+    }
+
+    public function test_sin_historial_el_mapa_semanal_avisa_que_faltan_datos(): void
+    {
+        $s = $this->socio();
+        $this->withSession(['socio_id' => $s->id])->get('/socio/aforo')->assertOk()
+            ->assertSee('Todavía no hay datos suficientes. El gráfico se completa')->assertDontSee('Franjas más concurridas');
+    }
 }
