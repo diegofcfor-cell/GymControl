@@ -9,6 +9,23 @@
     </div>
 @endif
 
+<form method="GET" class="mb-4 flex max-w-4xl flex-wrap items-end gap-3 rounded-xl bg-white p-4 shadow-sm">
+    <div class="min-w-0 flex-1">
+        <label for="plantilla" class="mb-1 block text-sm font-medium text-slate-700">Partir de una rutina de la biblioteca</label>
+        <select id="plantilla" name="plantilla" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+            <option value="">{{ $rutina->exists ? '— Mantener los ejercicios actuales —' : '— Empezar de cero —' }}</option>
+            @foreach ($plantillas as $p)
+                <option value="{{ $p['codigo'] }}" @selected(($plantilla['codigo'] ?? null) === $p['codigo'])>{{ $p['nombre'] }} · {{ $p['dias'] }} días · {{ \App\Models\SolicitudRutina::NIVELES[$p['nivel']] }}</option>
+            @endforeach
+        </select>
+        <p class="mt-1 text-xs text-slate-500">Las primeras son las que mejor encajan con el pedido. Después podés ajustar todo antes de guardar. <a href="{{ route('rutinas.plantillas') }}" class="text-blue-700 hover:underline" target="_blank">Ver biblioteca</a></p>
+    </div>
+    <button class="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">Cargar</button>
+</form>
+@if ($plantilla)
+    <p class="mb-4 max-w-4xl rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">Cargada la rutina <strong>{{ $plantilla['nombre'] }}</strong>. Revisala y ajustala a este socio antes de guardar.</p>
+@endif
+
 @php $filas = old('ejercicios', $ejercicios); @endphp
 <form method="POST" action="{{ $rutina->exists ? route('rutinas.update', $rutina) : route('rutinas.store', $solicitud) }}" class="max-w-4xl space-y-4"
       x-data="{ filas: @js(array_values($filas)), agregar(dia) { this.filas.push({ dia: dia || (this.filas.at(-1)?.dia ?? 'Día 1'), ejercicio: '', series: null, repeticiones: '', descanso: '', notas: '' }) } }">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Rutina;
 use App\Models\SolicitudRutina;
+use App\Support\PlantillasRutina;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,15 +19,42 @@ class RutinaController extends Controller
         ]);
     }
 
-    public function create(SolicitudRutina $solicitud)
+    /** Biblioteca de rutinas base numeradas, filtrable por objetivo. */
+    public function plantillas(Request $request)
+    {
+        $objetivo = $request->query('objetivo');
+
+        return view('rutinas.plantillas', [
+            'plantillas' => PlantillasRutina::todas()->when($objetivo, fn ($c) => $c->where('objetivo', $objetivo)),
+            'objetivos' => SolicitudRutina::OBJETIVOS,
+            'objetivo' => $objetivo,
+        ]);
+    }
+
+    public function plantilla(string $codigo)
+    {
+        $plantilla = PlantillasRutina::buscar($codigo) ?? abort(404);
+
+        return view('rutinas.plantilla', [
+            'plantilla' => $plantilla,
+            'pendientes' => SolicitudRutina::with('socio')->pendientes()->oldest()->get(),
+        ]);
+    }
+
+    public function create(Request $request, SolicitudRutina $solicitud)
     {
         abort_unless($solicitud->estado === 'pendiente', 404);
+        $plantilla = PlantillasRutina::buscar($request->query('plantilla'));
 
         return view('rutinas.form', [
-            'rutina' => new Rutina(['nombre' => 'Rutina '.$solicitud->objetivo, 'objetivo' => $solicitud->objetivo]),
+            'rutina' => $plantilla
+                ? new Rutina(['nombre' => $plantilla['nombre'], 'objetivo' => $plantilla['objetivo'], 'observaciones' => $plantilla['observaciones']])
+                : new Rutina(['nombre' => 'Rutina '.$solicitud->objetivo, 'objetivo' => $solicitud->objetivo]),
             'socio' => $solicitud->socio,
             'solicitud' => $solicitud,
-            'ejercicios' => $this->filasIniciales($solicitud->dias_por_semana),
+            'ejercicios' => $plantilla ? PlantillasRutina::filas($plantilla) : $this->filasIniciales($solicitud->dias_por_semana),
+            'plantilla' => $plantilla,
+            'plantillas' => PlantillasRutina::sugeridas($solicitud->objetivo, $solicitud->dias_por_semana, $solicitud->nivel),
         ]);
     }
 
@@ -55,13 +83,24 @@ class RutinaController extends Controller
         return redirect()->route('rutinas.index')->with('ok', 'Rutina creada. El socio ya la ve en su portal.');
     }
 
-    public function edit(Rutina $rutina)
+    public function edit(Request $request, Rutina $rutina)
     {
+        $solicitud = SolicitudRutina::where('rutina_id', $rutina->id)->first();
+        $plantilla = PlantillasRutina::buscar($request->query('plantilla'));
+        if ($plantilla) {
+            // Solo se reemplaza en pantalla: no se guarda hasta que el profesor confirme.
+            $rutina->fill(['nombre' => $plantilla['nombre'], 'objetivo' => $plantilla['objetivo'], 'observaciones' => $plantilla['observaciones']]);
+        }
+
         return view('rutinas.form', [
             'rutina' => $rutina,
             'socio' => $rutina->socio,
-            'solicitud' => SolicitudRutina::where('rutina_id', $rutina->id)->first(),
-            'ejercicios' => $rutina->ejercicios->map->only(['dia', 'ejercicio', 'series', 'repeticiones', 'descanso', 'notas'])->all(),
+            'solicitud' => $solicitud,
+            'ejercicios' => $plantilla
+                ? PlantillasRutina::filas($plantilla)
+                : $rutina->ejercicios->map->only(['dia', 'ejercicio', 'series', 'repeticiones', 'descanso', 'notas'])->all(),
+            'plantilla' => $plantilla,
+            'plantillas' => PlantillasRutina::sugeridas($solicitud?->objetivo ?? $rutina->objetivo, $solicitud?->dias_por_semana, $solicitud?->nivel),
         ]);
     }
 
