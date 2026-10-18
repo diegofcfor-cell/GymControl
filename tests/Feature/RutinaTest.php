@@ -7,6 +7,7 @@ use App\Models\Rutina;
 use App\Models\Socio;
 use App\Models\SolicitudRutina;
 use App\Models\User;
+use App\Support\PlantillasRutina;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -130,6 +131,7 @@ class RutinaTest extends TestCase
         $admin = User::factory()->administrador()->create();
 
         $this->actingAs($recepcion)->get('/rutinas')->assertForbidden();
+        $this->actingAs($recepcion)->get('/rutinas/plantillas')->assertForbidden();
         $this->actingAs($admin)->get('/rutinas')->assertOk();
 
         // El profesor solo accede a rutinas.
@@ -150,5 +152,63 @@ class RutinaTest extends TestCase
         ])->assertRedirect('/operadores');
 
         $this->assertTrue(User::where('email', 'laura@gym.test')->first()->esProfesor());
+    }
+
+    public function test_la_biblioteca_lista_rutinas_numeradas_y_filtra_por_objetivo(): void
+    {
+        $this->actingAs($this->profesor)->get('/rutinas')->assertSee('Biblioteca de rutinas');
+        $this->actingAs($this->profesor)->get('/rutinas/plantillas')->assertOk()
+            ->assertSee('R01 · Masa muscular')->assertSee('R15 · Volver a entrenar');
+        $this->actingAs($this->profesor)->get('/rutinas/plantillas?objetivo=Tonificar')->assertOk()
+            ->assertSee('R07 · Tonificar')->assertDontSee('R01 · Masa muscular');
+
+        $s = $this->socio();
+        $pedido = $this->pedido($s);
+        $this->actingAs($this->profesor)->get('/rutinas/plantillas/r02')->assertOk()
+            ->assertSee('Día 4 · Pierna B')->assertSee('Peso muerto convencional')
+            ->assertSee(route('rutinas.create', [$pedido, 'plantilla' => 'R02']), false);
+        $this->actingAs($this->profesor)->get('/rutinas/plantillas/R99')->assertNotFound();
+
+        // Todos los objetivos que puede pedir un socio tienen al menos una rutina.
+        $this->assertEmpty(array_diff(SolicitudRutina::OBJETIVOS, PlantillasRutina::todas()->pluck('objetivo')->all()));
+    }
+
+    public function test_el_profesor_arma_la_rutina_partiendo_de_la_biblioteca(): void
+    {
+        $s = $this->socio();
+        $pedido = $this->pedido($s); // Tonificar, 2 días, principiante
+
+        // La que mejor encaja con el pedido aparece primera.
+        $this->assertSame('R07', PlantillasRutina::sugeridas('Tonificar', 2, 'principiante')->first()['codigo']);
+
+        $this->actingAs($this->profesor)->get("/rutinas/pedidos/{$pedido->id}/armar?plantilla=R07")->assertOk()
+            ->assertSee('Cargada la rutina')->assertSee('value="R07 · Tonificar · Full body 2 días"', false)->assertSee('Abducci', false);
+
+        $plantilla = PlantillasRutina::buscar('R07');
+        $this->actingAs($this->profesor)->post("/rutinas/pedidos/{$pedido->id}", [
+            'nombre' => $plantilla['nombre'], 'objetivo' => $plantilla['objetivo'], 'observaciones' => $plantilla['observaciones'],
+            'ejercicios' => PlantillasRutina::filas($plantilla),
+        ])->assertRedirect('/rutinas');
+
+        $rutina = $s->rutinas()->firstOrFail();
+        $this->assertSame(PlantillasRutina::cantidadEjercicios($plantilla), $rutina->ejercicios()->count());
+        $this->assertSame(['Día 1 · Full body A', 'Día 2 · Full body B'], $rutina->porDia()->keys()->all());
+
+        // Al editar se puede reemplazar por otra rutina de la biblioteca sin perder nada hasta guardar.
+        $this->actingAs($this->profesor)->get("/rutinas/{$rutina->id}/editar?plantilla=R09")->assertOk()->assertSee('Hip thrust con barra');
+        $this->assertSame('R07 · Tonificar · Full body 2 días', $rutina->fresh()->nombre);
+    }
+
+    public function test_todas_las_rutinas_de_la_biblioteca_pasan_la_validacion(): void
+    {
+        foreach (PlantillasRutina::todas() as $codigo => $p) {
+            $pedido = $this->pedido($this->socio($codigo));
+            $this->actingAs($this->profesor)->post("/rutinas/pedidos/{$pedido->id}", [
+                'nombre' => $p['nombre'], 'objetivo' => $p['objetivo'], 'observaciones' => $p['observaciones'],
+                'ejercicios' => PlantillasRutina::filas($p),
+            ])->assertSessionHasNoErrors()->assertRedirect('/rutinas');
+            $this->assertCount(count($p['semana']), array_unique(array_column(PlantillasRutina::filas($p), 'dia')), $codigo);
+            $this->assertSame($p['dias'], count($p['semana']), $codigo);
+        }
     }
 }

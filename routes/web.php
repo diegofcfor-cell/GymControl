@@ -38,6 +38,8 @@ Route::middleware(['auth', 'rol:administrador,recepcionista,profesor'])->group(f
 // Rutinas: las arma un profesor (o el administrador) a pedido del socio.
 Route::middleware(['auth', 'rol:administrador,profesor'])->group(function () {
     Route::get('/rutinas', [RutinaController::class, 'index'])->name('rutinas.index');
+    Route::get('/rutinas/plantillas', [RutinaController::class, 'plantillas'])->name('rutinas.plantillas');
+    Route::get('/rutinas/plantillas/{codigo}', [RutinaController::class, 'plantilla'])->name('rutinas.plantilla');
     Route::get('/rutinas/pedidos/{solicitud}/armar', [RutinaController::class, 'create'])->name('rutinas.create');
     Route::post('/rutinas/pedidos/{solicitud}', [RutinaController::class, 'store'])->name('rutinas.store');
     Route::get('/rutinas/{rutina}/editar', [RutinaController::class, 'edit'])->name('rutinas.edit');

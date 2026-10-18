@@ -1,5 +1,8 @@
 <x-layouts.app titulo="Rutinas">
-<h1 class="mb-4 text-2xl font-bold">Rutinas</h1>
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-2xl font-bold">Rutinas</h1>
+    <a href="{{ route('rutinas.plantillas') }}" class="rounded-lg border bg-white px-4 py-2 text-sm shadow-sm hover:bg-slate-50">Biblioteca de rutinas ({{ \App\Support\PlantillasRutina::todas()->count() }})</a>
+</div>
 
 <section class="mb-6">
     <h2 class="mb-2 font-semibold">Pedidos pendientes <span class="text-sm font-normal text-slate-500">({{ $pendientes->count() }})</span></h2>
