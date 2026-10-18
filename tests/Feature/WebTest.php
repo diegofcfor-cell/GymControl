@@ -25,7 +25,7 @@ class WebTest extends TestCase
             ->assertSee('Premium')->assertSee('$ 50.000')->assertDontSee('Vieja')
             ->assertSee('Sábados: 8 a 13 h')->assertSee('Funcional')->assertSee('Av. Siempre Viva 742')
             ->assertSee('Ahora en el gimnasio')->assertSee('¿Tenés dudas?')
-            ->assertSee(route('portal.login'));
+            ->assertSee(route('portal.login'))->assertSee(route('login'));
     }
 
     public function test_sin_datos_cargados_la_pagina_igual_funciona(): void

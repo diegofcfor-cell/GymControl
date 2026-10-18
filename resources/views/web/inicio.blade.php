@@ -101,7 +101,7 @@
             <a href="{{ route('portal.login') }}" class="mt-3 inline-block rounded-lg bg-white px-5 py-2.5 font-medium text-slate-900 hover:bg-slate-200">Ingresar al portal del socio</a>
         </div>
     </div>
-    <p class="border-t border-white/10 py-4 text-center text-xs text-slate-500">© {{ now()->year }} Gimnasio Fénix</p>
+    <p class="border-t border-white/10 py-4 text-center text-xs text-slate-500">© {{ now()->year }} Gimnasio Fénix · <a href="{{ route('login') }}" class="underline hover:text-slate-300">Ingreso del personal</a></p>
 </section>
 
 {{-- Chatbot flotante --}}
