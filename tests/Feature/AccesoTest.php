@@ -41,6 +41,8 @@ class AccesoTest extends TestCase
 
     public function test_ingreso_y_egreso_por_pin_calculan_permanencia(): void
     {
+        // Mediodía fijo: restar 90 minutos cerca de la medianoche cruzaría al día anterior.
+        $this->travelTo(today()->setTime(12, 0));
         $s = $this->socio();
         $svc = app(AccesoService::class);
 
