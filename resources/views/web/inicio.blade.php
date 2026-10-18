@@ -34,8 +34,35 @@
     </nav>
 </header>
 
-<section id="inicio" class="bg-slate-900 text-white">
-    <div class="mx-auto grid max-w-6xl gap-8 px-4 py-16 md:grid-cols-2 md:items-center">
+<section id="inicio" class="relative overflow-hidden bg-slate-900 text-white">
+    @if ($fotos)
+        {{-- Fondo: las fotos de public/img/portada pasan una tras otra con un acercamiento lento --}}
+        @php($segundos = 6)
+        <style>
+            .portada-foto { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; animation: portada-zoom {{ $segundos * count($fotos) }}s linear infinite; }
+            @if (count($fotos) > 1)
+            .portada-foto { animation: portada-pasar {{ $segundos * count($fotos) }}s linear infinite; }
+            @keyframes portada-pasar {
+                0% { opacity: 0; transform: scale(1); }
+                {{ round(100 / count($fotos) * 0.25, 2) }}% { opacity: 1; }
+                {{ round(100 / count($fotos), 2) }}% { opacity: 1; }
+                {{ round(100 / count($fotos) * 1.25, 2) }}% { opacity: 0; transform: scale(1.12); }
+                100% { opacity: 0; transform: scale(1.12); }
+            }
+            @else
+            .portada-foto { opacity: 1; animation-direction: alternate; }
+            @endif
+            @keyframes portada-zoom { from { transform: scale(1); } to { transform: scale(1.12); } }
+            @media (prefers-reduced-motion: reduce) { .portada-foto { animation: none; } .portada-foto:first-child { opacity: 1; } }
+        </style>
+        <div class="absolute inset-0" aria-hidden="true">
+            @foreach ($fotos as $i => $foto)
+                <div class="portada-foto" style="background-image: url('{{ $foto }}'); animation-delay: {{ $i * $segundos - $segundos * 0.25 }}s"></div>
+            @endforeach
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-slate-900/40" aria-hidden="true"></div>
+    @endif
+    <div class="relative mx-auto grid max-w-6xl gap-8 px-4 py-16 md:grid-cols-2 md:items-center md:py-24">
         <div>
             <h1 class="text-4xl font-bold leading-tight md:text-5xl">Entrená en Gimnasio Fénix</h1>
             <p class="mt-4 text-lg text-slate-300">{{ $web['descripcion'] ?: 'Musculación, entrenamiento y profesores en sala. Mirá cuánta gente hay antes de venir.' }}</p>
