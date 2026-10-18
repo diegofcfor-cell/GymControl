@@ -28,6 +28,19 @@ class WebTest extends TestCase
             ->assertSee(route('portal.login'))->assertSee(route('login'));
     }
 
+    public function test_la_portada_usa_las_fotos_de_la_carpeta(): void
+    {
+        $this->get('/')->assertOk()->assertDontSee('portada-foto');
+
+        $foto = public_path('img/portada/zz-prueba.jpg');
+        file_put_contents($foto, 'x');
+        try {
+            $this->get('/')->assertOk()->assertSee('portada-foto')->assertSee(asset('img/portada/zz-prueba.jpg'));
+        } finally {
+            unlink($foto);
+        }
+    }
+
     public function test_sin_datos_cargados_la_pagina_igual_funciona(): void
     {
         $this->get('/')->assertOk()->assertDontSee('id="horarios"', false)->assertSee('Consultanos en recepción');

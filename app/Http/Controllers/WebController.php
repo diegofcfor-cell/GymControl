@@ -17,7 +17,22 @@ class WebController extends Controller
             'servicios' => $this->lineas($web['servicios']),
             'horarios' => $this->lineas($web['horarios']),
             'planes' => Membresia::activas()->orderBy('precio')->get(),
+            'fotos' => $this->fotosPortada(),
         ]);
+    }
+
+    /**
+     * Fotos del fondo de la portada: las imágenes que haya en public/img/portada, en orden alfabético.
+     *
+     * @return array<int,string>
+     */
+    protected function fotosPortada(): array
+    {
+        $archivos = glob(public_path('img/portada/*')) ?: [];
+        $fotos = array_filter($archivos, fn ($f) => in_array(strtolower(pathinfo($f, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'], true));
+        sort($fotos);
+
+        return array_map(fn ($f) => asset('img/portada/'.rawurlencode(basename($f))), array_values($fotos));
     }
 
     /** @return array<int,string> */
