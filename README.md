@@ -17,11 +17,11 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | Aptos físicos | Carga del certificado (PDF/imagen, almacenado en disco privado) y control de vigencia |
 | **Pantalla de acceso** | Ingreso/egreso con PIN o QR (lector USB o cámara). Valida socio activo + cuota vigente + apto vigente. El egreso siempre se permite y calcula el tiempo de permanencia |
 | Historial de asistencias | Filtros por socio y fechas, permanencia, informe PDF |
-| **Página web pública** | En `/` se muestra la web del gimnasio: presentación, servicios, planes y precios (de las membresías activas), horarios, contacto, aforo en vivo, chatbot flotante y acceso al portal del socio. El administrador edita los textos en *Configuración*. Con sesión de operador, la web muestra el botón *Ir al panel* y el panel tiene el enlace *Ver web* |
+| **Página web pública** | En `/` se muestra la web del gimnasio: presentación, servicios, planes y precios (de las membresías activas), horarios, contacto, aforo en vivo, chatbot flotante y acceso al portal del socio. El administrador edita los textos en *Configuración*. La portada tiene fondo de fotos en movimiento tomadas de `public/img/portada/` (ver el `LEEME.md` de esa carpeta) y botones de acceso para socios y para el personal. Con sesión de operador, la web muestra el botón *Ir al panel* y el panel tiene el enlace *Ver web* |
 | **Portal del socio** | En `/socio`, el socio ingresa con su DNI + PIN (bloqueo tras 5 intentos fallidos por DNI) y consulta su membresía y cuota, el historial completo de asistencias con filtro por fechas, sus pagos con comprobante en PDF y sus constancias médicas (vigencia y descarga del archivo) |
 | **Aforo en vivo** | En `/socio/aforo` el socio ve cuántas personas hay ahora respecto de la capacidad del local (verde / amarillo / rojo, se actualiza cada 30 s) y un gráfico de horas pico por día de la semana con el promedio de las últimas 4 semanas. El administrador define la capacidad en *Configuración* |
 | **Chatbot de preguntas frecuentes** | En `/socio/preguntas` el socio chatea con un asistente sin IA (sin costo de uso) que busca la respuesta por palabras clave, ignorando tildes y plurales. Planes/precios y "cuánta gente hay" se responden con los datos del sistema. El administrador carga las preguntas en *Preguntas* |
-| **Rutinas con profesor** | En `/socio/rutina` el socio pide una rutina (objetivo, nivel, días por semana y comentarios). El profesor ve los pedidos en *Rutinas*, arma los ejercicios por día (series, repeticiones, descanso y notas) y el socio la ve en su portal. Una rutina nueva reemplaza a la anterior y el profesor puede editarla. El rol `profesor` solo accede a *Rutinas* |
+| **Rutinas con profesor** | En `/socio/rutina` el socio pide una rutina (objetivo, nivel, días por semana y comentarios). El profesor ve los pedidos en *Rutinas*, arma los ejercicios por día (series, repeticiones, descanso y notas) y el socio la ve en su portal. Para no empezar de cero, la *Biblioteca de rutinas* trae 15 rutinas semanales completas numeradas (R01 a R15) por objetivo, nivel y días; al armar la rutina se sugieren primero las que encajan con el pedido y el profesor las ajusta antes de guardar. Una rutina nueva reemplaza a la anterior y el profesor puede editarla. El rol `profesor` solo accede a *Rutinas* |
 | Dashboard (admin) | Socios al día/vencidos, presentes ahora, ingresos del día/mes, asistencias de 7 días |
 
 Roles: el **administrador** puede todo; el **recepcionista** opera socios, aptos, pagos, acceso e historiales, pero no accede a operadores, membresías, bajas ni dashboard económico.
@@ -64,7 +64,7 @@ php artisan serve         # → http://localhost:8000
 El usuario profesor de prueba solo existe si la base se sembró con `SEED_DEMO=true`. En cualquier instalación (por ejemplo Render), el administrador lo crea en *Operadores* eligiendo el rol *Profesor*.
 
 1. En el portal, entrar a *Mi rutina* y enviar un pedido.
-2. Iniciar sesión como profesor → *Rutinas* → *Armar rutina* en el pedido.
+2. Iniciar sesión como profesor → *Rutinas* → *Armar rutina* en el pedido. Elegir una rutina de la biblioteca y tocar *Cargar*, o escribirla de cero.
 3. Volver al portal: la rutina aparece agrupada por día.
 
 En una base ya instalada, correr `php artisan migrate` para crear las tablas de rutinas.
@@ -82,6 +82,7 @@ Ver `DEPLOY.md`.
 ```
 app/Services/AccesoService.php   reglas de ingreso/egreso y permanencia
 app/Services/PagoService.php     alta de pagos y cálculo de vencimiento
+app/Support/PlantillasRutina.php biblioteca de rutinas R01–R15 (editar acá para cambiarlas)
 app/Livewire/                    PantallaAcceso, SociosIndex
 app/Http/Controllers/            Socios, Pagos, Aptos, Asistencias, Membresías, Operadores, Rutinas, Dashboard
 database/migrations/             modelo ER (users, membresias, socios, pagos, aptos_fisicos, asistencias)
