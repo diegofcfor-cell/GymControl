@@ -1,9 +1,9 @@
 # Gym Control — guía para Claude
 
 Sistema web de gestión y control de asistencia del **Gimnasio Fénix** (Formosa). Es el **Trabajo Final
-Integrador (TIF)** de la Tecnicatura Universitaria en Programación, UTN FRRe sub sede Formosa (cátedra TIF,
-comisión 2.1: Mg. Federico Britez; profesor en los documentos del grupo: Eduardo Roig; tutora y Product Owner:
-Viviana Machuca). Equipo: Cardozo (backend), Heretichi (full stack, pruebas y despliegue), López (frontend).
+Integrador (TIF)** de la Tecnicatura Universitaria en Programación, UTN FRRe sub sede Formosa (profesor de la
+comisión: Eduardo Roig; tutora y Product Owner: Viviana Machuca). Equipo: Cardozo (backend), Heretichi (full
+stack, pruebas y despliegue), López (frontend).
 
 **Objetivo único de todo cambio:** que el sistema cumpla y *demuestre* los requerimientos conceptuales del TIF.
 Cada tarea tiene que poder explicarse en la defensa: qué requerimiento cubre, qué asignatura aplica y dónde está
