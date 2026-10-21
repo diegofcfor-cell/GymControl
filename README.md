@@ -23,6 +23,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | **Chatbot de preguntas frecuentes** | En `/socio/preguntas` el socio chatea con un asistente sin IA (sin costo de uso) que busca la respuesta por palabras clave, ignorando tildes y plurales. Planes/precios y "cuánta gente hay" se responden con los datos del sistema. El administrador carga las preguntas en *Preguntas* |
 | **Rutinas con profesor** | En `/socio/rutina` el socio pide una rutina (objetivo, nivel, días por semana y comentarios). El profesor ve los pedidos en *Rutinas*, arma los ejercicios por día (series, repeticiones, descanso y notas) y el socio la ve en su portal. Para no empezar de cero, la *Biblioteca de rutinas* trae 15 rutinas semanales completas numeradas (R01 a R15) por objetivo, nivel y días; al armar la rutina se sugieren primero las que encajan con el pedido y el profesor las ajusta antes de guardar. Una rutina nueva reemplaza a la anterior y el profesor puede editarla. El rol `profesor` solo accede a *Rutinas* |
 | Dashboard (admin) | Socios al día/vencidos, presentes ahora, ingresos del día/mes, asistencias de 7 días |
+| **API REST** | En `/api` (JSON): aforo público y, con token de Laravel Sanctum obtenido con DNI + PIN, el perfil y las asistencias del socio. Ver la sección *API REST* |
 
 Roles: el **administrador** puede todo; el **recepcionista** opera socios, aptos, pagos, acceso e historiales, pero no accede a operadores, membresías, bajas ni dashboard económico.
 
@@ -68,6 +69,26 @@ El usuario profesor de prueba solo existe si la base se sembró con `SEED_DEMO=t
 3. Volver al portal: la rutina aparece agrupada por día.
 
 En una base ya instalada, correr `php artisan migrate` para crear las tablas de rutinas.
+
+## API REST
+
+Respuestas en JSON. Las rutas del socio usan un token **Bearer** de Laravel Sanctum que vence a los 30 días.
+
+| Método | Ruta | Autenticación | Devuelve |
+|---|---|---|---|
+| GET | `/api/aforo` | Pública | Personas presentes, capacidad, porcentaje, nivel y franjas más concurridas |
+| POST | `/api/socio/login` | DNI + PIN (bloqueo tras 5 intentos por DNI) | `token`, `tipo` y `vence` |
+| GET | `/api/socio/perfil` | Token | Membresía, vencimiento de la cuota y del apto (sin PIN ni QR) |
+| GET | `/api/socio/asistencias` | Token | Historial paginado; filtros `desde` y `hasta` |
+| POST | `/api/socio/logout` | Token | Revoca el token usado |
+
+```bash
+curl http://localhost:8000/api/aforo
+curl -X POST http://localhost:8000/api/socio/login -d dni=30111222 -d pin=111111
+curl http://localhost:8000/api/socio/perfil -H "Authorization: Bearer <token>"
+```
+
+En una base ya instalada, correr `php artisan migrate` para crear la tabla `personal_access_tokens`.
 
 ## Pruebas automatizadas
 ```bash

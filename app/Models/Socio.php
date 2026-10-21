@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 
 class Socio extends Model
 {
-    use SoftDeletes;
+    use HasApiTokens, SoftDeletes;
 
     protected $table = 'socios';
 
