@@ -64,9 +64,11 @@ Usuarios de prueba (`SEED_DEMO=true`): `admin@gymcontrol.test` / `Admin1234!`, `
 ## Estructura
 
 ```
-app/Services/            reglas de negocio (Acceso, Pago, Aforo, Chatbot): acá va la lógica, no en el controlador
-app/Http/Controllers/    panel de operadores; Portal/ = portal del socio
-app/Http/Middleware/     RolMiddleware (`rol:administrador,recepcionista`), SocioAutenticado (`socio`)
+app/Services/            reglas de negocio (Acceso, Pago, Aforo, Chatbot, AutenticacionSocio): acá va la lógica
+app/Http/Controllers/    panel de operadores; Portal/ = portal del socio; Api/ = API REST
+app/Http/Middleware/     RolMiddleware (`rol:`), SocioAutenticado (`socio`), SocioConToken (`socio.token`)
+app/Http/Requests/       Form Requests (código nuevo); Resources/ = respuestas JSON de la API
+routes/api.php           API REST: /api/aforo pública; /api/socio/* con token de Sanctum (DNI + PIN)
 app/Livewire/            PantallaAcceso, SociosIndex, AforoEnVivo, ChatbotFaq
 app/Models/              Eloquent; Socio usa SoftDeletes (baja lógica)
 app/Support/             PlantillasRutina (biblioteca R01–R15)
@@ -130,7 +132,7 @@ Legislación). Al hacer un cambio, reforzá la evidencia de la fila que correspo
 
 | Asignatura | Conceptos que hay que demostrar | Evidencia en el proyecto |
 |---|---|---|
-| Programación I–IV | Algoritmos, POO, MVC, ciclo de una petición (index.php → middleware → ruta → controlador → modelo → vista), Controlador → Servicio → Repositorio, Eloquent, autenticación, Policies, Form Request, APIs REST con Sanctum, tiempo real con Reverb + Echo | `routes/web.php`, `app/Http`, `app/Models`, `app/Services`, componentes Livewire |
+| Programación I–IV | Algoritmos, POO, MVC, ciclo de una petición (index.php → middleware → ruta → controlador → modelo → vista), Controlador → Servicio → Repositorio, Eloquent, autenticación, Policies, Form Request, APIs REST con Sanctum, tiempo real con Reverb + Echo | `routes/web.php`, `routes/api.php`, `app/Http`, `app/Models`, `app/Services`, componentes Livewire |
 | Base de Datos I y II | MER → modelo relacional, PK/FK, integridad referencial, normalización 1FN–3FN, índices, DDL/DML, funciones agregadas, GROUP BY/HAVING, respaldos | `database/migrations`, consultas del dashboard y de `AforoService`, `mysqldump` en `DEPLOY.md` |
 | Metodología de Sistemas I y II | Análisis, casos de uso, UML, ciclo de vida; Git y PR, SOLID, patrones de diseño, refactorización, deuda técnica, CI/CD, verificación y validación, pirámide de pruebas | Ramas y PR en GitHub, `app/Services`, `.github/workflows/tests.yml`, `tests/Feature` |
 | Gestión de Desarrollo de Software | Ciclo de vida y modelos de proceso, Scrum/Kanban, ingeniería de requerimientos, ERS IEEE, casos de uso, alcance y EDT, Puntos de Función, COCOMO, PERT, ISO/IEC 25010, KPIs, manuales | RF01–RF09, RNF01–RNF06 y HU1–HU12 del Plan; Gantt y PERT; README (manual técnico) |
@@ -235,13 +237,15 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    suma el rol **profesor**, el **portal del socio**, el **aforo**, el **chatbot** y las **rutinas**. Faltan
    sus RF e HU, casos de uso del socio y del profesor, la matriz de permisos y el modelo ER (`configuraciones`,
    `preguntas_frecuentes`, rutinas).
-2. **Sin API REST ni Sanctum** (Programación IV y Guía del TIF, que pide API REST en la arquitectura): no hay
-   `routes/api.php`. Un candidato natural es exponer el aforo o el historial del socio como API.
+2. ~~Sin API REST ni Sanctum~~ **resuelta:** `routes/api.php` expone el aforo público y el perfil y las
+   asistencias del socio con tokens de Sanctum (ver README, sección *API REST*).
 3. **Sin tiempo real con WebSockets** (Programación IV): el aforo se actualiza con `wire:poll.30s`. Reverb +
    Echo permitirían emitir un evento en cada ingreso o egreso.
-4. **Sin Form Requests ni Policies** (Programación IV): la validación está en los controladores.
-5. **CI incompleto** (Metodología II): `.github/workflows/tests.yml` corre en push a `master`, pero la rama
-   principal es `main`, y no ejecuta Pint como linter.
+4. **Pocas Form Requests y sin Policies** (Programación IV): solo la API usa Form Request
+   (`LoginSocioRequest`); el resto valida en los controladores.
+5. ~~CI incompleto~~ **resuelta:** `.github/workflows/tests.yml` corre en `main` y en cada PR con
+   instalación → Pint (`pint --test`) → pruebas. Falta que la regla de la rama `main` exija el check en verde
+   (se configura en GitHub, Settings → Rules).
 6. **Falta `docs/DEUDA-TECNICA.md`** y la documentación de los 4 patrones con su rama y PR (Metodología II).
 7. **Convenciones Git:** las ramas existentes usan `feature/…` y los commits no siguen `tipo(ámbito):`. Desde
    ahora, usar la convención de la cátedra.
