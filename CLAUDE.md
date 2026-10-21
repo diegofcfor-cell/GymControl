@@ -218,7 +218,7 @@ Legislación). Al hacer un cambio, reforzá la evidencia de la fila que correspo
   tiene derecho de acceso, rectificación y supresión (hábeas data, art. 43 C.N.). El portal del socio cubre el
   acceso; la baja lógica conserva el historial, así que hay que justificar por qué se conservan esos datos.
 - **Ley 11.723 de Propiedad Intelectual:** protege el software y las bases de datos (la expresión, no la idea).
-  Hay que definir quién es titular de Gym Control (equipo o gimnasio) y bajo qué licencia se entrega.
+  Gym Control pertenece al Grupo 13 y se entrega con licencia de uso de prueba gratuita (`LICENSE`).
 - **Ley 25.506 de Firma Digital:** la firma digital presume autoría e integridad; los comprobantes PDF del
   sistema no están firmados digitalmente, por lo que no tienen ese valor.
 - **Ley 26.388 de Delitos Informáticos:** acceso indebido, phishing y daño a datos. Justifica el límite de
@@ -249,8 +249,8 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
 6. **Falta `docs/DEUDA-TECNICA.md`** y la documentación de los 4 patrones con su rama y PR (Metodología II).
 7. **Convenciones Git:** las ramas existentes usan `feature/…` y los commits no siguen `tipo(ámbito):`. Desde
    ahora, usar la convención de la cátedra.
-8. **Licencia y titularidad** (Legislación): `composer.json` declara licencia MIT (software libre), pero el
-   sistema es software a medida para el Gimnasio Fénix. Hay que decidir titular y licencia y documentarlo.
+8. ~~Licencia y titularidad~~ **resuelta:** titular el Grupo 13 (Cardozo, Heretichi, López); el Gimnasio
+   Fénix usa la versión de prueba gratuita y las próximas versiones serán pagas. Ver `LICENSE` (Ley 11.723).
 9. **Datos personales** (Legislación): no hay texto de privacidad ni consentimiento para los datos de salud,
    ni un procedimiento para que el socio pida rectificar o suprimir sus datos.
 

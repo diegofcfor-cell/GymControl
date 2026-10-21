@@ -99,6 +99,11 @@ Cubren: PIN/QR únicos, ingreso/egreso y permanencia, cuota vencida, apto vencid
 ## Despliegue en Render
 Ver `DEPLOY.md`.
 
+## Licencia
+
+Software propietario. Titular: **Grupo 13** (Cardozo, Diego Fabián · Heretichi, Adriana · López, Gabriela Elvira).
+El Gimnasio Fénix usa la **versión de prueba gratuita**; las versiones futuras serán pagas. Ver [`LICENSE`](LICENSE).
+
 ## Estructura
 ```
 app/Services/AccesoService.php   reglas de ingreso/egreso y permanencia
