@@ -1,0 +1,62 @@
+GYM CONTROL — LICENCIA DE USO DE LA VERSIÓN DE PRUEBA GRATUITA
+
+Copyright (c) 2026 Grupo 13. Todos los derechos reservados.
+
+Titulares: Grupo 13, integrado por
+  - Cardozo, Diego Fabián
+  - Heretichi, Adriana
+  - López, Gabriela Elvira
+
+Gym Control (el "Software") es una obra protegida por la Ley 11.723 de Propiedad
+Intelectual de la República Argentina. Los derechos patrimoniales sobre el código
+fuente, la base de datos, la documentación y las versiones futuras pertenecen al
+Grupo 13.
+
+1. Objeto
+   El Grupo 13 otorga al Gimnasio Fénix (Formosa), en adelante el "Licenciatario",
+   una licencia de uso gratuita, no exclusiva e intransferible de la versión de
+   prueba del Software, para la gestión interna de su propio establecimiento.
+
+2. Lo que el Licenciatario puede hacer
+   - Instalar y usar el Software para administrar sus socios, pagos, aptos físicos
+     y asistencias.
+   - Hacer copias de respaldo de sus propios datos.
+
+3. Lo que el Licenciatario no puede hacer sin autorización escrita del Grupo 13
+   - Copiar, modificar, distribuir, vender, alquilar o sublicenciar el Software.
+   - Usarlo en otros establecimientos o ceder esta licencia a terceros.
+   - Quitar o alterar este aviso de titularidad.
+
+4. Versiones futuras
+   Esta licencia cubre solo la versión de prueba gratuita. Las versiones
+   posteriores, las nuevas funcionalidades y el soporte técnico serán pagos, con
+   precio y condiciones que se acordarán por separado. Aceptar esta licencia no
+   obliga al Licenciatario a contratar versiones pagas.
+
+5. Duración
+   La duración del período de prueba se acuerda por escrito entre las partes.
+   Al terminar, el Licenciatario puede contratar una versión paga o dejar de usar
+   el Software y conservar una copia de sus datos.
+
+6. Datos personales
+   Los datos que el Licenciatario carga en el Software son de su propiedad. El
+   Licenciatario es responsable de su tratamiento conforme a la Ley 25.326 de
+   Protección de Datos Personales, en especial de los datos de salud (aptos
+   físicos).
+
+7. Uso académico
+   El Grupo 13 puede presentar el Software, su código y su documentación como
+   Trabajo Final Integrador de la Tecnicatura Universitaria en Programación
+   (UTN FRRe), sin incluir datos personales reales del Licenciatario.
+
+8. Garantía
+   La versión de prueba se entrega "tal como está", sin garantía de
+   funcionamiento ininterrumpido ni libre de errores. El Grupo 13 corregirá los
+   errores que se informen en la medida de sus posibilidades.
+
+9. Software de terceros
+   El Software usa componentes de código abierto (Laravel, Livewire, Tailwind CSS,
+   DomPDF, Simple QrCode, entre otros) que conservan sus propias licencias.
+
+10. Ley aplicable
+    Esta licencia se rige por las leyes de la República Argentina.
