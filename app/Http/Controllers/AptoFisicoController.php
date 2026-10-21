@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AptoFisico;
 use App\Models\Socio;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,7 +24,7 @@ class AptoFisicoController extends Controller
             'user_id' => $request->user()->id,
             'fecha_emision' => $datos['fecha_emision'],
             'fecha_vencimiento' => $datos['fecha_vencimiento'],
-            'estado' => \Carbon\Carbon::parse($datos['fecha_vencimiento'])->gte(today()) ? 'vigente' : 'vencido',
+            'estado' => Carbon::parse($datos['fecha_vencimiento'])->gte(today()) ? 'vigente' : 'vencido',
             'archivo' => $ruta,
         ]);
 
