@@ -76,7 +76,8 @@ app/Support/             PlantillasRutina (biblioteca R01–R15)
 app/Console/Commands/    gym:actualizar-vencimientos (programado en routes/console.php)
 database/migrations/     modelo ER; las nuevas llevan fecha 2026_MM_DD_
 resources/views/         Blade por módulo; pdf/ para informes; components/layouts/ app, kiosco y portal
-tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Portal, Aforo, Chatbot, Rutina, Web)
+tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Portal, Aforo, Chatbot, Rutina, Web, Gestion, Privacidad)
+tests/Unit/              reglas puras sin base de datos (período de pago, nivel de aforo, permanencia, chatbot)
 ```
 
 ## Convenciones del código (respetarlas)
@@ -95,7 +96,8 @@ tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Portal, Af
   veces?, 2) ¿el cambio es probable o imaginario?, 3) ¿qué consecuencia negativa introduce? Si no hay
   respuesta, no se aplica. Al refactorizar, borrar el código viejo (no dejarlo "por las dudas").
 - Dependencias solo con Composer o npm; nunca copiar código de terceros a mano.
-- Todo cambio de comportamiento lleva su prueba en `tests/Feature`. Antes de terminar: `php artisan test` y
+- Todo cambio de comportamiento lleva su prueba en `tests/Feature`; un cálculo puro (sin base de datos) va además
+  en `tests/Unit`. Antes de terminar: `php artisan test` y
   `vendor/bin/pint`.
 - Si cambia una funcionalidad, actualizar la tabla de funcionalidades de `README.md` (y `DEPLOY.md` si cambia
   el despliegue).
