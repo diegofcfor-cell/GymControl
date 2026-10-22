@@ -26,6 +26,7 @@ Las capturas se tomaron con los datos de demostración del sistema, por lo que n
 | Recepcionista | Correo y contraseña en `/login` | Atiende el mostrador: socios, aptos físicos, pagos, pantalla de acceso e historiales |
 | Administrador | Correo y contraseña en `/login` | Todo lo del recepcionista, más el dashboard económico, bajas, membresías, operadores, preguntas frecuentes, configuración y pedidos sobre datos personales |
 | Profesor | Correo y contraseña en `/login` | Ve los pedidos de rutina de los socios y los arma |
+| Terminal de acceso | Correo y contraseña en `/login`, una sola vez en la tablet o PC de la entrada | Solo abre la pantalla de acceso donde los socios marcan su PIN o QR; no ve socios, pagos ni importes |
 | Socio | DNI y PIN en `/socio/login` | Consulta su cuenta, el aforo, el chatbot, pide una rutina y ejerce sus derechos sobre sus datos |
 | Visitante | No necesita cuenta | Ve la web pública del gimnasio |
 
@@ -69,8 +70,13 @@ Es la primera pantalla del recepcionista. Reúne lo que se usa en el mostrador:
 
 ### 4.2 Pantalla de acceso (ingreso y egreso)
 
-Es la pantalla que queda abierta en la tablet o PC de la entrada. Necesita que un recepcionista o administrador
-haya iniciado sesión.
+Es la pantalla que queda abierta en la tablet o PC de la entrada. Lo recomendable es iniciar sesión ahí con una
+cuenta de rol **Terminal de acceso** (la crea el administrador en *Operadores*): esa cuenta va directo a esta
+pantalla y no puede abrir ninguna otra, así que si alguien escribe otra dirección en el navegador de la tablet no ve
+datos de socios ni importes. Para cerrar la terminal, el administrador la desactiva en *Operadores*. En una tablet
+Android conviene además **fijar la pantalla** (*screen pinning*) para que no se pueda salir del navegador.
+
+Un recepcionista o administrador también puede abrirla:
 
 1. Abrir **Pantalla de acceso** desde el menú.
 2. El socio escribe su **PIN** de 6 dígitos y presiona **Registrar**, o pasa su credencial por el lector de QR.

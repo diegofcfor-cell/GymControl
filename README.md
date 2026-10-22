@@ -19,7 +19,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | Pagos | Registro de cobros; actualiza automáticamente el vencimiento; historial filtrable e imprimible |
 | Aptos físicos | Carga del certificado (PDF/imagen, almacenado en disco privado) y control de vigencia. Solo se carga si el socio aceptó el aviso de privacidad |
 | **Privacidad (Ley 25.326)** | Aviso de privacidad público en `/privacidad`, enlazado desde la web y el portal. En el alta, el socio acepta el aviso y se guarda la fecha; a los socios anteriores se les registra desde *Editar*. Sin consentimiento no se cargan datos de salud. En *Mis datos* del portal, el socio ve sus datos personales y pide rectificarlos o suprimirlos; el administrador responde en *Datos personales* dentro de los 5 días hábiles del art. 16 (los vencidos se marcan en rojo) |
-| **Pantalla de acceso** | Ingreso/egreso con PIN o QR (lector USB o cámara). Valida socio activo + cuota vigente + apto vigente + tope de horas del plan, y si rechaza muestra todos los motivos. El egreso siempre se permite y calcula el tiempo de permanencia. Cada ingreso, egreso y rechazo (con su motivo) queda en el log de la aplicación, identificado solo por el id del socio |
+| **Pantalla de acceso** | Ingreso/egreso con PIN o QR (lector USB o cámara). Valida socio activo + cuota vigente + apto vigente + tope de horas del plan, y si rechaza muestra todos los motivos. El egreso siempre se permite y calcula el tiempo de permanencia. Cada ingreso, egreso y rechazo (con su motivo) queda en el log de la aplicación, identificado solo por el id del socio. Para la tablet o PC de la entrada existe el rol **terminal de acceso**, que solo abre esta pantalla (mínimo privilegio, HU31) |
 | Historial de asistencias | Filtros por socio y fechas, permanencia, informe PDF |
 | **Página web pública** | En `/` se muestra la web del gimnasio: presentación, servicios, planes y precios (de las membresías activas), horarios, contacto, aforo en vivo, chatbot flotante y acceso al portal del socio. El administrador edita los textos en *Configuración*. La portada tiene fondo de fotos en movimiento tomadas de `public/img/portada/` (ver el `LEEME.md` de esa carpeta) y botones de acceso para socios y para el personal. Con sesión de operador, la web muestra el botón *Ir al panel* y el panel tiene el enlace *Ver web* |
 | **Portal del socio** | En `/socio`, el socio ingresa con su DNI + PIN (bloqueo tras 5 intentos fallidos por DNI) y consulta su membresía y cuota, el historial completo de asistencias con filtro por fechas, sus pagos con comprobante en PDF y sus constancias médicas (vigencia y descarga del archivo) |
@@ -54,6 +54,7 @@ php artisan serve         # → http://localhost:8000
 | Administrador | `admin@gymcontrol.test` | `Admin1234!` |
 | Recepcionista | `recepcion@gymcontrol.test` | `Recepcion1234!` |
 | Profesor | `profesor@gymcontrol.test` | `Profesor1234!` |
+| Terminal de acceso | `terminal@gymcontrol.test` | `Terminal1234!` |
 
 **En producción no usar estas contraseñas.** El administrador inicial se crea una sola vez con `ADMIN_EMAIL` / `ADMIN_PASSWORD` (en producción no hay contraseña por defecto); después se cambia desde *Mi contraseña*. Ver `DEPLOY.md`, sección 3-ter.
 
