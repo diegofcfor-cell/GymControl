@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Asistencia;
 use App\Models\Socio;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\RateLimiter;
 
 /**
@@ -87,12 +88,9 @@ class AccesoService
     protected function egreso(Socio $socio, Asistencia $abierta): array
     {
         $ahora = now();
-        $segundos = (int) max(0, floor($abierta->momentoIngreso()->diffInSeconds($ahora, false)));
-        $segundos = min($segundos, 86399);
-
         $abierta->update([
             'hora_salida' => $ahora->format('H:i:s'),
-            'tiempo_permanencia' => gmdate('H:i:s', $segundos),
+            'tiempo_permanencia' => $this->calcularPermanencia($abierta->momentoIngreso(), $ahora),
         ]);
 
         $aviso = null;
@@ -104,6 +102,14 @@ class AccesoService
         $permanencia = $abierta->fresh()->permanenciaTexto();
 
         return $this->resultado(true, 'egreso', '¡Hasta pronto!', $socio, [], $ahora->format('H:i'), $permanencia, $aviso);
+    }
+
+    /** Permanencia en formato H:i:s, entre 00:00:00 (salida anterior al ingreso) y 23:59:59 (tope de un día). */
+    public function calcularPermanencia(Carbon $ingreso, Carbon $salida): string
+    {
+        $segundos = (int) max(0, floor($ingreso->diffInSeconds($salida, false)));
+
+        return gmdate('H:i:s', min($segundos, 86399));
     }
 
     protected function topeAlcanzado(Socio $socio): bool

@@ -19,12 +19,7 @@ class PagoService
     {
         return DB::transaction(function () use ($socio, $membresia, $metodo, $operador, $fechaPago) {
             $fechaPago = ($fechaPago ?? today())->copy()->startOfDay();
-
-            $desde = $fechaPago->copy();
-            if ($socio->fecha_vencimiento && $socio->fecha_vencimiento->gte($fechaPago)) {
-                $desde = $socio->fecha_vencimiento->copy()->addDay();
-            }
-            $hasta = $desde->copy()->addDays($membresia->duracion_dias - 1);
+            ['desde' => $desde, 'hasta' => $hasta] = $this->calcularPeriodo($fechaPago, $socio->fecha_vencimiento, $membresia->duracion_dias);
 
             $pago = Pago::create([
                 'socio_id' => $socio->id,
@@ -45,5 +40,20 @@ class PagoService
 
             return $pago;
         });
+    }
+
+    /**
+     * Período que cubre un pago: si la cuota vigente vence el día del pago o después, empieza al día siguiente del
+     * vencimiento; si no, empieza el día del pago. Termina duracionDias − 1 días después del inicio.
+     *
+     * @return array{desde:Carbon,hasta:Carbon}
+     */
+    public function calcularPeriodo(Carbon $fechaPago, ?Carbon $vencimientoActual, int $duracionDias): array
+    {
+        $desde = $vencimientoActual && $vencimientoActual->gte($fechaPago)
+            ? $vencimientoActual->copy()->addDay()
+            : $fechaPago->copy();
+
+        return ['desde' => $desde, 'hasta' => $desde->copy()->addDays($duracionDias - 1)];
     }
 }
