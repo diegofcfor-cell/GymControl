@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $titulo }} · Gym Control</title>
+    <x-tiempo-real />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>

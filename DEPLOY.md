@@ -44,11 +44,31 @@ Render → **New → Web Service** → repositorio GymControl → *Language: Doc
 | `ADMIN_PASSWORD` | contraseña del administrador (mínimo 8 caracteres) |
 | `SEED_DEMO` | `true` |
 
+Para el aforo en tiempo real (ver sección 3-bis) agregar también `BROADCAST_CONNECTION` = `reverb`, `REVERB_APP_ID`
+= `gym-control`, `REVERB_APP_KEY` y `REVERB_APP_SECRET` = botón *Generate*, `REVERB_HOST` = `127.0.0.1`,
+`REVERB_PORT` = `8080` y `REVERB_SCHEME` = `http`. Sin esas variables el sistema funciona igual y el aforo se
+actualiza cada 30 segundos.
+
 La base SQLite vive dentro del contenedor: **se borra en cada deploy o reinicio** y vuelve a cargarse con los datos de demostración. Sirve para mostrar el sistema, no para usarlo en el gimnasio.
 
 ## 3. Verificación
 - `https://<tu-app>.onrender.com/up` responde 200.
 - Crear un socio → cargar apto → registrar pago → probar el PIN en *Pantalla de acceso*.
+
+## 3-bis. Aforo en tiempo real (Reverb)
+- **Cómo funciona.** Laravel Reverb (servidor de WebSockets) corre dentro del mismo contenedor web, en
+  `127.0.0.1:8080`. Lo inicia `docker/entrypoint.sh` cuando `BROADCAST_CONNECTION=reverb`, y lo reinicia si se
+  cae. Render expone un solo puerto por servicio, así que Apache le pasa las conexiones de `/app/`
+  (`docker/reverb-proxy.conf`, módulo `proxy_wstunnel`). El navegador se conecta a `wss://<tu-app>.onrender.com/app/...`
+  sin puertos extra.
+- **Costo.** No suma servicios: corre en el mismo web service.
+- **Blueprint.** `render.yaml` ya trae las variables: la clave y el secreto se generan solos. Si el servicio se
+  creó antes, abrir el Blueprint en Render y aplicar los cambios (*Sync*) para que se agreguen.
+- **Verificación.** En el log del servicio aparece `Starting server on 127.0.0.1:8080`. Con el portal abierto en
+  un navegador, registrar un ingreso en la *Pantalla de acceso*: el número del aforo cambia en el acto, sin
+  esperar los 30 segundos.
+- **Si falla.** Si Reverb no responde, el ingreso se registra igual: el error queda en el log y el aforo se
+  sigue actualizando cada 30 s con `wire:poll`.
 
 ## 4. Respaldos
 Desde el *Shell* del servicio de base de datos:

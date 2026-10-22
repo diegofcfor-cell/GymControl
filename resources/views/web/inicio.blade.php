@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gimnasio Fénix</title>
     <meta name="description" content="{{ \Illuminate\Support\Str::limit($web['descripcion'] ?: 'Gimnasio Fénix: planes, horarios y aforo en vivo.', 155) }}">
+    <x-tiempo-real />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>

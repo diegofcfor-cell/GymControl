@@ -66,7 +66,7 @@ decisión (art. 1757 CCyC).
 
 **Las tres preguntas.**
 1. ¿Se repite? Hay dos interesados en el mismo hecho: el registro de auditoría (ya implementado) y el aviso en
-   tiempo real (planificado en HU25).
+   tiempo real (HU25, ya implementado: listener `TransmitirAforo`).
 2. ¿El cambio es probable? Sí: HU25 ya está en el Sprint 4, y otros interesados posibles son las estadísticas
    o una notificación a recepción.
 3. ¿Qué consecuencia negativa introduce? El flujo deja de leerse de corrido (ver abajo).

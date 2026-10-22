@@ -50,7 +50,8 @@ SQLite en local y en tests · DomPDF · Simple QrCode · PHPUnit 11 · Docker ·
 composer setup                 # primera vez sin Docker: deps, .env, clave, SQLite, migrate --seed, build
 composer run dev               # servidor + cola + logs (pail) + Vite
 php artisan serve              # solo el servidor → http://localhost:8000
-docker compose up --build      # alternativa con Docker → http://localhost:8000
+docker compose up --build      # alternativa con Docker → http://localhost:8000 (incluye Reverb)
+php artisan reverb:start       # WebSockets sin Docker (BROADCAST_CONNECTION=reverb, REVERB_CLIENT_PORT=8080)
 php artisan test               # todas las pruebas (SQLite en memoria, ver phpunit.xml)
 php artisan test --filter=AccesoTest
 vendor/bin/pint                # formato de código (estilo Laravel); --test solo verifica
@@ -73,7 +74,7 @@ app/Policies/            permisos por registro: SocioPolicy, AptoFisicoPolicy, R
 routes/api.php           API REST: /api/aforo pública; /api/socio/* con token de Sanctum (DNI + PIN)
 app/Livewire/            PantallaAcceso, SociosIndex, AforoEnVivo, ChatbotFaq
 app/Models/              Eloquent; Socio usa SoftDeletes (baja lógica)
-app/Events/, Listeners/   eventos de acceso (Ingreso, Egreso, AccesoDenegado) y RegistrarAccesoEnLog (Observer)
+app/Events/, Listeners/   eventos de acceso y AforoActualizado (broadcast); RegistrarAccesoEnLog y TransmitirAforo (Observer)
 app/Repositories/        AsistenciaRepository: consultas que comparten varios módulos (presentes hoy)
 app/Support/             PlantillasRutina (biblioteca R01–R15)
 app/Console/Commands/    gym:actualizar-vencimientos (programado en routes/console.php)
@@ -297,8 +298,10 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    `preguntas_frecuentes`, rutinas).
 2. ~~Sin API REST ni Sanctum~~ **resuelta:** `routes/api.php` expone el aforo público y el perfil y las
    asistencias del socio con tokens de Sanctum (ver README, sección *API REST*).
-3. **Sin tiempo real con WebSockets** (Programación IV): el aforo se actualiza con `wire:poll.30s`. Reverb +
-   Echo permitirían emitir un evento en cada ingreso o egreso.
+3. ~~Sin tiempo real con WebSockets~~ **resuelta** (HU25): el listener `TransmitirAforo` emite
+   `AforoActualizado` (`ShouldBroadcastNow`, canal público `aforo`) en cada ingreso o egreso; Reverb corre en el
+   mismo contenedor detrás de Apache (`docker/reverb-proxy.conf`) y Echo refresca `AforoEnVivo`. `wire:poll.30s`
+   queda como respaldo. No hay canales privados ni de presencia (no hacen falta).
 4. ~~Pocas Form Requests y sin Policies~~ **resuelta:** todo formulario que guarda datos valida con una Form
    Request (`app/Http/Requests`) y hay Policies para socios, aptos y rutinas (`app/Policies`). Solo los filtros
    de búsqueda por GET (historial del portal y asistencias de la API) validan en el controlador.

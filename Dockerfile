@@ -19,14 +19,17 @@ FROM php:8.3-apache
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libicu-dev libonig-dev unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" pdo_mysql gd zip intl mbstring bcmath opcache \
-    && a2enmod rewrite headers \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql gd zip intl mbstring bcmath opcache pcntl \
+    && a2enmod rewrite headers proxy proxy_http proxy_wstunnel \
     && rm -rf /var/lib/apt/lists/*
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri 's#/var/www/html#${APACHE_DOCUMENT_ROOT}#g' /etc/apache2/sites-available/*.conf /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
     && printf '<Directory /var/www/html/public>\n    AllowOverride All\n    Require all granted\n</Directory>\n' > /etc/apache2/conf-available/gym.conf \
     && a2enconf gym
+# WebSockets: Apache pasa /app al servidor de Reverb (127.0.0.1:8080), así el navegador usa el mismo dominio y puerto
+COPY docker/reverb-proxy.conf /etc/apache2/conf-available/reverb-proxy.conf
+RUN a2enconf reverb-proxy
 COPY docker/php.ini /usr/local/etc/php/conf.d/gym.ini
 
 WORKDIR /var/www/html

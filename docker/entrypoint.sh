@@ -49,6 +49,12 @@ php artisan view:cache
 # Al final, para que Apache (www-data) pueda escribir también lo que crearon los comandos anteriores
 chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
+# Servidor de WebSockets (Reverb) para el aforo en tiempo real, solo si está activado. Escucha solo dentro del
+# contenedor; Apache le pasa /app (ver docker/reverb-proxy.conf). Si se cae, se vuelve a iniciar a los 5 s.
+if [ "${BROADCAST_CONNECTION:-}" = "reverb" ]; then
+  ( while true; do php artisan reverb:start --host=127.0.0.1 --port=8080; sleep 5; done ) &
+fi
+
 # Tareas programadas (vencimientos de aptos) cada minuto, en segundo plano
 ( while true; do php artisan schedule:run >> /dev/null 2>&1; sleep 60; done ) &
 
