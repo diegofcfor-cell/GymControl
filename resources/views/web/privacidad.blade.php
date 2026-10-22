@@ -58,7 +58,7 @@
             <li><strong>Acceso</strong> (art. 14): podés consultar tus datos en el portal del socio o pedirlos en recepción. Es gratuito si lo pedís con intervalos de al menos seis meses.</li>
             <li><strong>Rectificación, actualización y supresión</strong> (art. 16): podés pedir que corrijamos o eliminemos tus datos; respondemos dentro de los cinco días hábiles.</li>
         </ul>
-        <p class="mt-2">Para ejercerlos, acercate a recepción o escribinos a los datos de contacto de arriba.</p>
+        <p class="mt-2">Para ejercerlos, entrá a <a href="{{ route('portal.mis-datos') }}" class="underline">Mis datos</a> en el portal del socio, acercate a recepción o escribinos a los datos de contacto de arriba.</p>
     </section>
 
     <section>

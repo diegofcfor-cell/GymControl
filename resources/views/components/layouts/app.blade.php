@@ -21,6 +21,7 @@
         ['membresias.index', 'Membresías', ['administrador']],
         ['operadores.index', 'Operadores', ['administrador']],
         ['preguntas.index', 'Preguntas', ['administrador']],
+        ['solicitudes-datos.index', 'Datos personales', ['administrador']],
         ['configuracion.edit', 'Configuración', ['administrador']],
     ];
 @endphp
