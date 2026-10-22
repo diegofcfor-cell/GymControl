@@ -6,7 +6,7 @@
 
 ## 1. Propósito
 
-El Plan de Trabajo TFI v2 especifica nueve requerimientos funcionales (RF01–RF09), seis no funcionales
+El Plan de Trabajo aprobado por el profesor Eduardo Roig (versión final, presentada el 14/10/2026) especifica nueve requerimientos funcionales (RF01–RF09), seis no funcionales
 (RNF01–RNF06) y doce historias de usuario (HU1–HU12) para dos actores: administrador y recepcionista. Durante el
 desarrollo se incorporaron funcionalidades que el Plan no describe: la página web pública, el portal del socio,
 la consulta de aforo, el chatbot de preguntas frecuentes, las rutinas armadas por un profesor y una API REST.
@@ -15,6 +15,28 @@ Este documento completa la especificación para que sea **trazable** en el senti
 requerimiento nuevo se vincula con su historia de usuario, con el código que lo implementa y con la prueba
 automatizada que lo verifica. Las funcionalidades ya están implementadas y probadas; lo que se agrega aquí es su
 especificación formal.
+
+## 1 bis. Relación con el Plan aprobado
+
+El Plan de Trabajo y su anexo *Maquetación y base de datos de Gym Control* son la línea base del alcance. Este
+documento no los reemplaza: los amplía. La Tabla A resume qué se mantiene igual y qué cambió.
+
+**Tabla A.** Comparación entre el Plan aprobado y el sistema implementado.
+
+| Tema | Plan aprobado | Sistema implementado | Situación |
+|---|---|---|---|
+| Modelo de datos núcleo | Seis tablas (Tablas 3 a 8 del diccionario de datos) | Las mismas seis tablas, con los mismos tipos, longitudes, nulos y restricciones únicas | Coincide |
+| Reglas de negocio | Cuota al día, ingreso con tres condiciones, egreso siempre permitido, tope de horas | `AccesoService`, `PagoService` y `app/Services/ReglasIngreso` | Coincide |
+| Roles | Administrador y recepcionista | Se suma el profesor (RF13) | Ampliación |
+| Socio | "No opera el sistema: solo se identifica con su PIN o QR" | Además usa el portal del socio con DNI y PIN (RF10) | Ampliación |
+| Autenticación | "No se incorporan tokens de acceso ni API externa" | API REST con tokens de Sanctum (RF14) | Ampliación |
+| Tablas | Seis más las de soporte de Laravel | Se suman `configuraciones`, `preguntas_frecuentes`, rutinas, `solicitudes_datos`, `personal_access_tokens` y `socios.consentimiento_datos_at` (sección 7) | Ampliación |
+| Accesos denegados | Tabla de auditoría como mejora futura | El evento `AccesoDenegado` se registra en el log con el motivo (HU21); no hay tabla | Parcial |
+| Panel de recepción | Figura 3: buscador rápido, socios en sala y accesos recientes | El recepcionista entra al listado de socios (`User::rutaInicio()`) | Pendiente |
+
+Las ampliaciones siguen el procedimiento de la Tabla 7 del Plan (riesgo "Cambios de alcance"): se validan con la
+Product Owner al inicio del sprint. Ninguna modifica las seis tablas aprobadas, de modo que el modelo relacional del
+Plan sigue vigente y las tablas nuevas se agregan con migraciones propias.
 
 ## 2. Actores
 

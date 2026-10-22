@@ -167,6 +167,10 @@ El Plan del TIF solo tiene las columnas de administrador y recepcionista (ver "B
 
 ## Planificación del Plan de Trabajo
 
+El Plan aprobado (versión final, presentada el 14/10/2026) y su anexo *Maquetación y base de datos* son la línea
+base del alcance; `docs/plan-actualizacion.md` (sección 1 bis) compara ese Plan con lo implementado. Las seis
+tablas núcleo coinciden columna por columna con su diccionario de datos.
+
 450 horas de equipo (150 por integrante) en 13 semanas (65 días hábiles): 5 semanas de análisis y diseño y
 4 sprints de 2 semanas. Scrum Master: Heretichi. Product Owner: la tutora.
 
@@ -181,7 +185,7 @@ Las funciones posteriores (portal, aforo, chatbot, rutinas, API) todavía no tie
 
 ## Mapa del TIF: asignatura → concepto → dónde se ve en Gym Control
 
-Fuentes: Tabla 9 del *Plan de Trabajo TFI v2* (13/10/2026), guía de coloquio de Base de Datos I, exámenes de
+Fuentes: Tabla 9 del *Plan de Trabajo* aprobado por Roig (versión final, presentada el 14/10/2026), guía de coloquio de Base de Datos I, exámenes de
 Programación IV y los seis resúmenes de cátedra que compartió Diego (Guía del TIF, Programación IV,
 Metodología de Sistemas II, Gestión de Desarrollo de Software, Introducción al Análisis de Datos y
 Legislación). Al hacer un cambio, reforzá la evidencia de la fila que corresponda.
@@ -320,6 +324,9 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    desde *Mis datos* del portal, que responde el administrador en 5 días hábiles (`solicitudes_datos`, HU27).
    Responder no borra datos: la supresión real sigue siendo la baja lógica, y hay que justificar en la defensa
    por qué se conserva el historial de pagos.
+
+10. **Panel de recepción** (Figura 3 de la maquetación aprobada): buscador rápido, socios en sala y accesos
+    recientes. Hoy el recepcionista entra al listado de socios (`User::rutaInicio()`).
 
 ## Fuentes de esta guía
 
