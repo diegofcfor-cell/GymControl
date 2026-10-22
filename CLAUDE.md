@@ -67,7 +67,8 @@ Usuarios de prueba (`SEED_DEMO=true`): `admin@gymcontrol.test` / `Admin1234!`, `
 app/Services/            reglas de negocio (Acceso, Pago, Aforo, Chatbot, AutenticacionSocio): acá va la lógica
 app/Http/Controllers/    panel de operadores; Portal/ = portal del socio; Api/ = API REST
 app/Http/Middleware/     RolMiddleware (`rol:`), SocioAutenticado (`socio`), SocioConToken (`socio.token`)
-app/Http/Requests/       Form Requests (código nuevo); Resources/ = respuestas JSON de la API
+app/Http/Requests/       Form Requests de cada formulario; Resources/ = respuestas JSON de la API
+app/Policies/            permisos por registro: SocioPolicy, AptoFisicoPolicy, RutinaPolicy
 routes/api.php           API REST: /api/aforo pública; /api/socio/* con token de Sanctum (DNI + PIN)
 app/Livewire/            PantallaAcceso, SociosIndex, AforoEnVivo, ChatbotFaq
 app/Models/              Eloquent; Socio usa SoftDeletes (baja lógica)
@@ -84,8 +85,8 @@ tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Portal, Af
   `aptos_fisicos`). Los textos de la interfaz también en español.
 - Controladores delgados (SRP): Controlador → Servicio (`app/Services`, con un docblock que enumere las reglas)
   → Modelo Eloquent. Inyectar los servicios por parámetro (DIP), no crearlos con `new` dentro de la clase.
-- Validación: con Form Request (`php artisan make:request`), que es lo que pide Programación IV. Los
-  controladores que todavía usan `$request->validate(...)` se migran en HU18 (plan aprobado por Diego).
+- Validación: con Form Request (`php artisan make:request`), que es lo que pide Programación IV. Cada clase lleva
+  un docblock con sus reglas de negocio, igual que los servicios.
 - Permisos por rol con el middleware `rol:` en `routes/web.php`; para permisos sobre un registro puntual, usar
   Policies. El portal del socio usa su propia sesión (`socio_id`) y el middleware `socio`. Nunca mezclar las
   dos sesiones.
@@ -288,9 +289,9 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    asistencias del socio con tokens de Sanctum (ver README, sección *API REST*).
 3. **Sin tiempo real con WebSockets** (Programación IV): el aforo se actualiza con `wire:poll.30s`. Reverb +
    Echo permitirían emitir un evento en cada ingreso o egreso.
-4. **Form Requests y Policies en curso** (Programación IV): socios, aptos y membresías ya validan con Form
-   Request y usan `SocioPolicy` y `AptoFisicoPolicy`. Faltan pagos, operadores, preguntas, configuración y
-   rutinas (HU18 y HU19, Sprint 3).
+4. ~~Pocas Form Requests y sin Policies~~ **resuelta:** todo formulario que guarda datos valida con una Form
+   Request (`app/Http/Requests`) y hay Policies para socios, aptos y rutinas (`app/Policies`). Solo los filtros
+   de búsqueda por GET (historial del portal y asistencias de la API) validan en el controlador.
 5. ~~CI incompleto~~ **resuelta:** `.github/workflows/tests.yml` corre en `main` y en cada PR con
    instalación → Pint (`pint --test`) → pruebas. Falta que la regla de la rama `main` exija el check en verde
    (se configura en GitHub, Settings → Rules).

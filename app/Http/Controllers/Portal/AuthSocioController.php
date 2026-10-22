@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginSocioRequest;
 use App\Services\AutenticacionSocioService;
 use Illuminate\Http\Request;
 
@@ -17,12 +18,9 @@ class AuthSocioController extends Controller
         return view('portal.login');
     }
 
-    public function login(Request $request, AutenticacionSocioService $autenticacion)
+    public function login(LoginSocioRequest $request, AutenticacionSocioService $autenticacion)
     {
-        $datos = $request->validate([
-            'dni' => ['required', 'string', 'max:15'],
-            'pin' => ['required', 'digits:6'],
-        ]);
+        $datos = $request->validated();
 
         ['socio' => $socio, 'error' => $error] = $autenticacion->intentar($datos['dni'], $datos['pin']);
 

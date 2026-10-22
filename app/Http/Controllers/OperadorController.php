@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OperadorRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class OperadorController extends Controller
 {
@@ -18,15 +17,9 @@ class OperadorController extends Controller
         return view('operadores.form', ['operador' => new User(['rol' => User::ROL_RECEPCION, 'activo' => true])]);
     }
 
-    public function store(Request $request)
+    public function store(OperadorRequest $request)
     {
-        $datos = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'rol' => ['required', Rule::in(User::ROLES)],
-        ]);
-        User::create($datos + ['activo' => true]);
+        User::create($request->safe()->except('activo') + ['activo' => true]);
 
         return redirect()->route('operadores.index')->with('ok', 'Operador creado.');
     }
@@ -36,15 +29,9 @@ class OperadorController extends Controller
         return view('operadores.form', compact('operador'));
     }
 
-    public function update(Request $request, User $operador)
+    public function update(OperadorRequest $request, User $operador)
     {
-        $datos = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($operador->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'rol' => ['required', Rule::in(User::ROLES)],
-            'activo' => ['nullable', 'boolean'],
-        ]);
+        $datos = $request->validated();
 
         $datos['activo'] = $request->boolean('activo');
 

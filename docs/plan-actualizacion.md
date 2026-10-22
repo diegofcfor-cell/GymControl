@@ -354,8 +354,8 @@ verifica, y también en sentido inverso.
 | RF10 Portal del socio | HU13 | `app/Http/Controllers/Portal/AuthSocioController.php`, `PortalController.php`, `HistorialController.php`, `app/Services/AutenticacionSocioService.php`, `app/Http/Middleware/SocioAutenticado.php` | `PortalSocioTest` (9), `PortalHistorialTest` (5) |
 | RF11 Consulta de aforo | HU14 | `app/Services/AforoService.php`, `app/Livewire/AforoEnVivo.php`, `app/Http/Controllers/Portal/AforoController.php` | `AforoTest` (9) |
 | RF12 Chatbot | HU15 | `app/Services/ChatbotService.php`, `app/Livewire/ChatbotFaq.php`, `PreguntaFrecuenteController.php` | `ChatbotTest` (7) |
-| RF13 Rutinas | HU16 | `RutinaController.php`, `app/Http/Controllers/Portal/RutinaSocioController.php`, `app/Support/PlantillasRutina.php` | `RutinaTest` (10) |
-| RF14 API REST | HU17 | `routes/api.php`, `app/Http/Controllers/Api/`, `app/Http/Requests/Api/LoginSocioRequest.php`, `app/Http/Resources/`, `app/Http/Middleware/SocioConToken.php` | `ApiTest` (11) |
+| RF13 Rutinas | HU16 | `RutinaController.php`, `app/Http/Controllers/Portal/RutinaSocioController.php`, `app/Support/PlantillasRutina.php`, `app/Http/Requests/RutinaRequest.php`, `app/Policies/RutinaPolicy.php` | `RutinaTest` (11) |
+| RF14 API REST | HU17 | `routes/api.php`, `app/Http/Controllers/Api/`, `app/Http/Requests/LoginSocioRequest.php`, `app/Http/Resources/`, `app/Http/Middleware/SocioConToken.php` | `ApiTest` (11) |
 | RF15 Web pública | HU28 | `WebController.php`, `ConfiguracionController.php`, `resources/views/web/` | `WebTest` (7) |
 
 Los controladores están en `app/Http/Controllers/` y las pruebas en `tests/Feature/`.
