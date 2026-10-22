@@ -14,13 +14,12 @@
             <a href="{{ route('pagos.create', $socio) }}" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-white">Registrar pago</a>
         @endunless
         <a href="{{ route('socios.ficha', $socio) }}" target="_blank" class="rounded-lg border bg-white px-3 py-1.5">Ficha PDF</a>
-        @if (auth()->user()->esAdministrador())
-            @if ($socio->trashed())
-                <form method="POST" action="{{ route('socios.restore', $socio) }}">@csrf<button class="rounded-lg bg-slate-900 px-3 py-1.5 text-white">Reactivar</button></form>
-            @else
-                <form method="POST" action="{{ route('socios.destroy', $socio) }}" onsubmit="return confirm('¿Dar de baja a este socio? Se conserva su historial.')">@csrf @method('DELETE')<button class="rounded-lg bg-red-600 px-3 py-1.5 text-white">Dar de baja</button></form>
-            @endif
-        @endif
+        @can('restore', $socio)
+            <form method="POST" action="{{ route('socios.restore', $socio) }}">@csrf<button class="rounded-lg bg-slate-900 px-3 py-1.5 text-white">Reactivar</button></form>
+        @endcan
+        @can('delete', $socio)
+            <form method="POST" action="{{ route('socios.destroy', $socio) }}" onsubmit="return confirm('¿Dar de baja a este socio? Se conserva su historial.')">@csrf @method('DELETE')<button class="rounded-lg bg-red-600 px-3 py-1.5 text-white">Dar de baja</button></form>
+        @endcan
     </div>
 </div>
 

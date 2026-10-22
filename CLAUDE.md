@@ -84,9 +84,8 @@ tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Portal, Af
   `aptos_fisicos`). Los textos de la interfaz también en español.
 - Controladores delgados (SRP): Controlador → Servicio (`app/Services`, con un docblock que enumere las reglas)
   → Modelo Eloquent. Inyectar los servicios por parámetro (DIP), no crearlos con `new` dentro de la clase.
-- Validación: el código existente usa `$request->validate($this->reglas())`. Para **controladores nuevos** usar
-  Form Request (`php artisan make:request`), que es lo que pide Programación IV. No reescribir lo existente sin
-  pedido.
+- Validación: con Form Request (`php artisan make:request`), que es lo que pide Programación IV. Los
+  controladores que todavía usan `$request->validate(...)` se migran en HU18 (plan aprobado por Diego).
 - Permisos por rol con el middleware `rol:` en `routes/web.php`; para permisos sobre un registro puntual, usar
   Policies. El portal del socio usa su propia sesión (`socio_id`) y el middleware `socio`. Nunca mezclar las
   dos sesiones.
@@ -289,8 +288,9 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    asistencias del socio con tokens de Sanctum (ver README, sección *API REST*).
 3. **Sin tiempo real con WebSockets** (Programación IV): el aforo se actualiza con `wire:poll.30s`. Reverb +
    Echo permitirían emitir un evento en cada ingreso o egreso.
-4. **Pocas Form Requests y sin Policies** (Programación IV): solo la API usa Form Request
-   (`LoginSocioRequest`); el resto valida en los controladores.
+4. **Form Requests y Policies en curso** (Programación IV): socios, aptos y membresías ya validan con Form
+   Request y usan `SocioPolicy` y `AptoFisicoPolicy`. Faltan pagos, operadores, preguntas, configuración y
+   rutinas (HU18 y HU19, Sprint 3).
 5. ~~CI incompleto~~ **resuelta:** `.github/workflows/tests.yml` corre en `main` y en cada PR con
    instalación → Pint (`pint --test`) → pruebas. Falta que la regla de la rama `main` exija el check en verde
    (se configura en GitHub, Settings → Rules).

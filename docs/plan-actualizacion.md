@@ -342,32 +342,37 @@ verifica, y también en sentido inverso.
 
 | RF | HU | Código principal | Prueba que lo verifica |
 |---|---|---|---|
-| RF10 | HU13 | `app/Http/Controllers/Portal/AuthSocioController.php`, `PortalController.php`, `HistorialController.php`, `app/Services/AutenticacionSocioService.php`, `app/Http/Middleware/SocioAutenticado.php` | `tests/Feature/PortalSocioTest.php` (9 pruebas), `tests/Feature/PortalHistorialTest.php` (5) |
-| RF11 | HU14 | `app/Services/AforoService.php`, `app/Livewire/AforoEnVivo.php`, `app/Http/Controllers/Portal/AforoController.php` | `tests/Feature/AforoTest.php` (9) |
-| RF12 | HU15 | `app/Services/ChatbotService.php`, `app/Livewire/ChatbotFaq.php`, `app/Http/Controllers/PreguntaFrecuenteController.php` | `tests/Feature/ChatbotTest.php` (7) |
-| RF13 | HU16 | `app/Http/Controllers/RutinaController.php`, `app/Http/Controllers/Portal/RutinaSocioController.php`, `app/Support/PlantillasRutina.php` | `tests/Feature/RutinaTest.php` (10) |
-| RF14 | HU17 | `routes/api.php`, `app/Http/Controllers/Api/`, `app/Http/Requests/Api/LoginSocioRequest.php`, `app/Http/Resources/`, `app/Http/Middleware/SocioConToken.php` | `tests/Feature/ApiTest.php` (11) |
-| RF15 | HU28 | `app/Http/Controllers/WebController.php`, `app/Http/Controllers/ConfiguracionController.php`, `resources/views/web/` | `tests/Feature/WebTest.php` (7) |
+| RF01 Gestión de usuarios y sesión | HU1, HU12 | `AuthController.php`, `app/Http/Middleware/RolMiddleware.php`, `routes/web.php` | `RolesTest` (6 pruebas) |
+| RF02 Gestión de socios | HU2, HU5 | `SocioController.php`, `app/Http/Requests/SocioRequest.php`, `app/Policies/SocioPolicy.php`, `app/Livewire/SociosIndex.php`, `Socio::booted()` (PIN y QR) | `AccesoTest::test_el_socio_recibe_pin_de_6_digitos_y_qr_unicos`, `GestionTest` |
+| RF03 Gestión de membresías | HU3 | `MembresiaController.php`, `app/Http/Requests/MembresiaRequest.php` | `GestionTest` |
+| RF04 Gestión de pagos | HU4 | `PagoController.php`, `app/Services/PagoService.php` | `PagoTest` (3) |
+| RF05 Gestión de aptos físicos | HU8 | `AptoFisicoController.php`, `app/Http/Requests/AptoFisicoRequest.php`, `app/Policies/AptoFisicoPolicy.php`, `gym:actualizar-vencimientos` | `AccesoTest::test_sin_apto_fisico_deniega_ingreso`, `GestionTest` |
+| RF06 Control de acceso | HU6, HU7 | `app/Services/AccesoService.php`, `app/Livewire/PantallaAcceso.php` | `AccesoTest` (9) |
+| RF07 Historial de asistencias | HU11 | `AsistenciaController.php`, `resources/views/pdf/` | Sin prueba automatizada (pendiente) |
+| RF08 Dashboard e informes | HU9, HU11 | `DashboardController.php`, `PagoController::pdf()`, `SocioController::fichaPdf()` | `RolesTest::test_administrador_accede_a_todo` (solo acceso; el cálculo está pendiente) |
+| RF09 Gestión de operadores | HU10 | `OperadorController.php` | `RutinaTest::test_el_admin_puede_crear_un_profesor` |
+| RF10 Portal del socio | HU13 | `app/Http/Controllers/Portal/AuthSocioController.php`, `PortalController.php`, `HistorialController.php`, `app/Services/AutenticacionSocioService.php`, `app/Http/Middleware/SocioAutenticado.php` | `PortalSocioTest` (9), `PortalHistorialTest` (5) |
+| RF11 Consulta de aforo | HU14 | `app/Services/AforoService.php`, `app/Livewire/AforoEnVivo.php`, `app/Http/Controllers/Portal/AforoController.php` | `AforoTest` (9) |
+| RF12 Chatbot | HU15 | `app/Services/ChatbotService.php`, `app/Livewire/ChatbotFaq.php`, `PreguntaFrecuenteController.php` | `ChatbotTest` (7) |
+| RF13 Rutinas | HU16 | `RutinaController.php`, `app/Http/Controllers/Portal/RutinaSocioController.php`, `app/Support/PlantillasRutina.php` | `RutinaTest` (10) |
+| RF14 API REST | HU17 | `routes/api.php`, `app/Http/Controllers/Api/`, `app/Http/Requests/Api/LoginSocioRequest.php`, `app/Http/Resources/`, `app/Http/Middleware/SocioConToken.php` | `ApiTest` (11) |
+| RF15 Web pública | HU28 | `WebController.php`, `ConfiguracionController.php`, `resources/views/web/` | `WebTest` (7) |
 
-Para cerrar la matriz completa del informe final falta agregar las filas RF01–RF09 con los textos del Plan; el
-código y las pruebas de HU1–HU12 están en `AccesoTest`, `PagoTest` y `RolesTest`.
+Los controladores están en `app/Http/Controllers/` y las pruebas en `tests/Feature/`.
+
+**Brechas de verificación que muestra la matriz:** RF07 y el cálculo de indicadores de RF08 no tienen pruebas
+automatizadas, y RF09 solo se prueba a través del alta de un profesor. Se agregan como tareas de HU20 (Sprint 3).
 
 ## 9. Requerimientos no funcionales según ISO/IEC 25010
 
-La norma ISO/IEC 25010 agrupa la calidad del producto en características. La tabla ubica cada característica en
-el sistema con su evidencia; al cruzarla con RNF01–RNF06 del Plan, cada RNF debe quedar en una fila.
+La norma ISO/IEC 25010 agrupa la calidad del producto en características. Cada RNF del Plan se ubica en una de
+ellas y se indica cómo se cumple y qué falta.
 
-| Característica ISO/IEC 25010 | Cómo la cumple Gym Control | Evidencia |
-|---|---|---|
-| Adecuación funcional | Las reglas de acceso, pagos y aforo se verifican con pruebas automatizadas | 76 pruebas en `tests/Feature`, CI en cada PR |
-| Eficiencia de desempeño | La validación de acceso usa una sola consulta gracias a `socios.fecha_vencimiento`; índices en DNI, PIN, QR y fechas; el mapa de horas pico se calcula con una sola consulta | Migraciones, `AforoService::mapaSemanal()` |
-| Compatibilidad | API REST en JSON consumible por cualquier cliente | `routes/api.php` |
-| Usabilidad | Interfaz en español, buscador reactivo con Livewire, colores de aforo, mensajes con el motivo del rechazo | Componentes en `app/Livewire` |
-| Fiabilidad | Pagos en transacción; tarea diaria que marca los aptos vencidos; baja lógica que conserva el historial | `PagoService`, `gym:actualizar-vencimientos`, `SoftDeletes` |
-| Seguridad | Contraseñas con bcrypt, roles por middleware, límite de intentos en login y PIN, archivos de salud en disco privado, sesiones de operador y socio separadas | `RolMiddleware`, `AutenticacionSocioService`, `throttle` |
-| Mantenibilidad | Controladores delgados con la lógica en servicios, pruebas por módulo, formato con Pint | `app/Services`, `.github/workflows/tests.yml` |
-| Portabilidad | Contenedor Docker y despliegue en Render; SQLite en local y MySQL en producción | `Dockerfile`, `docker-compose.yml`, `render.yaml` |
-
-Requerimiento no funcional externo nuevo (Ley 25.326): los aptos físicos son datos de salud. El sistema ya los
-guarda en disco privado y limita su descarga a los operadores y al propio socio; el consentimiento informado y el
-procedimiento de rectificación y supresión se agregan en HU26 y HU27.
+| RNF del Plan | Característica ISO/IEC 25010 | Cómo se cumple | Evidencia | Pendiente |
+|---|---|---|---|---|
+| RNF01 Seguridad | Seguridad (confidencialidad, integridad, autenticidad) | Contraseñas con bcrypt; rutas protegidas por `rol:`; Policies por registro; límite de intentos en login, pantalla de acceso y PIN del socio; aptos en disco privado; sesiones de operador y socio separadas | `RolMiddleware`, `app/Policies`, `AutenticacionSocioService`, `throttle`; `RolesTest`, `AccesoTest::test_codigo_inexistente_y_limite_de_intentos`, `GestionTest` | Consentimiento para datos de salud y derecho de rectificación y supresión (HU26 y HU27, Ley 25.326) |
+| RNF02 Rendimiento | Eficiencia de desempeño (comportamiento temporal) | `socios.fecha_vencimiento` permite validar el acceso con una sola consulta; índices en DNI, PIN, QR y fechas; el mapa de horas pico se calcula con una sola consulta | Migraciones, `AforoService::mapaSemanal()` | Medir el tiempo de respuesta en Render para respaldar el umbral de 2 segundos |
+| RNF03 Disponibilidad y persistencia | Fiabilidad (disponibilidad, recuperabilidad) y portabilidad | Contenedor Docker en local y en Render; pagos en transacción; baja lógica que conserva el historial | `Dockerfile`, `docker-compose.yml`, `render.yaml`, `PagoService` | Respaldo con `mysqldump` probado (Sprint 4). El plan gratuito de Render suspende el servicio inactivo |
+| RNF04 Usabilidad | Usabilidad (operabilidad, protección contra errores) | Mensajes de acceso permitido o denegado con el motivo; buscador reactivo; colores de estado | `PantallaAcceso`, `SociosIndex` | Prueba de uso en tablet con recepción |
+| RNF05 Escalabilidad y mantenibilidad | Mantenibilidad (modularidad, capacidad de prueba) | MVC con la lógica en servicios; Form Requests y Policies separan validación y permisos; 83 pruebas y CI con Pint | `app/Services`, `app/Http/Requests`, `.github/workflows/tests.yml` | Pruebas unitarias (HU20) y patrones documentados (Sprint 4) |
+| RNF06 Compatibilidad | Compatibilidad y portabilidad (adaptabilidad) | Diseño responsive con Tailwind; API REST en JSON para otros clientes | Vistas Blade, `routes/api.php` | Verificación manual en celular, tablet y escritorio |

@@ -2,36 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SocioRequest;
 use App\Models\Membresia;
 use App\Models\Socio;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class SocioController extends Controller
 {
-    protected function reglas(?Socio $socio = null): array
-    {
-        return [
-            'nombre' => ['required', 'string', 'max:100'],
-            'apellido' => ['required', 'string', 'max:100'],
-            'dni' => ['required', 'digits_between:7,9', Rule::unique('socios', 'dni')->ignore($socio?->id)],
-            'telefono' => ['nullable', 'string', 'max:30'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'membresia_id' => ['required', Rule::exists('membresias', 'id')->where('estado', 'activa')],
-        ];
-    }
-
     public function create()
     {
         return view('socios.form', ['socio' => new Socio, 'membresias' => Membresia::activas()->orderBy('precio')->get()]);
     }
 
-    public function store(Request $request)
+    public function store(SocioRequest $request)
     {
-        $datos = $request->validate($this->reglas());
-        $socio = Socio::create($datos + ['user_id' => $request->user()->id, 'estado' => 'activo']);
+        $socio = Socio::create($request->validated() + ['user_id' => $request->user()->id, 'estado' => 'activo']);
 
         return redirect()->route('socios.show', $socio)
             ->with('ok', 'Socio registrado. Cargue ahora el apto físico y registre el primer pago para habilitar su ingreso.');
@@ -54,12 +41,9 @@ class SocioController extends Controller
         return view('socios.form', ['socio' => $socio, 'membresias' => Membresia::orderBy('precio')->get()]);
     }
 
-    public function update(Request $request, Socio $socio)
+    public function update(SocioRequest $request, Socio $socio)
     {
-        $reglas = $this->reglas($socio);
-        // permitir conservar una membresía que luego fue desactivada
-        $reglas['membresia_id'] = ['required', 'exists:membresias,id'];
-        $socio->update($request->validate($reglas));
+        $socio->update($request->validated());
 
         return redirect()->route('socios.show', $socio)->with('ok', 'Datos del socio actualizados.');
     }
@@ -67,6 +51,7 @@ class SocioController extends Controller
     /** Baja lógica (solo administrador): se conserva todo el historial. */
     public function destroy(Socio $socio)
     {
+        Gate::authorize('delete', $socio);
         $socio->update(['estado' => 'inactivo']);
         $socio->delete();
 
@@ -75,6 +60,7 @@ class SocioController extends Controller
 
     public function restore(Socio $socio)
     {
+        Gate::authorize('restore', $socio);
         $socio->restore();
         $socio->update(['estado' => 'activo']);
 
