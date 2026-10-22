@@ -117,7 +117,9 @@ tests/Unit/              reglas puras sin base de datos (período de pago, nivel
 - La descripción del PR enlaza su issue con `Closes #N`. Si piden cambios en la revisión, se commitean en la
   misma rama: no se abre un PR nuevo.
 - Conflictos: rebase sobre `main`, resolver, probar y subir con `--force-with-lease` (nunca `--force`).
-- Versionado semántico `MAJOR.MINOR.PATCH`; el deploy a producción se dispara con un tag `vX.Y.Z`.
+- Versionado semántico `MAJOR.MINOR.PATCH`: cada versión se publica como Release de GitHub con un tag `vX.Y.Z`,
+  y el workflow `update-changelog` copia sus notas a `CHANGELOG.md`. Render despliega solo con cada merge a
+  `main` (autoDeploy); el tag marca qué versión es la oficial.
 - El revisor evalúa corrección (¿hace lo que promete?), alcance (¿toca solo lo necesario?) y legibilidad.
 
 ## Reglas de negocio que no se rompen
@@ -235,7 +237,7 @@ Legislación). Al hacer un cambio, reforzá la evidencia de la fila que correspo
   (`PagoService` y `AccesoService`, con diagramas de clases). Otros candidatos para explicar (verificarlos
   antes de afirmarlo): eventos de modelo de Eloquent (`Socio::booted`), middleware como cadena de filtros.
 - **CI/CD:** el pipeline hace instalación limpia → linter → pruebas en cada push y PR, y bloquea el merge si
-  no está en verde. El deploy se dispara con un tag de versión.
+  no está en verde. El deploy lo hace Render en cada merge a `main`; la versión se marca con un Release y su tag.
 - **Verificación y validación:** verificación = ¿lo construimos bien? (cumple la especificación); validación =
   ¿construimos lo correcto? (resuelve la necesidad del gimnasio). Pirámide: unitarias → integración → E2E.
 - **Entregables del repositorio:** README reproducible, `docs/DEUDA-TECNICA.md` (síntoma → deuda → patrón o
