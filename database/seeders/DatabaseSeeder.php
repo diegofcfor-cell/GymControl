@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Datos base (siempre): membresías y administrador inicial (si no existe).
-     * Datos de demostración (solo si SEED_DEMO=true): operador, socios, pagos, aptos y asistencias.
+     * Datos de demostración (solo si SEED_DEMO=true): operadores (recepción, profesor y terminal), socios, pagos, aptos y asistencias.
      */
     public function run(): void
     {
@@ -68,6 +68,10 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'profesor@gymcontrol.test'],
             ['name' => 'Pablo Profesor', 'password' => 'Profesor1234!', 'rol' => User::ROL_PROFESOR, 'activo' => true]
+        );
+        User::firstOrCreate(
+            ['email' => 'terminal@gymcontrol.test'],
+            ['name' => 'Tablet de la entrada', 'password' => 'Terminal1234!', 'rol' => User::ROL_TERMINAL, 'activo' => true]
         );
 
         $preguntas = [

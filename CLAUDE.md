@@ -60,7 +60,7 @@ npm run build                  # compilar assets
 ```
 
 Usuarios de prueba (`SEED_DEMO=true`): `admin@gymcontrol.test` / `Admin1234!`, `recepcion@gymcontrol.test` /
-`Recepcion1234!`, `profesor@gymcontrol.test` / `Profesor1234!`. Socios demo con PIN fijo `111111` a `555555`.
+`Recepcion1234!`, `profesor@gymcontrol.test` / `Profesor1234!`, `terminal@gymcontrol.test` / `Terminal1234!`. Socios demo con PIN fijo `111111` a `555555`.
 
 ## Estructura
 
@@ -158,13 +158,14 @@ rutinas (`solicitudes_rutina`, `rutinas`, `rutina_ejercicios`), `solicitudes_dat
 
 ## Matriz de permisos
 
-| Funcionalidad | Admin | Recepción | Profesor | Socio (portal/API) |
-|---|---|---|---|---|
-| Panel de recepción, socios (alta, edición, PIN/QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — |
-| Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — |
-| Responder pedidos de rectificación y supresión de datos | Sí | — | — | — |
-| Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — |
-| Ver su membresía, asistencias, pagos, aptos, aforo, chatbot, pedir rutina y pedir rectificar o suprimir sus datos | — | — | — | Sí |
+| Funcionalidad | Admin | Recepción | Profesor | Terminal | Socio (portal/API) |
+|---|---|---|---|---|---|
+| Pantalla de acceso (ingreso y egreso por PIN o QR) | Sí | Sí | — | Sí (solo esto, HU31) | — |
+| Panel de recepción, socios (alta, edición, PIN/QR), aptos, pagos, historiales y PDF | Sí | Sí | — | — | — |
+| Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — | — |
+| Responder pedidos de rectificación y supresión de datos | Sí | — | — | — | — |
+| Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — | — |
+| Ver su membresía, asistencias, pagos, aptos, aforo, chatbot, pedir rutina y pedir rectificar o suprimir sus datos | — | — | — | — | Sí |
 
 El Plan del TIF solo tiene las columnas de administrador y recepcionista (ver "Brechas", punto 1).
 

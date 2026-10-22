@@ -18,7 +18,10 @@ class User extends Authenticatable
 
     public const ROL_PROFESOR = 'profesor';
 
-    public const ROLES = [self::ROL_ADMIN, self::ROL_RECEPCION, self::ROL_PROFESOR];
+    /** Tablet o PC de la entrada (HU31): solo abre la pantalla de acceso, sin datos de socios ni importes. */
+    public const ROL_TERMINAL = 'terminal';
+
+    public const ROLES = [self::ROL_ADMIN, self::ROL_RECEPCION, self::ROL_PROFESOR, self::ROL_TERMINAL];
 
     protected $fillable = ['name', 'email', 'password', 'rol', 'activo'];
 
@@ -48,12 +51,18 @@ class User extends Authenticatable
         return $this->rol === self::ROL_PROFESOR;
     }
 
+    public function esTerminal(): bool
+    {
+        return $this->rol === self::ROL_TERMINAL;
+    }
+
     /** Pantalla de inicio de cada rol al ingresar al panel. */
     public function rutaInicio(): string
     {
         return match ($this->rol) {
             self::ROL_ADMIN => 'dashboard',
             self::ROL_PROFESOR => 'rutinas.index',
+            self::ROL_TERMINAL => 'acceso',
             default => 'recepcion',
         };
     }

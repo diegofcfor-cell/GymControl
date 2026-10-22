@@ -110,7 +110,7 @@ contraseña por defecto: sin `ADMIN_PASSWORD` no se crea ningún administrador.
   `php artisan gym:clave-operador correo@del-admin` y escribir la contraseña nueva dos veces (no se muestra en
   pantalla y no queda en el repositorio ni en las variables).
 
-Si la base se sembró con `SEED_DEMO=true`, los usuarios `recepcion@gymcontrol.test` y `profesor@gymcontrol.test`
+Si la base se sembró con `SEED_DEMO=true`, los usuarios `recepcion@gymcontrol.test`, `profesor@gymcontrol.test` y `terminal@gymcontrol.test`
 tienen contraseñas públicas (están en el README): en producción, cambiarlas o desactivarlos desde *Operadores*.
 
 ## 4. Respaldos (RNF03)
