@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Configuracion;
 use App\Services\AccesoService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -46,6 +47,6 @@ class PantallaAcceso extends Component
 
     public function render()
     {
-        return view('livewire.pantalla-acceso');
+        return view('livewire.pantalla-acceso', ['conQr' => Configuracion::accesoQrHabilitado()]);
     }
 }

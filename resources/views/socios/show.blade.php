@@ -10,7 +10,7 @@
     <div class="flex flex-wrap gap-2 text-sm">
         @unless ($socio->trashed())
             <a href="{{ route('socios.edit', $socio) }}" class="rounded-lg border bg-white px-3 py-1.5">Editar</a>
-            <a href="{{ route('socios.credencial', $socio) }}" target="_blank" class="rounded-lg border bg-white px-3 py-1.5">Credencial PIN/QR</a>
+            <a href="{{ route('socios.credencial', $socio) }}" target="_blank" class="rounded-lg border bg-white px-3 py-1.5">Credencial</a>
             <a href="{{ route('pagos.create', $socio) }}" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-white">Registrar pago</a>
         @endunless
         <a href="{{ route('socios.ficha', $socio) }}" target="_blank" class="rounded-lg border bg-white px-3 py-1.5">Ficha PDF</a>

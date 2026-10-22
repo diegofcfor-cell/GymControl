@@ -12,6 +12,7 @@ class ConfiguracionController extends Controller
     {
         return view('configuracion.edit', [
             'capacidad' => $aforo->capacidad(),
+            'accesoQr' => Configuracion::accesoQrHabilitado(),
             'web' => Configuracion::varios(Configuracion::DATOS_WEB),
         ]);
     }

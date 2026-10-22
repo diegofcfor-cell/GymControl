@@ -6,6 +6,7 @@ use App\Events\AccesoDenegado;
 use App\Events\EgresoRegistrado;
 use App\Events\IngresoRegistrado;
 use App\Models\Asistencia;
+use App\Models\Configuracion;
 use App\Models\Socio;
 use App\Repositories\AsistenciaRepository;
 use App\Services\ReglasIngreso\ReglaIngreso;
@@ -13,7 +14,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\RateLimiter;
 
 /**
- * Reglas de negocio del control de acceso (PIN / QR):
+ * Reglas de negocio del control de acceso:
+ *  - El socio se identifica con su PIN. El código QR solo se acepta si el administrador lo activó en
+ *    Configuración (HU33); apagado, un QR se trata como un código no reconocido.
  *  - El ingreso exige cumplir todas las reglas de ingreso (Strategy, ver app/Services/ReglasIngreso):
  *    socio activo, cuota vigente, apto físico vigente y tope de horas diarias. Se muestran todos los motivos.
  *  - El egreso SIEMPRE se permite y calcula el tiempo de permanencia.
@@ -43,13 +46,15 @@ class AccesoService
             return $this->resultado(false, 'bloqueado', 'Demasiados intentos fallidos. Espere un minuto y vuelva a intentar.');
         }
 
+        $conQr = Configuracion::accesoQrHabilitado();
+
         if ($codigo === '') {
-            return $this->resultado(false, 'desconocido', 'Ingrese su PIN o escanee su código QR.');
+            return $this->resultado(false, 'desconocido', $conQr ? 'Ingrese su PIN o escanee su código QR.' : 'Ingrese su PIN.');
         }
 
         $socio = Socio::with('membresia')
-            ->where(function ($q) use ($codigo) {
-                $q->where('pin', $codigo)->orWhere('qr_codigo', $codigo);
+            ->where(function ($q) use ($codigo, $conQr) {
+                $q->where('pin', $codigo)->when($conQr, fn ($q) => $q->orWhere('qr_codigo', $codigo));
             })
             ->first();
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SocioRequest;
+use App\Models\Configuracion;
 use App\Models\Membresia;
 use App\Models\Socio;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -73,7 +74,7 @@ class SocioController extends Controller
         return redirect()->route('socios.show', $socio)->with('ok', 'Socio reactivado.');
     }
 
-    /** Credencial imprimible con PIN y código QR. */
+    /** Credencial imprimible con el PIN (y el código QR si el ingreso con QR está activado). */
     public function credencial(Socio $socio)
     {
         return view('socios.credencial', ['socio' => $socio->load('membresia'), 'qr' => $this->qrBase64($socio)]);
@@ -92,8 +93,13 @@ class SocioController extends Controller
         ])->setPaper('a4')->stream("ficha-{$socio->dni}.pdf");
     }
 
-    protected function qrBase64(Socio $socio): string
+    /** Null si el ingreso con QR está apagado (HU33): no se imprime un código que la pantalla de acceso no acepta. */
+    protected function qrBase64(Socio $socio): ?string
     {
+        if (! Configuracion::accesoQrHabilitado()) {
+            return null;
+        }
+
         return base64_encode(QrCode::format('svg')->size(220)->margin(1)->generate($socio->qr_codigo));
     }
 }
