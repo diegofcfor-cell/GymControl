@@ -9,7 +9,7 @@ consecuencia negativa introduce?
 |---|---|---|---|
 | 1 | Repository | HU23 | Aplicado |
 | 2 | Observer | HU21 | Aplicado |
-| 3 | Strategy | HU22 | Pendiente (Sprint 4) |
+| 3 | Strategy | HU22 | Aplicado |
 | 4 | Facade | HU24 | Pendiente (Sprint 4) |
 
 ## 1. Repository — consulta de "presentes hoy" (HU23)
@@ -91,3 +91,47 @@ de Eloquent (`Socio::booted()` genera el PIN), por eso se le pasa la lista de ev
   `ShouldQueue` para que vaya a la cola; hoy escribir una línea de log no lo justifica.
 - Un log no es una tabla: sirve para auditar, pero no para hacer consultas. Si el gimnasio quisiera reportes de
   rechazos, haría falta persistirlos en la base.
+
+## 3. Strategy — reglas de ingreso (HU22)
+
+**Síntoma.** `AccesoService::ingreso()` tenía las cuatro condiciones de ingreso escritas como una cadena de `if`
+(socio activo, cuota vigente, apto vigente y tope de horas diarias), y la del tope estaba repartida en dos
+métodos privados más. Cada condición nueva obligaba a abrir y modificar el método que decide el acceso, que es
+el más crítico y el más probado del sistema.
+
+**Deuda.** Viola OCP (para extender hay que modificar código probado) y SRP (el servicio sabe *cómo* se evalúa
+cada condición, además de *qué* hacer con el resultado). Además, la regla del tope solo se evaluaba si las
+otras pasaban, así que el socio no se enteraba de todos sus problemas de una vez.
+
+**Las tres preguntas.**
+1. ¿Se repite? Sí: hay cuatro condiciones con la misma forma ("si no se cumple, este es el motivo").
+2. ¿El cambio es probable? Sí: son reglas de negocio del gimnasio, y es esperable que aparezcan otras, como el
+   horario de un plan, un feriado o un socio suspendido.
+3. ¿Qué consecuencia negativa introduce? Cinco archivos chicos en lugar de un método (ver abajo).
+
+**Solución.** La interfaz `app/Services/ReglasIngreso/ReglaIngreso.php` define la estrategia:
+`motivoDeRechazo(Socio): ?string`. Hay cuatro implementaciones: `SocioActivo`, `CuotaVigente`,
+`AptoFisicoVigente` y `TopeHorasDiarias`. `AccesoService` las recibe por el constructor (`ReglaIngreso
+...$reglas`, DIP) y solo junta los motivos. La lista y su orden se configuran en un único lugar,
+`AppServiceProvider::register()`, con un *binding contextual* del contenedor:
+`when(AccesoService::class)->needs(ReglaIngreso::class)->give([...])`. Para sumar una regla se crea una
+clase y se agrega a esa lista: `AccesoService` no se toca (OCP).
+
+El cálculo de los minutos de hoy (`minutosHoy`) pasó a `AsistenciaRepository`, porque lo usan dos clases: la
+regla del tope y el aviso del egreso.
+
+**Cambio de comportamiento.** Ahora se evalúan todas las reglas y se muestran todos los motivos. Antes, el
+motivo del tope solo aparecía si las otras tres condiciones se cumplían. Para recepción es mejor información, y
+cumple con lo que pide Legislación: mostrar siempre el motivo de una decisión automatizada.
+
+**Pruebas.** `ReglasIngresoTest` prueba cada regla por separado, el orden de los motivos y la demostración
+de OCP: en la prueba se cambia la lista por una regla nueva ("cerrado por feriado") y el servicio la aplica sin
+modificar su código. Las pruebas que ya existían en `AccesoTest` pasan sin cambios, lo que muestra que el
+refactor no rompió el comportamiento (verificación).
+
+**Consecuencia negativa asumida.**
+- Más archivos: una regla de una línea ocupa una clase.
+- La lista vive lejos del servicio, en `AppServiceProvider`: quien lee `AccesoService` tiene que saber dónde
+  buscarla (se indica en el docblock del constructor).
+- Se descartó dar a cada regla una prioridad o dejar que una regla corte la evaluación, porque hoy no hace
+  falta: sería un cambio imaginario.

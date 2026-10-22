@@ -38,6 +38,16 @@ class AsistenciaRepository
         return $this->presentes($socio->asistencias())->exists();
     }
 
+    /** Minutos que el socio ya entrenó hoy, sumando solo las asistencias cerradas. */
+    public function minutosHoy(Socio $socio): int
+    {
+        return (int) $socio->asistencias()
+            ->whereDate('fecha', today())
+            ->whereNotNull('tiempo_permanencia')
+            ->get()
+            ->sum(fn (Asistencia $a) => $a->minutosPermanencia() ?? 0);
+    }
+
     private function presentes(Builder|HasMany $consulta): Builder|HasMany
     {
         return $consulta->abiertas()->whereDate('fecha', today());
