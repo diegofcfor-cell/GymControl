@@ -1,0 +1,373 @@
+# Actualización de requerimientos del Plan de Trabajo
+
+**Proyecto:** Gym Control, sistema de gestión y control de asistencia del Gimnasio Fénix (Formosa).
+**Equipo:** Grupo 13, Cardozo Diego Fabián, Heretichi Adriana y López Gabriela Elvira.
+**Sprint:** 2 del Plan de Trabajo (26/10/2026 al 05/11/2026), historias HU13 a HU17 y HU28.
+
+## 1. Propósito
+
+El Plan de Trabajo TFI v2 especifica nueve requerimientos funcionales (RF01–RF09), seis no funcionales
+(RNF01–RNF06) y doce historias de usuario (HU1–HU12) para dos actores: administrador y recepcionista. Durante el
+desarrollo se incorporaron funcionalidades que el Plan no describe: la página web pública, el portal del socio,
+la consulta de aforo, el chatbot de preguntas frecuentes, las rutinas armadas por un profesor y una API REST.
+
+Este documento completa la especificación para que sea **trazable** en el sentido de la norma IEEE 830: cada
+requerimiento nuevo se vincula con su historia de usuario, con el código que lo implementa y con la prueba
+automatizada que lo verifica. Las funcionalidades ya están implementadas y probadas; lo que se agrega aquí es su
+especificación formal.
+
+## 2. Actores
+
+| Actor | Descripción | Cómo se autentica |
+|---|---|---|
+| Administrador | Dueño o encargado del gimnasio. Configura el sistema y ve los datos económicos | Correo y contraseña (sesión de operador) |
+| Recepcionista | Atiende el mostrador: altas, cobros, aptos y control de acceso | Correo y contraseña (sesión de operador) |
+| Profesor | Arma las rutinas de entrenamiento que piden los socios | Correo y contraseña (sesión de operador) |
+| Socio | Cliente del gimnasio. Consulta su situación, el aforo y el chatbot, y pide rutinas | DNI y PIN de 6 dígitos (sesión propia del portal) |
+| Visitante | Cualquier persona que entra a la web pública sin iniciar sesión | No se autentica |
+| Aplicación cliente | Programa externo (por ejemplo, una app móvil) que consume la API REST | Token Bearer de Laravel Sanctum obtenido con DNI y PIN |
+
+Las sesiones de operador y de socio son independientes: el middleware `socio` (`SocioAutenticado`) protege el
+portal y el middleware `rol:` protege el panel, de modo que una sesión no da acceso a la otra.
+
+## 3. Fichas de requerimientos funcionales nuevos
+
+La prioridad usa la escala de la cátedra: **Esencial** (sin esto el sistema no cumple su objetivo), **Útil**
+(mejora el valor percibido) y **Deseable** (puede quedar para una versión posterior).
+
+### RF10 — Portal del socio
+
+| Campo | Detalle |
+|---|---|
+| Descripción | El socio ingresa con su DNI y su PIN y consulta su membresía, el vencimiento de su cuota, su historial de asistencias, sus pagos y sus constancias médicas |
+| Entradas | DNI, PIN de 6 dígitos; filtros opcionales de fecha desde y hasta en el historial |
+| Proceso | Valida que el DNI exista, que el PIN coincida y que el socio esté activo y no dado de baja. Limita a 5 los intentos fallidos por DNI, con bloqueo de 15 minutos. Abre una sesión propia (`socio_id`) separada de la de operadores. Cada consulta filtra por el socio de la sesión |
+| Salidas | Panel con plan, estado de la cuota y vencimiento; listado de asistencias con total de horas; listado de pagos con comprobante PDF; listado de aptos con vigencia y descarga del archivo propio |
+| Prioridad | Esencial |
+| Reglas | Un socio nunca ve datos de otro socio. Un socio dado de baja pierde la sesión abierta |
+| Historia | HU13 |
+
+### RF11 — Consulta de aforo
+
+| Campo | Detalle |
+|---|---|
+| Descripción | El socio, el visitante y la aplicación cliente consultan cuántas personas hay en el gimnasio y en qué horarios suele haber más gente |
+| Entradas | Capacidad máxima configurada por el administrador; asistencias registradas por la pantalla de acceso |
+| Proceso | Presentes = asistencias del día sin hora de salida. Porcentaje = presentes / capacidad. Nivel: libre si es menor a 50 %, moderado si es menor a 80 %, lleno desde 80 %. Horas pico = promedio de personas presentes por hora y día de la semana en las últimas 4 semanas; una asistencia sin egreso se cuenta como 60 minutos (`AforoService::PERMANENCIA_ESTIMADA`) |
+| Salidas | Cantidad de presentes, capacidad, porcentaje y nivel con color (verde, amarillo, rojo), actualizado cada 30 segundos; mapa semanal de horas pico y las tres franjas más concurridas |
+| Prioridad | Esencial (es la necesidad que originó la ampliación del sistema) |
+| Reglas | La consulta de aforo no expone datos personales, solo cantidades. Solo el administrador cambia la capacidad |
+| Historia | HU14 |
+
+### RF12 — Chatbot de preguntas frecuentes
+
+| Campo | Detalle |
+|---|---|
+| Descripción | El socio y el visitante escriben una pregunta en lenguaje natural y reciben la respuesta de la pregunta frecuente que mejor coincide |
+| Entradas | Mensaje del usuario; preguntas frecuentes activas con sus palabras clave, cargadas por el administrador |
+| Proceso | Normaliza el mensaje (minúsculas, sin tildes ni signos), descarta palabras vacías y compara raíces simples para que plurales y variantes coincidan. Calcula un puntaje por pregunta y responde la mejor si alcanza el mínimo (`ChatbotService::PUNTAJE_MINIMO`). Planes y precios, aforo, horarios y contacto se responden con los datos vigentes del sistema |
+| Salidas | Respuesta y preguntas relacionadas sugeridas; si nada coincide, sugerencias y derivación a recepción |
+| Prioridad | Útil |
+| Reglas | No usa inteligencia artificial ni servicios pagos. Las preguntas desactivadas no se usan |
+| Historia | HU15 |
+
+### RF13 — Rutinas de entrenamiento
+
+| Campo | Detalle |
+|---|---|
+| Descripción | El socio pide una rutina; un profesor la arma, si quiere a partir de la biblioteca R01–R15, y el socio la ve en su portal |
+| Entradas | Pedido del socio: objetivo, días por semana (1 a 7), nivel y comentarios. Rutina del profesor: nombre, objetivo, observaciones y ejercicios por día con series, repeticiones, descanso y notas |
+| Proceso | El socio solo puede tener un pedido pendiente. El profesor ve los pedidos, se le sugieren primero las plantillas que coinciden con el pedido y guarda la rutina en una transacción. La rutina nueva reemplaza a la anterior (una sola activa por socio) y el pedido pasa a atendido |
+| Salidas | Lista de pedidos pendientes; rutina activa visible en el portal del socio |
+| Prioridad | Útil |
+| Reglas | La rutina exige al menos un ejercicio. Solo el administrador y el profesor acceden a *Rutinas* |
+| Historia | HU16 |
+
+### RF14 — API REST
+
+| Campo | Detalle |
+|---|---|
+| Descripción | Una aplicación cliente consulta el aforo sin autenticarse y, con un token del socio, su perfil y sus asistencias |
+| Entradas | Peticiones HTTP con JSON; DNI y PIN para obtener el token; encabezado `Authorization: Bearer <token>` |
+| Proceso | El login reutiliza `AutenticacionSocioService` (mismas reglas y límite de intentos que el portal) y emite un token de Sanctum que vence a los 30 días. Las rutas protegidas usan `auth:sanctum` y `socio.token`. El logout revoca el token usado |
+| Salidas | JSON con el estado del aforo; token, tipo y vencimiento; perfil del socio sin PIN; asistencias paginadas de a 20 con filtro por fecha |
+| Prioridad | Deseable |
+| Reglas | El aforo público tiene un límite de 60 peticiones por minuto y el login de 10. Un socio dado de baja deja de poder usar su token |
+| Historia | HU17 |
+
+### RF15 — Página web pública
+
+| Campo | Detalle |
+|---|---|
+| Descripción | Cualquier visitante conoce el gimnasio, sus planes y precios, horarios y contacto, ve el aforo en vivo y usa el chatbot |
+| Entradas | Textos de presentación, horarios y contacto cargados por el administrador en *Configuración*; membresías activas |
+| Proceso | Arma la página con los datos vigentes. Si faltan textos, la página igual se muestra |
+| Salidas | Página en `/` con enlaces al portal del socio y al login del personal |
+| Prioridad | Útil |
+| Historia | HU28 |
+
+## 4. Historias de usuario
+
+Estado del código: **Done** en todas (implementadas y con pruebas en verde). Estado de la documentación: **Done**
+con este documento, pendiente de la revisión del equipo.
+
+| HU | RF | Historia | Criterios de aceptación |
+|---|---|---|---|
+| HU13 | RF10 | Como socio quiero entrar a un portal con mi DNI y mi PIN para ver mi membresía, pagos, asistencias y aptos sin ir a recepción | 1) Con DNI y PIN correctos entro y veo mi plan y vencimiento. 2) Con PIN incorrecto se rechaza y al quinto intento se bloquea el DNI. 3) Un socio inactivo o dado de baja no entra. 4) Solo veo mis asistencias, pagos y archivos. 5) Mi sesión no abre el panel de operadores |
+| HU14 | RF11 | Como socio quiero ver cuánta gente hay y las horas pico para decidir cuándo ir al gimnasio | 1) Se cuentan solo los presentes de hoy sin egreso. 2) El nivel es libre, moderado o lleno según el porcentaje. 3) El mapa semanal promedia las últimas 4 semanas. 4) Sin historial se avisa que faltan datos. 5) Solo el administrador cambia la capacidad |
+| HU15 | RF12 | Como socio quiero preguntarle a un chatbot las dudas frecuentes para no tener que llamar al gimnasio | 1) Encuentra la respuesta aunque escriba sin tildes o en plural. 2) No usa preguntas desactivadas. 3) Responde precios y aforo con datos actuales. 4) Si no entiende, sugiere preguntas y deriva a recepción. 5) Solo el administrador gestiona las preguntas |
+| HU16 | RF13 | Como profesor quiero ver los pedidos de rutina y armarlas desde una biblioteca para atender a los socios más rápido | 1) El socio tiene un solo pedido pendiente a la vez. 2) El profesor ve los pedidos y arma la rutina. 3) La rutina nueva reemplaza a la anterior. 4) Exige al menos un ejercicio y se puede editar. 5) Las 15 plantillas de la biblioteca pasan la validación |
+| HU17 | RF14 | Como aplicación cliente quiero consultar el aforo y los datos del socio por API REST para integrarme con el sistema | 1) `GET /api/aforo` es público y no expone datos personales. 2) El login devuelve un token Bearer y responde 401 con PIN incorrecto. 3) Sin token se responde 401 en JSON. 4) El socio solo ve sus asistencias. 5) El logout revoca el token |
+| HU28 | RF15 | Como visitante quiero ver la web del gimnasio con planes, horarios y aforo para decidir si me hago socio | 1) Muestra los planes activos con su precio. 2) Funciona aunque falten textos. 3) El chatbot responde horarios y contacto cargados. 4) Solo el administrador edita los textos |
+
+## 5. Casos de uso
+
+Un caso de uso es una funcionalidad completa que le da valor a un actor, no un paso de la interfaz. Los casos
+CU01–CU12 del Plan cubren al administrador y al recepcionista; se agregan los siguientes.
+
+```mermaid
+flowchart LR
+    Socio([Socio])
+    Visitante([Visitante])
+    Profesor([Profesor])
+    Admin([Administrador])
+    App([Aplicación cliente])
+
+    subgraph Gym Control
+        CU13[CU13 Consultar mi situación]
+        CU14[CU14 Consultar aforo]
+        CU15[CU15 Consultar chatbot]
+        CU16[CU16 Pedir rutina]
+        CU17[CU17 Atender pedido de rutina]
+        CU18[CU18 Consultar datos por API]
+        CU19[CU19 Configurar web, capacidad y preguntas]
+        CU20[CU20 Ver web pública]
+        CUA[Autenticarse con DNI y PIN]
+    end
+
+    Socio --- CU13
+    Socio --- CU14
+    Socio --- CU15
+    Socio --- CU16
+    Visitante --- CU20
+    Visitante --- CU14
+    Visitante --- CU15
+    Profesor --- CU17
+    Admin --- CU17
+    Admin --- CU19
+    App --- CU18
+    App --- CU14
+
+    CU13 -. include .-> CUA
+    CU16 -. include .-> CUA
+    CU18 -. include .-> CUA
+```
+
+| Caso de uso | Actor principal | Flujo principal | Flujo alternativo |
+|---|---|---|---|
+| CU13 Consultar mi situación | Socio | Ingresa DNI y PIN, ve su panel y navega asistencias, pagos y aptos | Datos incorrectos: mensaje de error; cinco fallos: bloqueo de 15 minutos |
+| CU14 Consultar aforo | Socio, visitante, aplicación cliente | Ve presentes, nivel y horas pico | Sin historial: aviso de que faltan datos |
+| CU15 Consultar chatbot | Socio, visitante | Escribe una pregunta y recibe la respuesta | Sin coincidencia: sugerencias y derivación a recepción |
+| CU16 Pedir rutina | Socio | Completa objetivo, nivel y días, y envía el pedido | Ya tiene un pedido pendiente: se le avisa y no se duplica |
+| CU17 Atender pedido de rutina | Profesor (o administrador) | Elige un pedido, parte de una plantilla, ajusta y guarda | Sin ejercicios: la validación lo rechaza |
+| CU18 Consultar datos por API | Aplicación cliente | Obtiene un token con DNI y PIN y consulta perfil y asistencias | Token inválido o socio dado de baja: 401 |
+| CU19 Configurar web, capacidad y preguntas | Administrador | Edita textos, capacidad máxima y preguntas frecuentes | — |
+| CU20 Ver web pública | Visitante | Entra a `/` y ve planes, horarios, contacto y aforo | — |
+
+`include` indica que el caso siempre ejecuta otro (todos los del socio pasan por la autenticación). Se usa con
+moderación, como pide la cátedra.
+
+## 6. Matriz de permisos actualizada
+
+| Funcionalidad | Admin | Recepción | Profesor | Socio (portal o API) | Visitante |
+|---|---|---|---|---|---|
+| Socios (alta, edición, PIN y QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — | — |
+| Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — | — |
+| Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — | — |
+| Ver su membresía, asistencias, pagos y aptos; pedir rutina | — | — | — | Sí | — |
+| Aforo y chatbot | Sí | Sí | — | Sí | Sí |
+| Web pública | Sí | Sí | Sí | Sí | Sí |
+
+Implementación: grupos de rutas con `rol:administrador,recepcionista`, `rol:administrador,profesor` y
+`rol:administrador` en `routes/web.php`; middleware `socio` para el portal; `auth:sanctum` y `socio.token` en
+`routes/api.php`.
+
+## 7. Modelo entidad-relación actualizado
+
+Se agregan a las seis tablas núcleo del Plan las tablas `configuraciones`, `preguntas_frecuentes`,
+`solicitudes_rutina`, `rutinas`, `rutina_ejercicios` y `personal_access_tokens` (de Sanctum).
+
+```mermaid
+erDiagram
+    users ||--o{ socios : "da de alta"
+    users ||--o{ pagos : "cobra"
+    users ||--o{ aptos_fisicos : "carga"
+    users ||--o{ rutinas : "arma (profesor)"
+    membresias ||--o{ socios : "tiene"
+    membresias ||--o{ pagos : "se paga"
+    socios ||--o{ pagos : "realiza"
+    socios ||--o{ aptos_fisicos : "presenta"
+    socios ||--o{ asistencias : "registra"
+    socios ||--o{ solicitudes_rutina : "pide"
+    socios ||--o{ rutinas : "recibe"
+    socios ||--o{ personal_access_tokens : "obtiene"
+    rutinas ||--|{ rutina_ejercicios : "contiene"
+    rutinas |o--o| solicitudes_rutina : "atiende"
+
+    users {
+        bigint id PK
+        string email UK
+        string password
+        string rol
+        boolean activo
+    }
+    membresias {
+        bigint id PK
+        string nombre
+        decimal precio
+        smallint duracion_dias
+        smallint horas_diarias_max "NULL = pase libre"
+        string estado
+    }
+    socios {
+        bigint id PK
+        bigint membresia_id FK
+        bigint user_id FK
+        string dni UK
+        string pin UK
+        string qr_codigo UK
+        string estado
+        date fecha_alta
+        date fecha_vencimiento
+        timestamp deleted_at "baja lógica"
+    }
+    pagos {
+        bigint id PK
+        bigint socio_id FK
+        bigint membresia_id FK
+        bigint user_id FK
+        decimal importe
+        date fecha_pago
+        date periodo_desde
+        date periodo_hasta
+        string metodo_pago
+    }
+    aptos_fisicos {
+        bigint id PK
+        bigint socio_id FK
+        bigint user_id FK
+        date fecha_emision
+        date fecha_vencimiento
+        string estado
+        string archivo "disco privado"
+    }
+    asistencias {
+        bigint id PK
+        bigint socio_id FK
+        date fecha
+        time hora_ingreso
+        time hora_salida "NULL = en sala"
+        time tiempo_permanencia
+    }
+    solicitudes_rutina {
+        bigint id PK
+        bigint socio_id FK
+        bigint rutina_id FK "NULL hasta atenderla"
+        string objetivo
+        tinyint dias_por_semana
+        string nivel
+        text comentarios
+        string estado
+    }
+    rutinas {
+        bigint id PK
+        bigint socio_id FK
+        bigint user_id FK
+        string nombre
+        string objetivo
+        text observaciones
+        boolean activa
+    }
+    rutina_ejercicios {
+        bigint id PK
+        bigint rutina_id FK
+        string dia
+        string ejercicio
+        tinyint series
+        string repeticiones
+        string descanso
+        string notas
+        smallint orden
+    }
+    configuraciones {
+        bigint id PK
+        string clave UK
+        string valor
+    }
+    preguntas_frecuentes {
+        bigint id PK
+        string pregunta
+        text respuesta
+        string palabras_clave
+        smallint orden
+        boolean activa
+    }
+    personal_access_tokens {
+        bigint id PK
+        string tokenable_type
+        bigint tokenable_id
+        string token UK
+        timestamp expires_at
+    }
+```
+
+**Justificación de las tablas nuevas frente a la tercera forma normal:**
+
+- `rutina_ejercicios` separa los ejercicios de la rutina porque una rutina tiene muchos: guardarlos en una
+  columna de `rutinas` violaría la 1FN (valores repetidos en un mismo campo).
+- `solicitudes_rutina.rutina_id` es opcional (`nullOnDelete`): el pedido existe antes de que haya rutina.
+- `configuraciones` usa el formato clave-valor para los pocos datos sueltos del gimnasio (capacidad, horarios,
+  contacto). Es una decisión de diseño consciente: evita una tabla de una sola fila con muchas columnas
+  opcionales, a cambio de que el valor se guarde como texto.
+- `preguntas_frecuentes.palabras_clave` guarda una lista separada por comas. Es una excepción a la 1FN que se
+  acepta porque el campo solo se usa como texto de búsqueda del chatbot, nunca se filtra ni se relaciona por
+  cada palabra. Si en el futuro se necesitara, se normaliza con una tabla `palabras_clave`.
+- `personal_access_tokens` es la tabla estándar de Sanctum; su relación con `socios` es polimórfica
+  (`tokenable_type` y `tokenable_id`).
+
+## 8. Matriz de trazabilidad
+
+Trazable significa poder ir del requerimiento a la historia, al código que lo implementa y a la prueba que lo
+verifica, y también en sentido inverso.
+
+| RF | HU | Código principal | Prueba que lo verifica |
+|---|---|---|---|
+| RF10 | HU13 | `app/Http/Controllers/Portal/AuthSocioController.php`, `PortalController.php`, `HistorialController.php`, `app/Services/AutenticacionSocioService.php`, `app/Http/Middleware/SocioAutenticado.php` | `tests/Feature/PortalSocioTest.php` (9 pruebas), `tests/Feature/PortalHistorialTest.php` (5) |
+| RF11 | HU14 | `app/Services/AforoService.php`, `app/Livewire/AforoEnVivo.php`, `app/Http/Controllers/Portal/AforoController.php` | `tests/Feature/AforoTest.php` (9) |
+| RF12 | HU15 | `app/Services/ChatbotService.php`, `app/Livewire/ChatbotFaq.php`, `app/Http/Controllers/PreguntaFrecuenteController.php` | `tests/Feature/ChatbotTest.php` (7) |
+| RF13 | HU16 | `app/Http/Controllers/RutinaController.php`, `app/Http/Controllers/Portal/RutinaSocioController.php`, `app/Support/PlantillasRutina.php` | `tests/Feature/RutinaTest.php` (10) |
+| RF14 | HU17 | `routes/api.php`, `app/Http/Controllers/Api/`, `app/Http/Requests/Api/LoginSocioRequest.php`, `app/Http/Resources/`, `app/Http/Middleware/SocioConToken.php` | `tests/Feature/ApiTest.php` (11) |
+| RF15 | HU28 | `app/Http/Controllers/WebController.php`, `app/Http/Controllers/ConfiguracionController.php`, `resources/views/web/` | `tests/Feature/WebTest.php` (7) |
+
+Para cerrar la matriz completa del informe final falta agregar las filas RF01–RF09 con los textos del Plan; el
+código y las pruebas de HU1–HU12 están en `AccesoTest`, `PagoTest` y `RolesTest`.
+
+## 9. Requerimientos no funcionales según ISO/IEC 25010
+
+La norma ISO/IEC 25010 agrupa la calidad del producto en características. La tabla ubica cada característica en
+el sistema con su evidencia; al cruzarla con RNF01–RNF06 del Plan, cada RNF debe quedar en una fila.
+
+| Característica ISO/IEC 25010 | Cómo la cumple Gym Control | Evidencia |
+|---|---|---|
+| Adecuación funcional | Las reglas de acceso, pagos y aforo se verifican con pruebas automatizadas | 76 pruebas en `tests/Feature`, CI en cada PR |
+| Eficiencia de desempeño | La validación de acceso usa una sola consulta gracias a `socios.fecha_vencimiento`; índices en DNI, PIN, QR y fechas; el mapa de horas pico se calcula con una sola consulta | Migraciones, `AforoService::mapaSemanal()` |
+| Compatibilidad | API REST en JSON consumible por cualquier cliente | `routes/api.php` |
+| Usabilidad | Interfaz en español, buscador reactivo con Livewire, colores de aforo, mensajes con el motivo del rechazo | Componentes en `app/Livewire` |
+| Fiabilidad | Pagos en transacción; tarea diaria que marca los aptos vencidos; baja lógica que conserva el historial | `PagoService`, `gym:actualizar-vencimientos`, `SoftDeletes` |
+| Seguridad | Contraseñas con bcrypt, roles por middleware, límite de intentos en login y PIN, archivos de salud en disco privado, sesiones de operador y socio separadas | `RolMiddleware`, `AutenticacionSocioService`, `throttle` |
+| Mantenibilidad | Controladores delgados con la lógica en servicios, pruebas por módulo, formato con Pint | `app/Services`, `.github/workflows/tests.yml` |
+| Portabilidad | Contenedor Docker y despliegue en Render; SQLite en local y MySQL en producción | `Dockerfile`, `docker-compose.yml`, `render.yaml` |
+
+Requerimiento no funcional externo nuevo (Ley 25.326): los aptos físicos son datos de salud. El sistema ya los
+guarda en disco privado y limita su descarga a los operadores y al propio socio; el consentimiento informado y el
+procedimiento de rectificación y supresión se agregan en HU26 y HU27.
