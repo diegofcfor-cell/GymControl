@@ -131,7 +131,8 @@ tests/Unit/              reglas puras sin base de datos (período de pago, nivel
   y pasa a `socios.fecha_vencimiento`; el socio queda activo con la membresía pagada.
 - Apto vigente = tiene un apto con `fecha_vencimiento >= hoy`. El comando `gym:actualizar-vencimientos` corre
   todos los días a las 00:05 y marca como `vencido` el `estado` de los aptos vencidos.
-- PIN de 6 dígitos y QR (UUID) únicos por socio.
+- PIN de 6 dígitos y QR (UUID) únicos por socio. El ingreso es solo con PIN; el QR se acepta únicamente si
+  `Configuracion::accesoQrHabilitado()` (casilla en *Configuración*, apagada por defecto, HU33).
 - Aforo: presentes = asistencias de hoy sin egreso; nivel libre < 50 %, moderado < 80 %, lleno ≥ 80 % de la
   capacidad configurada.
 - Chatbot sin IA ni costo: busca por palabras clave; planes, precios y aforo se responden con datos en vivo.

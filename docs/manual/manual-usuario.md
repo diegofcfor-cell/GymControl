@@ -17,7 +17,7 @@ Las capturas se tomaron con los datos de demostración del sistema, por lo que n
 
 - Una computadora, tablet o celular con un navegador actualizado (Chrome, Firefox, Edge o Safari).
 - Conexión a internet.
-- Para la pantalla de acceso con código QR: un lector de códigos USB o la cámara del dispositivo.
+- Solo si se activa el ingreso con código QR (ver 5.6): un lector de códigos USB o la cámara del dispositivo.
 
 ### 1.2 Tipos de usuario
 
@@ -26,7 +26,7 @@ Las capturas se tomaron con los datos de demostración del sistema, por lo que n
 | Recepcionista | Correo y contraseña en `/login` | Atiende el mostrador: socios, aptos físicos, pagos, pantalla de acceso e historiales |
 | Administrador | Correo y contraseña en `/login` | Todo lo del recepcionista, más el dashboard económico, bajas, membresías, operadores, preguntas frecuentes, configuración y pedidos sobre datos personales |
 | Profesor | Correo y contraseña en `/login` | Ve los pedidos de rutina de los socios y los arma |
-| Terminal de acceso | Correo y contraseña en `/login`, una sola vez en la tablet o PC de la entrada | Solo abre la pantalla de acceso donde los socios marcan su PIN o QR; no ve socios, pagos ni importes |
+| Terminal de acceso | Correo y contraseña en `/login`, una sola vez en la tablet o PC de la entrada | Solo abre la pantalla de acceso donde los socios marcan su PIN; no ve socios, pagos ni importes |
 | Socio | DNI y PIN en `/socio/login` | Consulta su cuenta, el aforo, el chatbot, pide una rutina y ejerce sus derechos sobre sus datos |
 | Visitante | No necesita cuenta | Ve la web pública del gimnasio |
 
@@ -80,9 +80,9 @@ Un recepcionista o administrador también puede abrirla:
 
 1. Abrir **Pantalla de acceso** desde el menú.
 2. El socio marca su **PIN** de 6 dígitos con el **teclado numérico de la pantalla** (pensado para tablets táctiles;
-   *Limpiar* borra todo y ⌫ el último número) o con el teclado físico, y presiona **Registrar**. También puede pasar
-   su credencial por el lector de QR.
-   También se puede usar **Escanear QR con la cámara**.
+   *Limpiar* borra todo y ⌫ el último número) o con el teclado físico, y presiona **Registrar**. Si el
+   administrador activó el ingreso con QR (ver 5.6), también puede pasar su credencial por el lector o usar
+   **Escanear QR con la cámara**.
 3. El sistema responde en pantalla:
    - **Verde, "¡Bienvenido/a!":** el ingreso quedó registrado con la hora. Si la cuota vence en los próximos 3
      días, se muestra un aviso.
@@ -138,7 +138,7 @@ Al hacer clic en un socio se abre su ficha, con su membresía, el estado de la c
 últimos pagos y las últimas asistencias. Desde los botones de arriba se puede:
 
 - **Editar** los datos personales (y registrar el consentimiento de socios cargados antes de este requisito).
-- **Credencial PIN/QR:** muestra la credencial lista para imprimir y entregar al socio.
+- **Credencial:** muestra la credencial lista para imprimir y entregar al socio (con el QR solo si está activado).
 - **Registrar pago** (sección 4.5).
 - **Ficha PDF:** descarga la ficha personal para imprimir.
 
@@ -229,6 +229,10 @@ y la cantidad de gente en el gimnasio no hace falta cargarlos: el chatbot los re
 En **Configuración** se define la **capacidad máxima del local**, que se usa para calcular el aforo (libre por
 debajo del 50 %, moderado por debajo del 80 % y lleno desde el 80 %), y los textos de la web pública: dirección,
 teléfono, correo, Instagram y horarios.
+
+En **Pantalla de acceso**, la casilla **Permitir ingreso con código QR** viene sin marcar: el gimnasio usa solo el
+PIN, la pantalla de acceso no muestra la cámara y la credencial no imprime el QR. Cada socio conserva su código QR,
+así que si en el futuro se necesita, basta con marcar la casilla y guardar.
 
 ![Configuración](img/12-configuracion.png)
 
@@ -325,7 +329,7 @@ al menos 10 caracteres. El gimnasio responde dentro de los 5 días hábiles y la
 |---|---|
 | Un socio olvidó su PIN | Buscarlo por DNI en *Socios*; el PIN está en su ficha y se puede reimprimir la credencial |
 | Un socio se fue sin marcar la salida | No le impide volver a ingresar otro día; esa visita queda sin egreso en el historial |
-| El lector de QR no funciona | Ingresar el PIN a mano: siempre está disponible como alternativa |
+| El lector de QR no funciona | Ingresar el PIN: siempre está disponible. El QR solo funciona si está activado en *Configuración* |
 | Un operador olvidó su contraseña | El administrador escribe una nueva en *Operadores*, editando la cuenta, y se la pasa en persona |
 | El administrador olvidó su contraseña | Otro administrador la restablece; si no hay otro, el responsable técnico ejecuta `php artisan gym:clave-operador correo` en el servidor |
 | Cambió el precio de un plan | Editarlo en *Membresías*; los pagos anteriores conservan el importe cobrado |
@@ -336,7 +340,7 @@ al menos 10 caracteres. El gimnasio responde dentro de los 5 días hábiles y la
 - **Apto físico:** certificado médico que habilita a entrenar; tiene fecha de vencimiento.
 - **Aforo:** cantidad de personas dentro del gimnasio en un momento dado.
 - **Baja lógica:** el registro deja de estar activo, pero no se borra, para conservar su historial.
-- **Credencial:** tarjeta del socio con su PIN y su código QR.
+- **Credencial:** tarjeta del socio con su PIN (y su código QR si el ingreso con QR está activado).
 - **Cuota al día:** la fecha de vencimiento de la cuota es hoy o posterior.
 - **PIN:** número de 6 dígitos, único para cada socio, que identifica al socio en la pantalla de acceso y en el
   portal.
