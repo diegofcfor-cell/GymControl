@@ -31,10 +31,18 @@ if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
   touch "$DB_DATABASE"
 fi
 
+# MySQL administrado con conexión cifrada (TLS), por ejemplo Aiven: el certificado de su autoridad (CA) llega en
+# DB_SSL_CA_PEM y se guarda en un archivo, porque PDO lo espera como ruta (MYSQL_ATTR_SSL_CA en config/database.php).
+if [ -n "${DB_SSL_CA_PEM:-}" ]; then
+  printf '%b\n' "$DB_SSL_CA_PEM" > storage/db-ca.pem
+  MYSQL_ATTR_SSL_CA=/var/www/html/storage/db-ca.pem
+  export MYSQL_ATTR_SSL_CA
+fi
+
 # Esperar a la base de datos (hasta ~60 s) y migrar
 if [ "${DB_CONNECTION:-sqlite}" = "mysql" ]; then
   i=0
-  until php -r 'try { new PDO("mysql:host=".getenv("DB_HOST").";port=".(getenv("DB_PORT")?:3306).";dbname=".getenv("DB_DATABASE"), getenv("DB_USERNAME"), getenv("DB_PASSWORD")); exit(0);} catch (Throwable $e) { exit(1);} '; do
+  until php -r '$ca = getenv("MYSQL_ATTR_SSL_CA"); try { new PDO("mysql:host=".getenv("DB_HOST").";port=".(getenv("DB_PORT")?:3306).";dbname=".getenv("DB_DATABASE"), getenv("DB_USERNAME"), getenv("DB_PASSWORD"), $ca ? [PDO::MYSQL_ATTR_SSL_CA => $ca] : []); exit(0);} catch (Throwable $e) { fwrite(STDERR, $e->getMessage()."\n"); exit(1);} '; do
     i=$((i+1)); [ $i -ge 30 ] && echo "No se pudo conectar a MySQL" >&2 && exit 1
     echo "Esperando a MySQL ($i/30)..."; sleep 2
   done

@@ -51,6 +51,33 @@ actualiza cada 30 segundos.
 
 La base SQLite vive dentro del contenedor: **se borra en cada deploy o reinicio** y vuelve a cargarse con los datos de demostración. Sirve para mostrar el sistema, no para usarlo en el gimnasio.
 
+## 2-ter. Demo gratuita con datos persistentes (MySQL externo en Aiven)
+Es la configuración de la entrega: el web service gratuito de la sección 2-bis, pero con la base en un MySQL 8
+administrado y gratuito de Aiven, así los datos sobreviven a cada deploy (RNF03).
+
+1. En https://console.aiven.io, **Create service → MySQL → plan Free**. Esperar el estado *Running*.
+2. En **Overview → Connection information** están el host, el puerto, el usuario (`avnadmin`), la contraseña, la
+   base (`defaultdb`) y el **CA certificate**.
+3. En el servicio de Render, cambiar `DB_CONNECTION` a `mysql` y agregar:
+
+| Name | Value |
+|---|---|
+| `DB_HOST` | el host de Aiven |
+| `DB_PORT` | el puerto de Aiven |
+| `DB_DATABASE` | `defaultdb` |
+| `DB_USERNAME` | `avnadmin` |
+| `DB_PASSWORD` | la contraseña de Aiven (cargarla directo en Render, nunca en el repositorio) |
+| `DB_SSL_CA_PEM` | el texto completo del CA certificate, desde `-----BEGIN CERTIFICATE-----` hasta `-----END CERTIFICATE-----` |
+| `SEED_DEMO` | `true` la primera vez; el seeder no duplica datos si ya hay socios |
+
+**Por qué el certificado.** Aiven solo acepta conexiones cifradas con TLS. `docker/entrypoint.sh` guarda
+`DB_SSL_CA_PEM` en `storage/db-ca.pem` y lo pasa a PDO como `MYSQL_ATTR_SSL_CA`. Con ese certificado la aplicación
+además **verifica** que habla con el servidor de Aiven y no con un intermediario: con otro certificado la conexión
+se rechaza (*Cannot connect to MySQL using SSL*).
+
+**Verificación.** En el log del deploy aparecen las migraciones sin el mensaje *Esperando a MySQL*. Cargar un
+socio de prueba, hacer *Manual Deploy* en Render y comprobar que el socio sigue ahí.
+
 ## 3. Verificación
 - `https://<tu-app>.onrender.com/up` responde 200.
 - Crear un socio → cargar apto → registrar pago → probar el PIN en *Pantalla de acceso*.
@@ -105,10 +132,12 @@ respaldan copiando esa carpeta (`storage/app/certificados`).
 
 **Limitación de la demo gratuita (sección 2-bis).** Con SQLite dentro del contenedor no hay nada que respaldar:
 la base se borra en cada deploy. Para que el gimnasio use el sistema con datos reales hace falta la base MySQL del
-Blueprint (sección 2) o un MySQL administrado externo (sección 5).
+Blueprint (sección 2) o un MySQL administrado externo (sección 2-ter). Con Aiven, el respaldo se hace desde
+cualquier equipo con el cliente de MySQL: `mysqldump -h <host> -P <puerto> -u avnadmin -p --ssl-ca=ca.pem
+--single-transaction --set-gtid-purged=OFF defaultdb > respaldo.sql`.
 
 ## 5. Notas y alternativas
 - Si el disco de MySQL diera error de inicialización, revisar los *logs* de `gym-control-db`; el `Dockerfile` de MySQL usa el subdirectorio `/var/lib/mysql/data` justamente para evitar el directorio `lost+found` del disco.
-- Alternativa sin servicio MySQL propio: usar un MySQL administrado externo (por ejemplo Aiven o similares) y definir `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` en el servicio web (eliminar `gym-control-db` del Blueprint).
+- Alternativa sin servicio MySQL propio: usar un MySQL administrado externo, como en la sección 2-ter (eliminar `gym-control-db` del Blueprint).
 - Con un solo disco, el servicio web no puede escalar a más de una instancia (alcanza para un gimnasio).
 - La cámara del navegador para escanear QR requiere HTTPS (Render lo provee) y un navegador con `BarcodeDetector` (Chrome/Edge en Android o escritorio). Un lector USB de QR funciona en cualquier navegador porque "tipea" el código y presiona Enter.
