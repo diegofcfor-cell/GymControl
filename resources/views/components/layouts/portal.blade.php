@@ -13,7 +13,7 @@
     @php
         $enlaces = [
             ['portal.inicio', 'Mi cuenta'], ['portal.asistencias', 'Asistencias'], ['portal.pagos', 'Pagos'],
-            ['portal.aptos', 'Apto médico'], ['portal.rutina', 'Mi rutina'], ['portal.aforo', 'Aforo'], ['portal.preguntas', 'Preguntas'],
+            ['portal.aptos', 'Apto médico'], ['portal.rutina', 'Mi rutina'], ['portal.aforo', 'Aforo'], ['portal.preguntas', 'Preguntas'], ['portal.mis-datos', 'Mis datos'],
         ];
     @endphp
     <div class="mx-auto flex max-w-3xl items-center justify-between px-4 pt-3">

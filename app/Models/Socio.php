@@ -94,6 +94,11 @@ class Socio extends Model
         return $this->hasMany(SolicitudRutina::class);
     }
 
+    public function solicitudesDatos(): HasMany
+    {
+        return $this->hasMany(SolicitudDatos::class);
+    }
+
     public function getNombreCompletoAttribute(): string
     {
         return $this->apellido.', '.$this->nombre;

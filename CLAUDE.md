@@ -64,7 +64,7 @@ Usuarios de prueba (`SEED_DEMO=true`): `admin@gymcontrol.test` / `Admin1234!`, `
 ## Estructura
 
 ```
-app/Services/            reglas de negocio (Acceso, Pago, Aforo, Chatbot, AutenticacionSocio): acá va la lógica
+app/Services/            reglas de negocio (Acceso, Pago, Aforo, Chatbot, AutenticacionSocio, SolicitudDatos): acá va la lógica
 app/Http/Controllers/    panel de operadores; Portal/ = portal del socio; Api/ = API REST
 app/Http/Middleware/     RolMiddleware (`rol:`), SocioAutenticado (`socio`), SocioConToken (`socio.token`)
 app/Http/Requests/       Form Requests de cada formulario; Resources/ = respuestas JSON de la API
@@ -146,7 +146,8 @@ fechas:
 **Redundancias controladas (justificarlas en la defensa):** `pagos.importe` guarda el precio cobrado para que un
 cambio de tarifa no altere el historial; `socios.fecha_vencimiento` guarda el fin de la cuota para validar el
 acceso con una sola consulta. Tablas agregadas después del Plan: `configuraciones`, `preguntas_frecuentes`,
-rutinas (`solicitudes_rutina`, `rutinas`, `rutina_ejercicios`) y `personal_access_tokens` (Sanctum).
+rutinas (`solicitudes_rutina`, `rutinas`, `rutina_ejercicios`), `solicitudes_datos` y `personal_access_tokens`
+(Sanctum).
 
 ## Matriz de permisos
 
@@ -154,8 +155,9 @@ rutinas (`solicitudes_rutina`, `rutinas`, `rutina_ejercicios`) y `personal_acces
 |---|---|---|---|---|
 | Socios (alta, edición, PIN/QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — |
 | Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — |
+| Responder pedidos de rectificación y supresión de datos | Sí | — | — | — |
 | Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — |
-| Ver su membresía, asistencias, pagos, aptos, aforo, chatbot y pedir rutina | — | — | — | Sí |
+| Ver su membresía, asistencias, pagos, aptos, aforo, chatbot, pedir rutina y pedir rectificar o suprimir sus datos | — | — | — | Sí |
 
 El Plan del TIF solo tiene las columnas de administrador y recepcionista (ver "Brechas", punto 1).
 
@@ -302,9 +304,11 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    ahora, usar la convención de la cátedra.
 8. ~~Licencia y titularidad~~ **resuelta:** titular el Grupo 13 (Cardozo, Heretichi, López); el Gimnasio
    Fénix usa la versión de prueba gratuita y las próximas versiones serán pagas. Ver `LICENSE` (Ley 11.723).
-9. **Datos personales** (Legislación): ya hay aviso de privacidad (`/privacidad`) y consentimiento con fecha
-   (`socios.consentimiento_datos_at`), exigido para cargar el apto. Falta el pedido de rectificación o
-   supresión desde el portal (HU27).
+9. ~~Datos personales~~ **resuelta** (Legislación): aviso de privacidad (`/privacidad`), consentimiento con
+   fecha (`socios.consentimiento_datos_at`, exigido para cargar el apto) y pedidos de rectificación o supresión
+   desde *Mis datos* del portal, que responde el administrador en 5 días hábiles (`solicitudes_datos`, HU27).
+   Responder no borra datos: la supresión real sigue siendo la baja lógica, y hay que justificar en la defensa
+   por qué se conserva el historial de pagos.
 
 ## Fuentes de esta guía
 

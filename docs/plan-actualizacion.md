@@ -106,6 +106,18 @@ La prioridad usa la escala de la cátedra: **Esencial** (sin esto el sistema no 
 | Prioridad | Útil |
 | Historia | HU28 |
 
+### RF16 — Derechos sobre los datos personales
+
+| Campo | Detalle |
+|---|---|
+| Descripción | El socio conoce el aviso de privacidad, da su consentimiento, consulta sus datos y pide que se corrijan o se eliminen; el administrador responde |
+| Entradas | Aceptación del aviso en el alta; pedido del socio: tipo (rectificación o supresión) y detalle; respuesta del administrador |
+| Proceso | Se guarda la fecha del consentimiento y sin él no se carga el apto físico. El socio tiene un solo pedido pendiente de cada tipo. El sistema calcula el plazo de respuesta de 5 días hábiles (art. 16) y marca en rojo los vencidos. Al responder se registra quién y cuándo, y la respuesta no se puede reescribir |
+| Salidas | Aviso en `/privacidad`; pantalla *Mis datos* del portal con los datos personales y el historial de pedidos; bandeja *Datos personales* del administrador |
+| Prioridad | Esencial (lo exige la Ley 25.326) |
+| Reglas | Solo el administrador ve y responde los pedidos. Responder no borra datos: la corrección o la baja se hacen desde la ficha del socio. El plazo cuenta de lunes a viernes y no descuenta feriados |
+| Historia | HU26, HU27 |
+
 ## 4. Historias de usuario
 
 Estado del código: **Done** en todas (implementadas y con pruebas en verde). Estado de la documentación: **Done**
@@ -118,6 +130,8 @@ con este documento, pendiente de la revisión del equipo.
 | HU15 | RF12 | Como socio quiero preguntarle a un chatbot las dudas frecuentes para no tener que llamar al gimnasio | 1) Encuentra la respuesta aunque escriba sin tildes o en plural. 2) No usa preguntas desactivadas. 3) Responde precios y aforo con datos actuales. 4) Si no entiende, sugiere preguntas y deriva a recepción. 5) Solo el administrador gestiona las preguntas |
 | HU16 | RF13 | Como profesor quiero ver los pedidos de rutina y armarlas desde una biblioteca para atender a los socios más rápido | 1) El socio tiene un solo pedido pendiente a la vez. 2) El profesor ve los pedidos y arma la rutina. 3) La rutina nueva reemplaza a la anterior. 4) Exige al menos un ejercicio y se puede editar. 5) Las 15 plantillas de la biblioteca pasan la validación |
 | HU17 | RF14 | Como aplicación cliente quiero consultar el aforo y los datos del socio por API REST para integrarme con el sistema | 1) `GET /api/aforo` es público y no expone datos personales. 2) El login devuelve un token Bearer y responde 401 con PIN incorrecto. 3) Sin token se responde 401 en JSON. 4) El socio solo ve sus asistencias. 5) El logout revoca el token |
+| HU26 | RF16 | Como socio quiero conocer cómo se usan mis datos y dar mi consentimiento para que el gimnasio trate mi apto físico de forma legal | 1) El aviso está en `/privacidad` y se enlaza desde la web y el portal. 2) El alta exige aceptar el aviso y guarda la fecha. 3) Sin consentimiento no se carga el apto |
+| HU27 | RF16 | Como socio quiero ver mis datos personales y pedir que se corrijan o se eliminen para ejercer mis derechos sin ir a recepción | 1) En *Mis datos* veo mis datos y la fecha de mi consentimiento. 2) Pido rectificación o supresión con un detalle de al menos 10 caracteres. 3) No se duplica un pedido pendiente del mismo tipo. 4) Veo el plazo de 5 días hábiles y la respuesta. 5) Solo el administrador responde, una sola vez |
 | HU28 | RF15 | Como visitante quiero ver la web del gimnasio con planes, horarios y aforo para decidir si me hago socio | 1) Muestra los planes activos con su precio. 2) Funciona aunque falten textos. 3) El chatbot responde horarios y contacto cargados. 4) Solo el administrador edita los textos |
 
 ## 5. Casos de uso
@@ -142,6 +156,7 @@ flowchart LR
         CU18[CU18 Consultar datos por API]
         CU19[CU19 Configurar web, capacidad y preguntas]
         CU20[CU20 Ver web pública]
+        CU21[CU21 Ejercer derechos sobre mis datos]
         CUA[Autenticarse con DNI y PIN]
     end
 
@@ -149,6 +164,8 @@ flowchart LR
     Socio --- CU14
     Socio --- CU15
     Socio --- CU16
+    Socio --- CU21
+    Admin --- CU21
     Visitante --- CU20
     Visitante --- CU14
     Visitante --- CU15
@@ -161,6 +178,7 @@ flowchart LR
     CU13 -. include .-> CUA
     CU16 -. include .-> CUA
     CU18 -. include .-> CUA
+    CU21 -. include .-> CUA
 ```
 
 | Caso de uso | Actor principal | Flujo principal | Flujo alternativo |
@@ -173,6 +191,7 @@ flowchart LR
 | CU18 Consultar datos por API | Aplicación cliente | Obtiene un token con DNI y PIN y consulta perfil y asistencias | Token inválido o socio dado de baja: 401 |
 | CU19 Configurar web, capacidad y preguntas | Administrador | Edita textos, capacidad máxima y preguntas frecuentes | — |
 | CU20 Ver web pública | Visitante | Entra a `/` y ve planes, horarios, contacto y aforo | — |
+| CU21 Ejercer derechos sobre mis datos | Socio (el administrador responde) | Ve sus datos en *Mis datos*, pide rectificación o supresión y luego lee la respuesta | Ya tiene un pedido pendiente del mismo tipo: se le avisa y no se duplica |
 
 `include` indica que el caso siempre ejecuta otro (todos los del socio pasan por la autenticación). Se usa con
 moderación, como pide la cátedra.
@@ -183,8 +202,10 @@ moderación, como pide la cátedra.
 |---|---|---|---|---|---|
 | Socios (alta, edición, PIN y QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — | — |
 | Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — | — |
+| Responder pedidos de rectificación y supresión de datos | Sí | — | — | — | — |
 | Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — | — |
 | Ver su membresía, asistencias, pagos y aptos; pedir rutina | — | — | — | Sí | — |
+| Ver sus datos personales y pedir rectificación o supresión | — | — | — | Sí (portal) | — |
 | Aforo y chatbot | Sí | Sí | — | Sí | Sí |
 | Web pública | Sí | Sí | Sí | Sí | Sí |
 
@@ -195,7 +216,8 @@ Implementación: grupos de rutas con `rol:administrador,recepcionista`, `rol:adm
 ## 7. Modelo entidad-relación actualizado
 
 Se agregan a las seis tablas núcleo del Plan las tablas `configuraciones`, `preguntas_frecuentes`,
-`solicitudes_rutina`, `rutinas`, `rutina_ejercicios` y `personal_access_tokens` (de Sanctum).
+`solicitudes_rutina`, `rutinas`, `rutina_ejercicios`, `solicitudes_datos` y `personal_access_tokens` (de
+Sanctum).
 
 ```mermaid
 erDiagram
@@ -211,6 +233,8 @@ erDiagram
     socios ||--o{ solicitudes_rutina : "pide"
     socios ||--o{ rutinas : "recibe"
     socios ||--o{ personal_access_tokens : "obtiene"
+    socios ||--o{ solicitudes_datos : "pide"
+    users |o--o{ solicitudes_datos : "responde"
     rutinas ||--|{ rutina_ejercicios : "contiene"
     rutinas |o--o| solicitudes_rutina : "atiende"
 
@@ -279,6 +303,16 @@ erDiagram
         text comentarios
         string estado
     }
+    solicitudes_datos {
+        bigint id PK
+        bigint socio_id FK
+        bigint user_id FK "NULL hasta responder"
+        string tipo "rectificacion o supresion"
+        text detalle
+        string estado
+        text respuesta
+        timestamp resuelta_at
+    }
     rutinas {
         bigint id PK
         bigint socio_id FK
@@ -325,6 +359,8 @@ erDiagram
 
 - `rutina_ejercicios` separa los ejercicios de la rutina porque una rutina tiene muchos: guardarlos en una
   columna de `rutinas` violaría la 1FN (valores repetidos en un mismo campo).
+- `solicitudes_datos.user_id` es opcional por la misma razón: el pedido existe antes de que un administrador lo
+  responda.
 - `solicitudes_rutina.rutina_id` es opcional (`nullOnDelete`): el pedido existe antes de que haya rutina.
 - `configuraciones` usa el formato clave-valor para los pocos datos sueltos del gimnasio (capacidad, horarios,
   contacto). Es una decisión de diseño consciente: evita una tabla de una sola fila con muchas columnas
@@ -357,6 +393,7 @@ verifica, y también en sentido inverso.
 | RF13 Rutinas | HU16 | `RutinaController.php`, `app/Http/Controllers/Portal/RutinaSocioController.php`, `app/Support/PlantillasRutina.php`, `app/Http/Requests/RutinaRequest.php`, `app/Policies/RutinaPolicy.php` | `RutinaTest` (11) |
 | RF14 API REST | HU17 | `routes/api.php`, `app/Http/Controllers/Api/`, `app/Http/Requests/LoginSocioRequest.php`, `app/Http/Resources/`, `app/Http/Middleware/SocioConToken.php` | `ApiTest` (11) |
 | RF15 Web pública | HU28 | `WebController.php`, `ConfiguracionController.php`, `resources/views/web/` | `WebTest` (7) |
+| RF16 Derechos sobre los datos personales | HU26, HU27 | `WebController::privacidad()`, `app/Http/Controllers/Portal/MisDatosController.php`, `SolicitudDatosController.php`, `app/Services/SolicitudDatosService.php`, `app/Models/SolicitudDatos.php` | `PrivacidadTest` (4), `SolicitudDatosTest` (6) |
 
 Los controladores están en `app/Http/Controllers/` y las pruebas en `tests/Feature/`.
 
@@ -370,9 +407,9 @@ ellas y se indica cómo se cumple y qué falta.
 
 | RNF del Plan | Característica ISO/IEC 25010 | Cómo se cumple | Evidencia | Pendiente |
 |---|---|---|---|---|
-| RNF01 Seguridad | Seguridad (confidencialidad, integridad, autenticidad) | Contraseñas con bcrypt; rutas protegidas por `rol:`; Policies por registro; límite de intentos en login, pantalla de acceso y PIN del socio; aptos en disco privado; sesiones de operador y socio separadas | `RolMiddleware`, `app/Policies`, `AutenticacionSocioService`, `throttle`; `RolesTest`, `AccesoTest::test_codigo_inexistente_y_limite_de_intentos`, `GestionTest` | Pedido de rectificación y supresión desde el portal (HU27). El aviso de privacidad y el consentimiento ya están (HU26, `PrivacidadTest`) |
+| RNF01 Seguridad | Seguridad (confidencialidad, integridad, autenticidad) | Contraseñas con bcrypt; rutas protegidas por `rol:`; Policies por registro; límite de intentos en login, pantalla de acceso y PIN del socio; aptos en disco privado; sesiones de operador y socio separadas | `RolMiddleware`, `app/Policies`, `AutenticacionSocioService`, `throttle`; `RolesTest`, `AccesoTest::test_codigo_inexistente_y_limite_de_intentos`, `GestionTest` | El aviso, el consentimiento (HU26) y los pedidos de rectificación y supresión (HU27) ya están. Falta que un profesional del derecho revise el texto del aviso |
 | RNF02 Rendimiento | Eficiencia de desempeño (comportamiento temporal) | `socios.fecha_vencimiento` permite validar el acceso con una sola consulta; índices en DNI, PIN, QR y fechas; el mapa de horas pico se calcula con una sola consulta | Migraciones, `AforoService::mapaSemanal()` | Medir el tiempo de respuesta en Render para respaldar el umbral de 2 segundos |
 | RNF03 Disponibilidad y persistencia | Fiabilidad (disponibilidad, recuperabilidad) y portabilidad | Contenedor Docker en local y en Render; pagos en transacción; baja lógica que conserva el historial | `Dockerfile`, `docker-compose.yml`, `render.yaml`, `PagoService` | Respaldo con `mysqldump` probado (Sprint 4). El plan gratuito de Render suspende el servicio inactivo |
 | RNF04 Usabilidad | Usabilidad (operabilidad, protección contra errores) | Mensajes de acceso permitido o denegado con el motivo; buscador reactivo; colores de estado | `PantallaAcceso`, `SociosIndex` | Prueba de uso en tablet con recepción |
-| RNF05 Escalabilidad y mantenibilidad | Mantenibilidad (modularidad, capacidad de prueba) | MVC con la lógica en servicios; Form Requests y Policies separan validación y permisos; 107 pruebas (18 unitarias y 89 de integración) y CI con Pint | `app/Services`, `app/Http/Requests`, `.github/workflows/tests.yml` | Patrones documentados (Sprint 4). Las pruebas unitarias ya están en `tests/Unit` (HU20) |
+| RNF05 Escalabilidad y mantenibilidad | Mantenibilidad (modularidad, capacidad de prueba) | MVC con la lógica en servicios; Form Requests y Policies separan validación y permisos; 113 pruebas (18 unitarias y 95 de integración) y CI con Pint | `app/Services`, `app/Http/Requests`, `.github/workflows/tests.yml` | Patrones documentados (Sprint 4). Las pruebas unitarias ya están en `tests/Unit` (HU20) |
 | RNF06 Compatibilidad | Compatibilidad y portabilidad (adaptabilidad) | Diseño responsive con Tailwind; API REST en JSON para otros clientes | Vistas Blade, `routes/api.php` | Verificación manual en celular, tablet y escritorio |
