@@ -70,12 +70,42 @@ La base SQLite vive dentro del contenedor: **se borra en cada deploy o reinicio*
 - **Si falla.** Si Reverb no responde, el ingreso se registra igual: el error queda en el log y el aforo se
   sigue actualizando cada 30 s con `wire:poll`.
 
-## 4. Respaldos
-Desde el *Shell* del servicio de base de datos:
+## 4. Respaldos (RNF03)
+Un respaldo es una copia de la base en un archivo `.sql` con las sentencias que la vuelven a crear (`CREATE TABLE`
+e `INSERT`). Solo sirve si se probó restaurarlo, por eso esta sección trae los dos comandos y la prueba.
+
+**Crear el respaldo.** Desde el *Shell* del servicio de base de datos:
 ```bash
-mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" gym_control > /var/lib/mysql/respaldo-$(date +%F).sql
+mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" --single-transaction --routines --triggers gym_control \
+  > /var/lib/mysql/respaldo-$(date +%F).sql
 ```
-Los certificados quedan en el disco `certificados` del servicio web.
+`--single-transaction` toma una foto consistente de las tablas InnoDB sin bloquear el sistema mientras se usa, y
+`--routines --triggers` incluye procedimientos y disparadores si se agregan en el futuro. Después, descargar el
+archivo a otra ubicación: un respaldo que queda en el mismo disco se pierde junto con él.
+
+**Restaurar.** Sobre una base vacía:
+```bash
+mysql -u root -p"$MYSQL_ROOT_PASSWORD" gym_control < /var/lib/mysql/respaldo-AAAA-MM-DD.sql
+```
+
+**Frecuencia recomendada.** Uno por día al cierre del gimnasio y antes de cada deploy con migraciones nuevas.
+
+**Prueba realizada (22/10/2026, MySQL 8.0.46 con los datos de demostración).**
+
+| Paso | Resultado |
+|---|---|
+| Conteo antes | socios 5, pagos 5, asistencias 60, aptos 4, membresías 3, operadores 3; suma de importes $ 170.000 |
+| `mysqldump` | 0,17 s; archivo de 37 KB con 21 `CREATE TABLE` |
+| Pérdida simulada | `DROP DATABASE gym_control`: la aplicación responde *Base table or view not found* |
+| Restauración | 0,42 s |
+| Conteo después | Idéntico al de antes, incluida la suma de importes; `php artisan migrate:status` muestra todas las migraciones aplicadas |
+
+Los certificados de aptos físicos no están en la base: quedan en el disco `certificados` del servicio web y se
+respaldan copiando esa carpeta (`storage/app/certificados`).
+
+**Limitación de la demo gratuita (sección 2-bis).** Con SQLite dentro del contenedor no hay nada que respaldar:
+la base se borra en cada deploy. Para que el gimnasio use el sistema con datos reales hace falta la base MySQL del
+Blueprint (sección 2) o un MySQL administrado externo (sección 5).
 
 ## 5. Notas y alternativas
 - Si el disco de MySQL diera error de inicialización, revisar los *logs* de `gym-control-db`; el `Dockerfile` de MySQL usa el subdirectorio `/var/lib/mysql/data` justamente para evitar el directorio `lost+found` del disco.
