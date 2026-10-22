@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\LoginSocioRequest;
+use App\Http\Requests\LoginSocioRequest;
 use App\Http\Resources\AsistenciaResource;
 use App\Http\Resources\SocioResource;
 use App\Services\AutenticacionSocioService;

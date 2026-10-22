@@ -129,4 +129,25 @@ class GestionTest extends TestCase
         $this->assertTrue(Gate::forUser($profesor)->denies('create', AptoFisico::class));
         $this->assertTrue(Gate::forUser(User::factory()->create())->allows('view', $apto));
     }
+
+    public function test_pagos_operadores_y_configuracion_validan_sus_datos(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        $socio = $this->socio();
+
+        $this->actingAs($admin)->post("/socios/{$socio->id}/pagos", ['membresia_id' => $socio->membresia_id, 'metodo_pago' => 'cheque'])
+            ->assertSessionHasErrors('metodo_pago');
+
+        $this->actingAs($admin)->post('/operadores', ['name' => 'Rocío', 'email' => $admin->email, 'rol' => User::ROL_RECEPCION])
+            ->assertSessionHasErrors(['email', 'password']);
+        $this->actingAs($admin)->post('/operadores', ['name' => 'Rocío', 'email' => 'rocio@gym.test', 'password' => 'secreta123',
+            'password_confirmation' => 'secreta123', 'rol' => User::ROL_RECEPCION])->assertSessionHasNoErrors();
+        // Al editar, la contraseña vacía significa "no cambiarla".
+        $rocio = User::where('email', 'rocio@gym.test')->first();
+        $this->actingAs($admin)->put("/operadores/{$rocio->id}", ['name' => 'Rocío P.', 'email' => $rocio->email, 'rol' => User::ROL_RECEPCION, 'activo' => '1'])
+            ->assertSessionHasNoErrors();
+
+        $this->actingAs($admin)->put('/configuracion', ['capacidad_maxima' => 0, 'instagram' => 'no válido'])
+            ->assertSessionHasErrors(['capacidad_maxima', 'instagram']);
+    }
 }

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SolicitudRutinaRequest;
 use App\Models\SolicitudRutina;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class RutinaSocioController extends Controller
 {
@@ -22,7 +22,7 @@ class RutinaSocioController extends Controller
         ]);
     }
 
-    public function solicitar(Request $request)
+    public function solicitar(SolicitudRutinaRequest $request)
     {
         $socio = $request->attributes->get('socio');
 
@@ -30,14 +30,7 @@ class RutinaSocioController extends Controller
             return redirect()->route('portal.rutina')->with('ok', 'Ya tenés un pedido en curso. Un profesor te va a armar la rutina.');
         }
 
-        $datos = $request->validate([
-            'objetivo' => ['required', Rule::in(SolicitudRutina::OBJETIVOS)],
-            'dias_por_semana' => ['required', 'integer', 'min:1', 'max:7'],
-            'nivel' => ['required', Rule::in(array_keys(SolicitudRutina::NIVELES))],
-            'comentarios' => ['nullable', 'string', 'max:1000'],
-        ]);
-
-        $socio->solicitudesRutina()->create($datos + ['estado' => 'pendiente']);
+        $socio->solicitudesRutina()->create($request->validated() + ['estado' => 'pendiente']);
 
         return redirect()->route('portal.rutina')->with('ok', '¡Listo! Un profesor va a armar tu rutina y la vas a ver acá.');
     }

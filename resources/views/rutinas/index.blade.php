@@ -31,7 +31,7 @@
     @forelse ($rutinas as $r)
         <tr class="border-t border-slate-200"><td class="px-4 py-2 font-medium">{{ $r->socio->nombre_completo }}</td><td>{{ $r->nombre }}</td><td>{{ $r->ejercicios_count }}</td><td>{{ $r->profesor->name }}</td>
             <td>{{ $r->activa ? 'Vigente' : 'Reemplazada' }}</td><td>{{ $r->updated_at->format('d/m/Y') }}</td>
-            <td class="pr-4 text-right"><a class="text-blue-700 hover:underline" href="{{ route('rutinas.edit', $r) }}">Editar</a></td></tr>
+            <td class="pr-4 text-right">@can('update', $r)<a class="text-blue-700 hover:underline" href="{{ route('rutinas.edit', $r) }}">Editar</a>@endcan</td></tr>
     @empty
         <tr><td colspan="7" class="px-4 py-6 text-center text-slate-500">Todavía no hay rutinas.</td></tr>
     @endforelse

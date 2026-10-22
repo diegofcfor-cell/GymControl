@@ -125,6 +125,21 @@ class RutinaTest extends TestCase
         $this->assertSame(['Plancha'], $rutina->fresh()->ejercicios->pluck('ejercicio')->all());
     }
 
+    public function test_solo_quien_armo_la_rutina_o_el_admin_puede_editarla(): void
+    {
+        $this->actingAs($this->profesor)->post('/rutinas/pedidos/'.$this->pedido($this->socio())->id, $this->datosRutina());
+        $rutina = Rutina::firstOrFail();
+        $otroProfesor = User::factory()->create(['rol' => User::ROL_PROFESOR]);
+
+        $this->actingAs($otroProfesor)->get('/rutinas')->assertOk()->assertDontSee(route('rutinas.edit', $rutina));
+        $this->actingAs($otroProfesor)->get("/rutinas/{$rutina->id}/editar")->assertForbidden();
+        $this->actingAs($otroProfesor)->put("/rutinas/{$rutina->id}", $this->datosRutina(['nombre' => 'Ajena']))->assertForbidden();
+        $this->assertSame('Full body', $rutina->fresh()->nombre);
+
+        $this->actingAs($this->profesor)->get('/rutinas')->assertSee(route('rutinas.edit', $rutina));
+        $this->actingAs(User::factory()->administrador()->create())->get("/rutinas/{$rutina->id}/editar")->assertOk();
+    }
+
     public function test_permisos_por_rol(): void
     {
         $recepcion = User::factory()->create();

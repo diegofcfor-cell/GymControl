@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PagoRequest;
 use App\Models\Membresia;
 use App\Models\Pago;
 use App\Models\Socio;
@@ -49,12 +50,9 @@ class PagoController extends Controller
         return view('pagos.create', ['socio' => $socio->load('membresia'), 'membresias' => Membresia::activas()->orderBy('precio')->get()]);
     }
 
-    public function store(Request $request, Socio $socio, PagoService $servicio)
+    public function store(PagoRequest $request, Socio $socio, PagoService $servicio)
     {
-        $datos = $request->validate([
-            'membresia_id' => ['required', 'exists:membresias,id'],
-            'metodo_pago' => ['required', 'in:efectivo,transferencia,debito,credito'],
-        ]);
+        $datos = $request->validated();
 
         $pago = $servicio->registrar($socio, Membresia::findOrFail($datos['membresia_id']), $datos['metodo_pago'], $request->user());
 
