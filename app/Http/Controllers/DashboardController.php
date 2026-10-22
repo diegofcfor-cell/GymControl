@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Asistencia;
 use App\Models\Pago;
 use App\Models\Socio;
+use App\Repositories\AsistenciaRepository;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(AsistenciaRepository $asistencias)
     {
         $hoy = today();
         $inicioMes = $hoy->copy()->startOfMonth();
@@ -19,7 +20,7 @@ class DashboardController extends Controller
             'sociosActivos' => (clone $activos)->conCuotaAlDia()->count(),
             'sociosVencidos' => (clone $activos)->conCuotaVencida()->count(),
             'sociosTotal' => Socio::count(),
-            'presentes' => Asistencia::abiertas()->whereDate('fecha', $hoy)->count(),
+            'presentes' => $asistencias->cantidadPresentes(),
             'asistenciasHoy' => Asistencia::whereDate('fecha', $hoy)->count(),
             'ingresosHoy' => (float) Pago::whereDate('fecha_pago', $hoy)->sum('importe'),
             'ingresosMes' => (float) Pago::whereDate('fecha_pago', '>=', $inicioMes)->sum('importe'),
@@ -28,7 +29,7 @@ class DashboardController extends Controller
                 ->whereDate('fecha_vencimiento', '<=', $hoy->copy()->addDays(7))->count(),
             'sinApto' => Socio::where('estado', 'activo')->whereDoesntHave('aptos', fn ($q) => $q->whereDate('fecha_vencimiento', '>=', $hoy))->count(),
             'ultimosPagos' => Pago::with(['socio', 'membresia'])->latest('id')->limit(6)->get(),
-            'presentesLista' => Asistencia::with('socio')->abiertas()->whereDate('fecha', $hoy)->orderBy('hora_ingreso')->get(),
+            'presentesLista' => $asistencias->presentesHoy(),
         ];
 
         // Asistencias por día (últimos 7 días)

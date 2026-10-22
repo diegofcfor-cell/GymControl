@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Asistencia;
 use App\Models\Configuracion;
+use App\Repositories\AsistenciaRepository;
 use Carbon\Carbon;
 
 /**
@@ -27,6 +28,8 @@ class AforoService
     /** Minutos que se asumen para una asistencia sin egreso registrado. */
     public const PERMANENCIA_ESTIMADA = 60;
 
+    public function __construct(private AsistenciaRepository $asistencias) {}
+
     public function capacidad(): int
     {
         return max(1, (int) Configuracion::obtener('capacidad_maxima', (string) self::CAPACIDAD_POR_DEFECTO));
@@ -34,7 +37,7 @@ class AforoService
 
     public function presentes(): int
     {
-        return Asistencia::abiertas()->whereDate('fecha', today())->count();
+        return $this->asistencias->cantidadPresentes();
     }
 
     /** @return array{presentes:int,capacidad:int,porcentaje:int,nivel:string} */

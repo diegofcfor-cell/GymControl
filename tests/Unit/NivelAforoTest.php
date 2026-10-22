@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Repositories\AsistenciaRepository;
 use App\Services\AforoService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,6 @@ class NivelAforoTest extends TestCase
     #[DataProvider('porcentajes')]
     public function test_nivel_segun_el_porcentaje(int $porcentaje, string $nivel): void
     {
-        $this->assertSame($nivel, (new AforoService)->nivel($porcentaje));
+        $this->assertSame($nivel, (new AforoService(new AsistenciaRepository))->nivel($porcentaje));
     }
 }
