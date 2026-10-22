@@ -54,6 +54,22 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: sync
+      # Tiempo real (HU25): Reverb corre dentro de este mismo servicio y Apache le pasa /app (docker/reverb-proxy.conf).
+      # No hace falta otro servicio ni cargar nada a mano: la clave y el secreto se generan solos.
+      - key: BROADCAST_CONNECTION
+        value: reverb
+      - key: REVERB_APP_ID
+        value: gym-control
+      - key: REVERB_APP_KEY
+        generateValue: true
+      - key: REVERB_APP_SECRET
+        generateValue: true
+      - key: REVERB_HOST
+        value: 127.0.0.1     # Laravel publica en Reverb dentro del contenedor
+      - key: REVERB_PORT
+        value: "8080"
+      - key: REVERB_SCHEME
+        value: http
       - key: ADMIN_NAME
         value: Administrador
       - key: ADMIN_EMAIL
