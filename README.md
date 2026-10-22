@@ -1,6 +1,6 @@
 # Gym Control
 
-Sistema web de gestión y control de asistencia para gimnasios — **Trabajo Final Integrador**, Tecnicatura Universitaria en Programación (UTN FRRe).
+Sistema web de gestión y control de socios para gimnasios — **Trabajo Final Integrador**, Tecnicatura Universitaria en Programación (UTN FRRe).
 Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi, Adriana · López, Gabriela Elvira.
 
 **Stack:** Laravel 12 · PHP 8.3 · Blade + Livewire 3 + Alpine.js · Tailwind CSS 4 · MySQL 8 · DomPDF · Simple QrCode · Docker · Render.
