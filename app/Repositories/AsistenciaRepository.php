@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Consultas de asistencias que comparten varios módulos (aforo, acceso, dashboard y portal).
+ * Consultas de asistencias que comparten varios módulos (aforo, acceso, dashboard, recepción y portal).
  *
  * Regla que centraliza: un socio está "presente" si tiene una asistencia de hoy sin egreso.
  * Si esa regla cambia, se cambia solo acá.
@@ -25,6 +25,20 @@ class AsistenciaRepository
     public function presentesHoy(): Collection
     {
         return $this->presentes(Asistencia::with('socio'))->orderBy('hora_ingreso')->get();
+    }
+
+    /**
+     * Ingresos y egresos de hoy, del más reciente al más antiguo. El momento de cada visita es su egreso si ya
+     * salió, o su ingreso si sigue en sala, para que un egreso recién registrado aparezca primero.
+     */
+    public function ultimosAccesosHoy(int $cantidad = 8): Collection
+    {
+        return Asistencia::with('socio')
+            ->whereDate('fecha', today())
+            ->orderByRaw('COALESCE(hora_salida, hora_ingreso) DESC')
+            ->orderByDesc('id')
+            ->limit($cantidad)
+            ->get();
     }
 
     /** La asistencia abierta de hoy del socio, o null si no está en el gimnasio. */

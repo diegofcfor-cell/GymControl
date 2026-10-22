@@ -16,6 +16,7 @@ use App\Http\Controllers\Portal\PortalController;
 use App\Http\Controllers\Portal\PreguntasController;
 use App\Http\Controllers\Portal\RutinaSocioController;
 use App\Http\Controllers\PreguntaFrecuenteController;
+use App\Http\Controllers\RecepcionController;
 use App\Http\Controllers\RutinaController;
 use App\Http\Controllers\SocioController;
 use App\Http\Controllers\SolicitudDatosController;
@@ -50,6 +51,9 @@ Route::middleware(['auth', 'rol:administrador,profesor'])->group(function () {
 });
 
 Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function () {
+
+    // Panel de recepción: inicio del recepcionista (HU29)
+    Route::get('/recepcion', [RecepcionController::class, 'index'])->name('recepcion');
 
     // Pantalla de acceso (ingreso / egreso por PIN o QR)
     Route::get('/acceso', PantallaAcceso::class)->name('acceso');

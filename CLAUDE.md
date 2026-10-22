@@ -75,12 +75,12 @@ routes/api.php           API REST: /api/aforo pública; /api/socio/* con token d
 app/Livewire/            PantallaAcceso, SociosIndex, AforoEnVivo, ChatbotFaq
 app/Models/              Eloquent; Socio usa SoftDeletes (baja lógica)
 app/Events/, Listeners/   eventos de acceso y AforoActualizado (broadcast); RegistrarAccesoEnLog y TransmitirAforo (Observer)
-app/Repositories/        AsistenciaRepository: consultas que comparten varios módulos (presentes hoy)
+app/Repositories/        AsistenciaRepository: consultas que comparten varios módulos (presentes hoy, últimos accesos)
 app/Support/             PlantillasRutina (biblioteca R01–R15)
 app/Console/Commands/    gym:actualizar-vencimientos (programado en routes/console.php)
 database/migrations/     modelo ER; las nuevas llevan fecha 2026_MM_DD_
 resources/views/         Blade por módulo; pdf/ para informes; components/layouts/ app, kiosco y portal
-tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Portal, Aforo, Chatbot, Rutina, Web, Gestion, Privacidad)
+tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Recepcion, Portal, Aforo, Chatbot, Rutina, Web, Gestion, Privacidad)
 tests/Unit/              reglas puras sin base de datos (período de pago, nivel de aforo, permanencia, chatbot)
 ```
 
@@ -157,7 +157,7 @@ rutinas (`solicitudes_rutina`, `rutinas`, `rutina_ejercicios`), `solicitudes_dat
 
 | Funcionalidad | Admin | Recepción | Profesor | Socio (portal/API) |
 |---|---|---|---|---|
-| Socios (alta, edición, PIN/QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — |
+| Panel de recepción, socios (alta, edición, PIN/QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — |
 | Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — |
 | Responder pedidos de rectificación y supresión de datos | Sí | — | — | — |
 | Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — |
@@ -325,8 +325,8 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    Responder no borra datos: la supresión real sigue siendo la baja lógica, y hay que justificar en la defensa
    por qué se conserva el historial de pagos.
 
-10. **Panel de recepción** (Figura 3 de la maquetación aprobada): buscador rápido, socios en sala y accesos
-    recientes. Hoy el recepcionista entra al listado de socios (`User::rutaInicio()`).
+10. ~~Panel de recepción~~ **resuelta** (HU29, Figura 3 de la maquetación aprobada): `/recepcion` es el inicio del
+    recepcionista, con buscador rápido, socios en sala y últimos accesos del día, sin importes.
 
 ## Fuentes de esta guía
 

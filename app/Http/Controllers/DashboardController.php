@@ -30,6 +30,7 @@ class DashboardController extends Controller
             'sinApto' => Socio::where('estado', 'activo')->whereDoesntHave('aptos', fn ($q) => $q->whereDate('fecha_vencimiento', '>=', $hoy))->count(),
             'ultimosPagos' => Pago::with(['socio', 'membresia'])->latest('id')->limit(6)->get(),
             'presentesLista' => $asistencias->presentesHoy(),
+            'ultimosAccesos' => $asistencias->ultimosAccesosHoy(6),
         ];
 
         // Asistencias por día (últimos 7 días)

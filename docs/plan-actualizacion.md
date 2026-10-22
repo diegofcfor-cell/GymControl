@@ -32,7 +32,7 @@ documento no los reemplaza: los amplía. La Tabla A resume qué se mantiene igua
 | Autenticación | "No se incorporan tokens de acceso ni API externa" | API REST con tokens de Sanctum (RF14) | Ampliación |
 | Tablas | Seis más las de soporte de Laravel | Se suman `configuraciones`, `preguntas_frecuentes`, rutinas, `solicitudes_datos`, `personal_access_tokens` y `socios.consentimiento_datos_at` (sección 7) | Ampliación |
 | Accesos denegados | Tabla de auditoría como mejora futura | El evento `AccesoDenegado` se registra en el log con el motivo (HU21); no hay tabla | Parcial |
-| Panel de recepción | Figura 3: buscador rápido, socios en sala y accesos recientes | El recepcionista entra al listado de socios (`User::rutaInicio()`) | Pendiente |
+| Panel de recepción | Figura 3: buscador rápido, socios en sala y accesos recientes | `/recepcion` es el inicio del recepcionista (HU29) | Coincide |
 
 Las ampliaciones siguen el procedimiento de la Tabla 7 del Plan (riesgo "Cambios de alcance"): se validan con la
 Product Owner al inicio del sprint. Ninguna modifica las seis tablas aprobadas, de modo que el modelo relacional del
@@ -155,6 +155,7 @@ con este documento, pendiente de la revisión del equipo.
 | HU25 | RF11 | Como socio quiero ver el aforo actualizarse en el momento en que alguien entra o sale para decidir cuándo ir sin recargar la página | 1) Cada ingreso o egreso transmite el aforo por el canal público `aforo`; un rechazo no. 2) El evento solo lleva cantidades, nunca datos del socio. 3) El componente se vuelve a dibujar al recibirlo. 4) Si el servidor de WebSockets falla, el acceso se registra igual y sigue el sondeo cada 30 s |
 | HU26 | RF16 | Como socio quiero conocer cómo se usan mis datos y dar mi consentimiento para que el gimnasio trate mi apto físico de forma legal | 1) El aviso está en `/privacidad` y se enlaza desde la web y el portal. 2) El alta exige aceptar el aviso y guarda la fecha. 3) Sin consentimiento no se carga el apto |
 | HU27 | RF16 | Como socio quiero ver mis datos personales y pedir que se corrijan o se eliminen para ejercer mis derechos sin ir a recepción | 1) En *Mis datos* veo mis datos y la fecha de mi consentimiento. 2) Pido rectificación o supresión con un detalle de al menos 10 caracteres. 3) No se duplica un pedido pendiente del mismo tipo. 4) Veo el plazo de 5 días hábiles y la respuesta. 5) Solo el administrador responde, una sola vez |
+| HU29 | RF08 | Como recepcionista quiero un panel con un buscador rápido, los socios en sala y los últimos accesos para atender el mostrador sin entrar a cada módulo | 1) Es mi pantalla de inicio al ingresar. 2) El buscador abre el listado de socios filtrado por nombre, DNI o PIN. 3) Veo cuántos socios hay en sala y desde qué hora. 4) Los accesos del día se ordenan por el movimiento más reciente y los que siguen dentro dicen *en sala*. 5) No muestra importes. 6) El profesor no entra |
 | HU28 | RF15 | Como visitante quiero ver la web del gimnasio con planes, horarios y aforo para decidir si me hago socio | 1) Muestra los planes activos con su precio. 2) Funciona aunque falten textos. 3) El chatbot responde horarios y contacto cargados. 4) Solo el administrador edita los textos |
 
 ## 5. Casos de uso
@@ -223,7 +224,7 @@ moderación, como pide la cátedra.
 
 | Funcionalidad | Admin | Recepción | Profesor | Socio (portal o API) | Visitante |
 |---|---|---|---|---|---|
-| Socios (alta, edición, PIN y QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — | — |
+| Panel de recepción, socios (alta, edición, PIN y QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — | — |
 | Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — | — |
 | Responder pedidos de rectificación y supresión de datos | Sí | — | — | — | — |
 | Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — | — |
@@ -408,7 +409,7 @@ verifica, y también en sentido inverso.
 | RF05 Gestión de aptos físicos | HU8 | `AptoFisicoController.php`, `app/Http/Requests/AptoFisicoRequest.php`, `app/Policies/AptoFisicoPolicy.php`, `gym:actualizar-vencimientos` | `AccesoTest::test_sin_apto_fisico_deniega_ingreso`, `GestionTest` |
 | RF06 Control de acceso | HU6, HU7 | `app/Services/AccesoService.php`, `app/Livewire/PantallaAcceso.php` | `AccesoTest` (9) |
 | RF07 Historial de asistencias | HU11 | `AsistenciaController.php`, `resources/views/pdf/` | Sin prueba automatizada (pendiente) |
-| RF08 Dashboard e informes | HU9, HU11 | `DashboardController.php`, `PagoController::pdf()`, `SocioController::fichaPdf()` | `RolesTest::test_administrador_accede_a_todo` (solo acceso; el cálculo está pendiente) |
+| RF08 Dashboard e informes | HU9, HU11, HU29 | `DashboardController.php`, `RecepcionController.php`, `PagoController::pdf()`, `SocioController::fichaPdf()` | `RolesTest::test_administrador_accede_a_todo` (solo acceso; el cálculo está pendiente), `RecepcionTest` (5) |
 | RF09 Gestión de operadores | HU10 | `OperadorController.php` | `RutinaTest::test_el_admin_puede_crear_un_profesor` |
 | RF10 Portal del socio | HU13 | `app/Http/Controllers/Portal/AuthSocioController.php`, `PortalController.php`, `HistorialController.php`, `app/Services/AutenticacionSocioService.php`, `app/Http/Middleware/SocioAutenticado.php` | `PortalSocioTest` (9), `PortalHistorialTest` (5) |
 | RF11 Consulta de aforo | HU14, HU25 | `app/Services/AforoService.php`, `app/Livewire/AforoEnVivo.php`, `app/Http/Controllers/Portal/AforoController.php`, `app/Events/AforoActualizado.php`, `app/Listeners/TransmitirAforo.php` | `AforoTest` (9), `AforoTiempoRealTest` (5) |
@@ -434,5 +435,5 @@ ellas y se indica cómo se cumple y qué falta.
 | RNF02 Rendimiento | Eficiencia de desempeño (comportamiento temporal) | `socios.fecha_vencimiento` permite validar el acceso con una sola consulta; índices en DNI, PIN, QR y fechas; el mapa de horas pico se calcula con una sola consulta | Migraciones, `AforoService::mapaSemanal()` | Medir el tiempo de respuesta en Render para respaldar el umbral de 2 segundos |
 | RNF03 Disponibilidad y persistencia | Fiabilidad (disponibilidad, recuperabilidad) y portabilidad | Contenedor Docker en local y en Render; pagos en transacción; baja lógica que conserva el historial | `Dockerfile`, `docker-compose.yml`, `render.yaml`, `PagoService` | Respaldo con `mysqldump` probado (Sprint 4). El plan gratuito de Render suspende el servicio inactivo |
 | RNF04 Usabilidad | Usabilidad (operabilidad, protección contra errores) | Mensajes de acceso permitido o denegado con el motivo; buscador reactivo; colores de estado | `PantallaAcceso`, `SociosIndex` | Prueba de uso en tablet con recepción |
-| RNF05 Escalabilidad y mantenibilidad | Mantenibilidad (modularidad, capacidad de prueba) | MVC con la lógica en servicios; Form Requests y Policies separan validación y permisos; 127 pruebas (18 unitarias y 109 de integración) y CI con Pint | `app/Services`, `app/Http/Requests`, `.github/workflows/tests.yml` | Los 4 patrones (HU21 a HU24) documentados en `docs/DEUDA-TECNICA.md` (Sprint 4). Las pruebas unitarias ya están en `tests/Unit` (HU20) |
+| RNF05 Escalabilidad y mantenibilidad | Mantenibilidad (modularidad, capacidad de prueba) | MVC con la lógica en servicios; Form Requests y Policies separan validación y permisos; 132 pruebas (18 unitarias y 114 de integración) y CI con Pint | `app/Services`, `app/Http/Requests`, `.github/workflows/tests.yml` | Los 4 patrones (HU21 a HU24) documentados en `docs/DEUDA-TECNICA.md` (Sprint 4). Las pruebas unitarias ya están en `tests/Unit` (HU20) |
 | RNF06 Compatibilidad | Compatibilidad y portabilidad (adaptabilidad) | Diseño responsive con Tailwind; API REST en JSON para otros clientes | Vistas Blade, `routes/api.php` | Verificación manual en celular, tablet y escritorio |

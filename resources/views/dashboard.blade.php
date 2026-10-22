@@ -60,6 +60,11 @@
     </section>
 
     <section class="rounded-xl bg-white p-5 shadow-sm">
+        <h2 class="mb-3 font-semibold">Últimos accesos de hoy</h2>
+        @include('recepcion.ultimos-accesos', ['accesos' => $ultimosAccesos])
+    </section>
+
+    <section class="rounded-xl bg-white p-5 shadow-sm">
         <h2 class="mb-3 font-semibold">Últimos pagos</h2>
         <ul class="divide-y text-sm">
             @forelse ($ultimosPagos as $p)
