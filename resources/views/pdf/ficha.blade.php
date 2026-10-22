@@ -1,7 +1,7 @@
 @extends('pdf.base')
 @section('contenido')
 <table style="border:none"><tr><td style="border:none"><h1>Ficha personal del socio</h1><div class="sub">Gimnasio Fénix</div></td>
-<td style="border:none" class="r"><img src="data:image/svg+xml;base64,{{ $qr }}" width="90" height="90"></td></tr></table>
+<td style="border:none" class="r">@if ($qr)<img src="data:image/svg+xml;base64,{{ $qr }}" width="90" height="90">@endif</td></tr></table>
 <h2>Datos personales</h2>
 <table>
 <tr><th width="20%">Apellido y nombre</th><td>{{ $socio->nombre_completo }}</td><th width="15%">DNI</th><td>{{ $socio->dni }}</td></tr>

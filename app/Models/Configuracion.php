@@ -14,6 +14,14 @@ class Configuracion extends Model
     /** Datos que se muestran en la página web pública (y que usa el chatbot). */
     public const DATOS_WEB = ['descripcion', 'servicios', 'horarios', 'direccion', 'telefono', 'email', 'instagram'];
 
+    /** Ingreso con código QR (HU33): apagado por defecto; el gimnasio usa solo PIN y puede activarlo en Configuración. */
+    public const ACCESO_QR = 'acceso_qr';
+
+    public static function accesoQrHabilitado(): bool
+    {
+        return self::obtener(self::ACCESO_QR, '0') === '1';
+    }
+
     public static function obtener(string $clave, ?string $porDefecto = null): ?string
     {
         return self::where('clave', $clave)->value('valor') ?? $porDefecto;

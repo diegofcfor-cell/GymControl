@@ -18,7 +18,11 @@
 
     <p class="text-sm uppercase tracking-[0.3em] text-slate-400">Gimnasio Fénix</p>
     <h1 class="mt-1 text-4xl font-bold">Control de acceso</h1>
-    <p class="mt-2 text-slate-300">Ingrese su <b>PIN</b> o escanee su <b>código QR</b>. Use el mismo código al ingresar y al retirarse.</p>
+    @if ($conQr)
+        <p class="mt-2 text-slate-300">Ingrese su <b>PIN</b> o escanee su <b>código QR</b>. Use el mismo código al ingresar y al retirarse.</p>
+    @else
+        <p class="mt-2 text-slate-300">Ingrese su <b>PIN</b> de 6 dígitos. Use el mismo PIN al ingresar y al retirarse.</p>
+    @endif
 
     @if ($resultado)
         @php
@@ -41,12 +45,12 @@
 
     <form wire:submit="registrar" class="mt-8 w-full max-w-xl">
         {{-- inputmode="none": en la tablet no se abre el teclado del sistema (se usa el de abajo); el lector USB de QR sigue escribiendo. --}}
-        <input x-ref="codigo" wire:model="codigo" autofocus autocomplete="off" inputmode="none" placeholder="PIN o código QR"
+        <input x-ref="codigo" wire:model="codigo" autofocus autocomplete="off" inputmode="none" placeholder="{{ $conQr ? 'PIN o código QR' : 'PIN' }}"
                class="w-full rounded-2xl border-2 border-slate-600 bg-slate-800 px-6 py-5 text-center font-mono text-3xl tracking-[0.3em] text-white placeholder:tracking-normal placeholder:text-slate-500 focus:border-white focus:outline-none">
 
         {{-- Teclado numérico táctil (HU32): cada tecla suma un dígito al PIN sin pasar por el servidor; se envía con Registrar. --}}
         <div class="mt-4 grid grid-cols-3 gap-3" role="group" aria-label="Teclado numérico"
-             x-data="{ tecla(d) { $wire.codigo = (($wire.codigo ?? '') + d).slice(0, 36); $refs.codigo.focus(); } }">
+             x-data="{ tecla(d) { $wire.codigo = (($wire.codigo ?? '') + d).slice(0, {{ $conQr ? 36 : 6 }}); $refs.codigo.focus(); } }">
             @foreach (['1', '2', '3', '4', '5', '6', '7', '8', '9'] as $digito)
                 <button type="button" x-on:click="tecla('{{ $digito }}')" class="rounded-2xl bg-slate-800 py-5 text-3xl font-bold active:bg-slate-600">{{ $digito }}</button>
             @endforeach
@@ -58,6 +62,8 @@
         <button class="mt-4 w-full rounded-2xl bg-white px-6 py-5 text-2xl font-bold text-slate-900 hover:bg-slate-200">Registrar</button>
     </form>
 
+    {{-- Cámara para QR: solo si el administrador activó el ingreso con QR (HU33). --}}
+    @if ($conQr)
     <div class="mt-4 w-full max-w-xl" x-show="soporta" x-cloak>
         <button type="button" x-show="!camara" x-on:click="iniciar()" class="w-full rounded-xl border border-slate-600 px-4 py-3 text-slate-300 hover:bg-slate-800">📷 Escanear QR con la cámara</button>
         <div x-show="camara" x-cloak class="overflow-hidden rounded-2xl border border-slate-600">
@@ -65,6 +71,7 @@
             <button type="button" x-on:click="detener()" class="w-full bg-slate-800 py-2 text-sm">Cerrar cámara</button>
         </div>
     </div>
+    @endif
 
     {{-- En la terminal de la entrada no hay salida al sistema: la sesión la cierra el administrador desactivándola. --}}
     @unless (auth()->user()->esTerminal())

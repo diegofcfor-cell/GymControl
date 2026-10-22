@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\AptoFisico;
 use App\Models\Asistencia;
+use App\Models\Configuracion;
 use App\Models\Membresia;
 use App\Models\Socio;
 use App\Models\User;
@@ -55,7 +56,8 @@ class AccesoTest extends TestCase
         $a = Asistencia::first();
         $a->update(['hora_ingreso' => now()->subMinutes(90)->format('H:i:s')]);
 
-        $r2 = $svc->procesar($s->qr_codigo); // egreso con QR
+        Configuracion::guardar(Configuracion::ACCESO_QR, '1');
+        $r2 = $svc->procesar($s->qr_codigo); // egreso con QR (activado en Configuración)
         $this->assertTrue($r2['ok']);
         $this->assertSame('egreso', $r2['tipo']);
         $a->refresh();
@@ -125,5 +127,38 @@ class AccesoTest extends TestCase
         $s = $this->socio();
         $s->delete();
         $this->assertSame('desconocido', app(AccesoService::class)->procesar($s->pin)['tipo']);
+    }
+
+    public function test_por_defecto_el_ingreso_es_solo_con_pin(): void
+    {
+        $s = $this->socio();
+        $svc = app(AccesoService::class);
+
+        $this->assertFalse(Configuracion::accesoQrHabilitado());
+        $r = $svc->procesar($s->qr_codigo);
+        $this->assertFalse($r['ok']);
+        $this->assertSame('desconocido', $r['tipo']);
+        $this->assertSame('Ingrese su PIN.', $svc->procesar('')['mensaje']);
+
+        $this->assertTrue($svc->procesar($s->pin)['ok']);
+    }
+
+    public function test_el_administrador_activa_y_desactiva_el_ingreso_con_qr(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        $s = $this->socio();
+
+        $this->actingAs($admin)->get('/acceso')->assertOk()->assertDontSee('Escanear QR');
+        $this->actingAs($admin)->get("/socios/{$s->id}/credencial")->assertOk()->assertDontSee('alt="QR"', false)->assertSee('Marcá tu PIN');
+
+        $this->actingAs($admin)->put('/configuracion', ['capacidad_maxima' => 50, 'acceso_qr' => '1'])->assertSessionHasNoErrors();
+        $this->assertTrue(Configuracion::accesoQrHabilitado());
+        $this->actingAs($admin)->get('/acceso')->assertSee('Escanear QR');
+        $this->actingAs($admin)->get("/socios/{$s->id}/credencial")->assertSee('alt="QR"', false);
+        $this->assertTrue(app(AccesoService::class)->procesar($s->qr_codigo)['ok']);
+
+        // La casilla sin marcar vuelve a dejar solo el PIN.
+        $this->actingAs($admin)->put('/configuracion', ['capacidad_maxima' => 50])->assertSessionHasNoErrors();
+        $this->assertFalse(Configuracion::accesoQrHabilitado());
     }
 }

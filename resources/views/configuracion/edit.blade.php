@@ -8,6 +8,12 @@
                  ayuda="Se usa para el indicador de aforo de la página web y del portal del socio." />
     </section>
 
+    <section class="grid gap-2 rounded-xl bg-white p-6 shadow-sm">
+        <h2 class="font-semibold">Pantalla de acceso</h2>
+        <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="acceso_qr" value="1" @checked(old('acceso_qr', $accesoQr)) class="rounded"> Permitir ingreso con código QR (lector o cámara)</label>
+        <p class="text-xs text-slate-500">Sin marcar, los socios ingresan solo con su PIN y la credencial no muestra el QR. Cada socio conserva su código QR, así que se puede activar en cualquier momento.</p>
+    </section>
+
     <section class="grid gap-4 rounded-xl bg-white p-6 shadow-sm">
         <div>
             <h2 class="font-semibold">Página web</h2>
