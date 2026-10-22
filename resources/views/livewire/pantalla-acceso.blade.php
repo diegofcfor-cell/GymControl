@@ -53,5 +53,8 @@
         </div>
     </div>
 
-    <a href="{{ route('inicio') }}" class="mt-8 text-sm text-slate-500 hover:text-slate-300">← Volver al sistema</a>
+    {{-- En la terminal de la entrada no hay salida al sistema: la sesión la cierra el administrador desactivándola. --}}
+    @unless (auth()->user()->esTerminal())
+        <a href="{{ route('inicio') }}" class="mt-8 text-sm text-slate-500 hover:text-slate-300">← Volver al sistema</a>
+    @endunless
 </div>

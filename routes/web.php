@@ -35,13 +35,16 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 });
 
-Route::middleware(['auth', 'rol:administrador,recepcionista,profesor'])->group(function () {
+Route::middleware(['auth', 'rol:administrador,recepcionista,profesor,terminal'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/panel', fn () => redirect()->route(auth()->user()->rutaInicio()))->name('inicio');
     // Mi contraseña (HU30): cada operador cambia la suya; se limita para que no se pueda adivinar la actual.
     Route::get('/mi-clave', [CuentaController::class, 'editarClave'])->name('cuenta.clave');
     Route::put('/mi-clave', [CuentaController::class, 'actualizarClave'])->name('cuenta.clave.update')->middleware('throttle:5,1');
 });
+
+// Pantalla de acceso (ingreso / egreso por PIN o QR). La terminal de la entrada (HU31) solo puede abrir esta pantalla.
+Route::get('/acceso', PantallaAcceso::class)->name('acceso')->middleware(['auth', 'rol:administrador,recepcionista,terminal']);
 
 // Rutinas: las arma un profesor (o el administrador) a pedido del socio.
 Route::middleware(['auth', 'rol:administrador,profesor'])->group(function () {
@@ -58,9 +61,6 @@ Route::middleware(['auth', 'rol:administrador,recepcionista'])->group(function (
 
     // Panel de recepción: inicio del recepcionista (HU29)
     Route::get('/recepcion', [RecepcionController::class, 'index'])->name('recepcion');
-
-    // Pantalla de acceso (ingreso / egreso por PIN o QR)
-    Route::get('/acceso', PantallaAcceso::class)->name('acceso');
 
     // Socios
     Route::get('/socios', SociosIndex::class)->name('socios.index');
