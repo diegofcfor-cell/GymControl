@@ -10,6 +10,8 @@ use Illuminate\Validation\Rule;
  * Alta y edición de socios:
  *  - El DNI es único (al editar se ignora el del propio socio).
  *  - En el alta solo se elige una membresía activa; al editar se permite conservar una que luego se desactivó.
+ *  - En el alta el socio debe aceptar el aviso de privacidad (Ley 25.326, art. 5); al editar se puede registrar
+ *    el consentimiento de un socio dado de alta antes de que existiera el aviso.
  */
 class SocioRequest extends FormRequest
 {
@@ -32,6 +34,14 @@ class SocioRequest extends FormRequest
             'membresia_id' => $socio
                 ? ['required', 'exists:membresias,id']
                 : ['required', Rule::exists('membresias', 'id')->where('estado', 'activa')],
+            'consentimiento_datos' => $socio ? ['nullable', 'boolean'] : ['accepted'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'consentimiento_datos.accepted' => 'El socio tiene que leer y aceptar el aviso de privacidad.',
         ];
     }
 }

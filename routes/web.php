@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 // Página web pública del gimnasio (los operadores con sesión son redirigidos a su panel).
 Route::get('/', [WebController::class, 'inicio'])->name('web');
+Route::get('/privacidad', [WebController::class, 'privacidad'])->name('privacidad');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

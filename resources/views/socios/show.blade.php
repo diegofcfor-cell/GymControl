@@ -37,7 +37,10 @@
 <div class="mt-6 grid gap-6 lg:grid-cols-2">
     <section class="rounded-xl bg-white p-5 shadow-sm">
         <h2 class="mb-3 font-semibold">Aptos físicos</h2>
-        @unless ($socio->trashed())
+        @error('consentimiento')<p class="mb-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">{{ $message }}</p>@enderror
+        @if (! $socio->trashed() && ! $socio->dioConsentimiento())
+        <p class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">Para cargar el apto físico (dato de salud), el socio tiene que aceptar el aviso de privacidad. <a href="{{ route('socios.edit', $socio) }}" class="underline">Registrar consentimiento</a></p>
+        @elseif (! $socio->trashed())
         <form method="POST" action="{{ route('aptos.store', $socio) }}" enctype="multipart/form-data" class="mb-4 grid gap-3 rounded-lg bg-slate-50 p-3 sm:grid-cols-2">
             @csrf
             <x-input name="fecha_emision" label="Emisión" type="date" required />
@@ -45,7 +48,7 @@
             <x-input name="archivo" label="Certificado (PDF o imagen, máx. 5 MB)" type="file" accept=".pdf,.jpg,.jpeg,.png" class="sm:col-span-2" />
             <button class="rounded-lg bg-slate-900 px-4 py-2 text-sm text-white sm:col-span-2">Cargar apto físico</button>
         </form>
-        @endunless
+        @endif
         <table class="w-full text-sm"><thead><tr class="text-left text-xs uppercase text-slate-500"><th>Emisión</th><th>Vencimiento</th><th>Estado</th><th></th></tr></thead><tbody>
         @forelse ($aptos as $a)
             <tr class="border-t"><td class="py-1.5">{{ $a->fecha_emision->format('d/m/Y') }}</td><td>{{ $a->fecha_vencimiento->format('d/m/Y') }}</td>

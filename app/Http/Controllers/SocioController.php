@@ -18,7 +18,9 @@ class SocioController extends Controller
 
     public function store(SocioRequest $request)
     {
-        $socio = Socio::create($request->validated() + ['user_id' => $request->user()->id, 'estado' => 'activo']);
+        $socio = Socio::create($request->safe()->except('consentimiento_datos') + [
+            'user_id' => $request->user()->id, 'estado' => 'activo', 'consentimiento_datos_at' => now(),
+        ]);
 
         return redirect()->route('socios.show', $socio)
             ->with('ok', 'Socio registrado. Cargue ahora el apto físico y registre el primer pago para habilitar su ingreso.');
@@ -43,7 +45,11 @@ class SocioController extends Controller
 
     public function update(SocioRequest $request, Socio $socio)
     {
-        $socio->update($request->validated());
+        $socio->fill($request->safe()->except('consentimiento_datos'));
+        if ($request->boolean('consentimiento_datos') && ! $socio->dioConsentimiento()) {
+            $socio->consentimiento_datos_at = now();
+        }
+        $socio->save();
 
         return redirect()->route('socios.show', $socio)->with('ok', 'Datos del socio actualizados.');
     }

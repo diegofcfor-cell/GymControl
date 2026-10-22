@@ -14,7 +14,8 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | PIN y QR | PIN único de 6 dígitos + código QR (UUID) por socio; credencial imprimible |
 | Membresías | Planes Básica / Media / Premium (pase libre) con precio, duración y tope de horas diarias |
 | Pagos | Registro de cobros; actualiza automáticamente el vencimiento; historial filtrable e imprimible |
-| Aptos físicos | Carga del certificado (PDF/imagen, almacenado en disco privado) y control de vigencia |
+| Aptos físicos | Carga del certificado (PDF/imagen, almacenado en disco privado) y control de vigencia. Solo se carga si el socio aceptó el aviso de privacidad |
+| **Privacidad (Ley 25.326)** | Aviso de privacidad público en `/privacidad`, enlazado desde la web y el portal. En el alta, el socio acepta el aviso y se guarda la fecha; a los socios anteriores se les registra desde *Editar*. Sin consentimiento no se cargan datos de salud |
 | **Pantalla de acceso** | Ingreso/egreso con PIN o QR (lector USB o cámara). Valida socio activo + cuota vigente + apto vigente. El egreso siempre se permite y calcula el tiempo de permanencia |
 | Historial de asistencias | Filtros por socio y fechas, permanencia, informe PDF |
 | **Página web pública** | En `/` se muestra la web del gimnasio: presentación, servicios, planes y precios (de las membresías activas), horarios, contacto, aforo en vivo, chatbot flotante y acceso al portal del socio. El administrador edita los textos en *Configuración*. La portada tiene fondo de fotos en movimiento tomadas de `public/img/portada/` (ver el `LEEME.md` de esa carpeta) y botones de acceso para socios y para el personal. Con sesión de operador, la web muestra el botón *Ir al panel* y el panel tiene el enlace *Ver web* |

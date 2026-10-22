@@ -17,7 +17,7 @@ class Socio extends Model
 
     protected $fillable = [
         'membresia_id', 'user_id', 'nombre', 'apellido', 'dni', 'telefono', 'email',
-        'estado', 'fecha_alta', 'fecha_vencimiento',
+        'estado', 'fecha_alta', 'fecha_vencimiento', 'consentimiento_datos_at',
     ];
 
     protected function casts(): array
@@ -25,6 +25,7 @@ class Socio extends Model
         return [
             'fecha_alta' => 'date',
             'fecha_vencimiento' => 'date',
+            'consentimiento_datos_at' => 'datetime',
         ];
     }
 
@@ -35,6 +36,12 @@ class Socio extends Model
             $socio->qr_codigo ??= (string) Str::uuid();
             $socio->fecha_alta ??= today();
         });
+    }
+
+    /** Aceptó el aviso de privacidad: requisito para cargar sus datos de salud (apto físico). */
+    public function dioConsentimiento(): bool
+    {
+        return $this->consentimiento_datos_at !== null;
     }
 
     /** PIN numérico de 6 dígitos, único. */

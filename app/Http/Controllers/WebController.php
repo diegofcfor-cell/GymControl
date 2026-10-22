@@ -21,6 +21,12 @@ class WebController extends Controller
         ]);
     }
 
+    /** Aviso de privacidad (Ley 25.326): qué datos se tratan, para qué y cómo ejercer los derechos. */
+    public function privacidad()
+    {
+        return view('web.privacidad', ['web' => Configuracion::varios(Configuracion::DATOS_WEB)]);
+    }
+
     /**
      * Fotos del fondo de la portada: las imágenes que haya en public/img/portada, en orden alfabético.
      *

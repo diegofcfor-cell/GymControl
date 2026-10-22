@@ -25,12 +25,13 @@ class GestionTest extends TestCase
         return Socio::create([
             'membresia_id' => $this->plan()->id, 'user_id' => User::factory()->create()->id, 'nombre' => 'Ana',
             'apellido' => 'Test', 'dni' => (string) random_int(20000000, 49999999), 'estado' => 'activo',
+            'consentimiento_datos_at' => now(),
         ]);
     }
 
     protected function datosSocio(array $override = []): array
     {
-        return $override + ['nombre' => 'Juan', 'apellido' => 'Pérez', 'dni' => '30111222', 'membresia_id' => $this->plan()->id];
+        return $override + ['nombre' => 'Juan', 'apellido' => 'Pérez', 'dni' => '30111222', 'membresia_id' => $this->plan()->id, 'consentimiento_datos' => '1'];
     }
 
     public function test_alta_de_socio_valida_dni_unico_y_membresia_activa(): void

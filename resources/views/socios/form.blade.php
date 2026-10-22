@@ -18,6 +18,17 @@
             @endforeach
         </select>
     </div>
+    @if ($socio->dioConsentimiento())
+        <p class="text-sm text-slate-600 sm:col-span-2">Aceptó el <a href="{{ route('privacidad') }}" target="_blank" class="underline">aviso de privacidad</a> el {{ $socio->consentimiento_datos_at->format('d/m/Y') }}.</p>
+    @else
+        <div class="sm:col-span-2">
+            <label class="flex items-start gap-2 text-sm text-slate-700">
+                <input type="checkbox" name="consentimiento_datos" value="1" @checked(old('consentimiento_datos')) @required(! $socio->exists) class="mt-0.5">
+                <span>El socio leyó el <a href="{{ route('privacidad') }}" target="_blank" class="underline">aviso de privacidad</a> y acepta que el gimnasio trate sus datos personales y de salud (apto físico) para gestionar su membresía.</span>
+            </label>
+            @error('consentimiento_datos')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+        </div>
+    @endif
     <div class="flex gap-3 sm:col-span-2">
         <button class="rounded-lg bg-slate-900 px-5 py-2 text-sm font-medium text-white hover:bg-slate-700">Guardar</button>
         <a href="{{ $socio->exists ? route('socios.show', $socio) : route('socios.index') }}" class="rounded-lg border px-5 py-2 text-sm">Cancelar</a>

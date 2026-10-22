@@ -100,6 +100,7 @@ class DatabaseSeeder extends Seeder
             $socio = Socio::create([
                 'membresia_id' => $planes[$plan]->id, 'user_id' => $recep->id, 'nombre' => $nombre, 'apellido' => $apellido,
                 'dni' => $dni, 'pin' => $pin, 'telefono' => '37045'.substr($dni, -5), 'estado' => 'activo', 'fecha_alta' => today()->subDays(60),
+                'consentimiento_datos_at' => today()->subDays(60),
             ]);
             $pagos->registrar($socio, $planes[$plan], 'efectivo', $recep, today()->subDays($diasAtras ?: 5));
             if ($conApto) {
