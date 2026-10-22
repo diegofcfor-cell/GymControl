@@ -79,7 +79,9 @@ Android conviene además **fijar la pantalla** (*screen pinning*) para que no se
 Un recepcionista o administrador también puede abrirla:
 
 1. Abrir **Pantalla de acceso** desde el menú.
-2. El socio escribe su **PIN** de 6 dígitos y presiona **Registrar**, o pasa su credencial por el lector de QR.
+2. El socio marca su **PIN** de 6 dígitos con el **teclado numérico de la pantalla** (pensado para tablets táctiles;
+   *Limpiar* borra todo y ⌫ el último número) o con el teclado físico, y presiona **Registrar**. También puede pasar
+   su credencial por el lector de QR.
    También se puede usar **Escanear QR con la cámara**.
 3. El sistema responde en pantalla:
    - **Verde, "¡Bienvenido/a!":** el ingreso quedó registrado con la hora. Si la cuota vence en los próximos 3
@@ -87,6 +89,8 @@ Un recepcionista o administrador también puede abrirla:
    - **Verde, "¡Hasta pronto!":** si el socio ya estaba dentro, el mismo código registra el **egreso** y muestra
      el tiempo de permanencia. El egreso se permite siempre, aunque la cuota o el apto hayan vencido.
    - **Rojo, "Acceso denegado":** el ingreso no se registra y se muestran **todos** los motivos.
+
+![Pantalla de acceso con el teclado táctil](img/16-acceso.png)
 
 ![Ingreso permitido](img/17-acceso-permitido.png)
 

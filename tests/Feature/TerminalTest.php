@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** HU31: la tablet o PC de la entrada usa un rol que solo abre la pantalla de acceso (mínimo privilegio). */
+/** HU31: la tablet o PC de la entrada usa un rol que solo abre la pantalla de acceso (mínimo privilegio). HU32: teclado táctil. */
 class TerminalTest extends TestCase
 {
     use RefreshDatabase;
@@ -28,6 +28,14 @@ class TerminalTest extends TestCase
         $this->post('/login', ['email' => $t->email, 'password' => 'Entrada123'])->assertRedirect('/panel');
         $this->get('/panel')->assertRedirect('/acceso');
         $this->get('/acceso')->assertOk()->assertDontSee('Volver al sistema');
+    }
+
+    public function test_la_pantalla_de_acceso_tiene_teclado_numerico_tactil(): void
+    {
+        $this->actingAs($this->terminal())->get('/acceso')->assertOk()
+            ->assertSee('aria-label="Teclado numérico"', false)
+            ->assertSee('inputmode="none"', false)
+            ->assertSeeInOrder(['>1<', '>2<', '>3<', '>4<', '>5<', '>6<', '>7<', '>8<', '>9<', 'Limpiar', '>0<', 'aria-label="Borrar"'], false);
     }
 
     public function test_la_terminal_no_ve_socios_pagos_ni_ninguna_otra_seccion(): void

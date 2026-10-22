@@ -40,9 +40,22 @@
     @endif
 
     <form wire:submit="registrar" class="mt-8 w-full max-w-xl">
-        <input x-ref="codigo" wire:model="codigo" autofocus autocomplete="off" inputmode="text" placeholder="PIN o código QR"
+        {{-- inputmode="none": en la tablet no se abre el teclado del sistema (se usa el de abajo); el lector USB de QR sigue escribiendo. --}}
+        <input x-ref="codigo" wire:model="codigo" autofocus autocomplete="off" inputmode="none" placeholder="PIN o código QR"
                class="w-full rounded-2xl border-2 border-slate-600 bg-slate-800 px-6 py-5 text-center font-mono text-3xl tracking-[0.3em] text-white placeholder:tracking-normal placeholder:text-slate-500 focus:border-white focus:outline-none">
-        <button class="mt-4 w-full rounded-2xl bg-white px-6 py-4 text-xl font-bold text-slate-900 hover:bg-slate-200">Registrar</button>
+
+        {{-- Teclado numérico táctil (HU32): cada tecla suma un dígito al PIN sin pasar por el servidor; se envía con Registrar. --}}
+        <div class="mt-4 grid grid-cols-3 gap-3" role="group" aria-label="Teclado numérico"
+             x-data="{ tecla(d) { $wire.codigo = (($wire.codigo ?? '') + d).slice(0, 36); $refs.codigo.focus(); } }">
+            @foreach (['1', '2', '3', '4', '5', '6', '7', '8', '9'] as $digito)
+                <button type="button" x-on:click="tecla('{{ $digito }}')" class="rounded-2xl bg-slate-800 py-5 text-3xl font-bold active:bg-slate-600">{{ $digito }}</button>
+            @endforeach
+            <button type="button" x-on:click="$wire.codigo = ''; $refs.codigo.focus()" class="rounded-2xl bg-slate-700 py-5 text-lg active:bg-slate-500">Limpiar</button>
+            <button type="button" x-on:click="tecla('0')" class="rounded-2xl bg-slate-800 py-5 text-3xl font-bold active:bg-slate-600">0</button>
+            <button type="button" x-on:click="$wire.codigo = ($wire.codigo ?? '').slice(0, -1); $refs.codigo.focus()" aria-label="Borrar" class="rounded-2xl bg-slate-700 py-5 text-2xl active:bg-slate-500">⌫</button>
+        </div>
+
+        <button class="mt-4 w-full rounded-2xl bg-white px-6 py-5 text-2xl font-bold text-slate-900 hover:bg-slate-200">Registrar</button>
     </form>
 
     <div class="mt-4 w-full max-w-xl" x-show="soporta" x-cloak>
