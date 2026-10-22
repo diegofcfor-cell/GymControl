@@ -13,6 +13,7 @@
     $u = auth()->user();
     $enlaces = [
         ['dashboard', 'Dashboard', ['administrador']],
+        ['recepcion', 'Recepción', ['administrador', 'recepcionista']],
         ['acceso', 'Pantalla de acceso', ['administrador', 'recepcionista']],
         ['socios.index', 'Socios', ['administrador', 'recepcionista']],
         ['pagos.index', 'Pagos', ['administrador', 'recepcionista']],

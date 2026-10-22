@@ -41,6 +41,9 @@ por parámetro (DIP: inyección de dependencias del contenedor de Laravel). Así
 Controlador → Servicio → Repositorio → Modelo que pide Programación IV. El código viejo se borró, y
 `AsistenciaRepositoryTest` verifica la regla (incluido el caso del socio que no marcó la salida ayer).
 
+Con el mismo criterio se sumó `ultimosAccesosHoy()` (HU29): la usan dos pantallas, el dashboard y el panel de
+recepción, así que la consulta se escribe una sola vez en el repositorio y no en cada controlador.
+
 **Consecuencia negativa asumida.**
 - Una capa más para leer: quien busca la consulta tiene que abrir el repositorio.
 - El repositorio es una clase concreta, sin interfaz. Una interfaz solo se justificaría con una segunda

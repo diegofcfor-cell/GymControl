@@ -32,11 +32,11 @@ class RolesTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_recepcionista_vuelve_a_socios_desde_la_pantalla_de_acceso(): void
+    public function test_recepcionista_vuelve_a_recepcion_desde_la_pantalla_de_acceso(): void
     {
         $r = User::factory()->create();
         $this->actingAs($r)->get('/acceso')->assertOk()->assertSee(route('inicio'));
-        $this->actingAs($r)->get('/panel')->assertRedirect('/socios');
+        $this->actingAs($r)->get('/panel')->assertRedirect('/recepcion');
     }
 
     public function test_recepcionista_no_accede_a_secciones_de_administrador(): void
@@ -51,7 +51,7 @@ class RolesTest extends TestCase
     public function test_administrador_accede_a_todo(): void
     {
         $a = User::factory()->administrador()->create();
-        foreach (['/dashboard', '/membresias', '/operadores', '/socios', '/pagos', '/asistencias', '/acceso'] as $ruta) {
+        foreach (['/dashboard', '/membresias', '/operadores', '/recepcion', '/socios', '/pagos', '/asistencias', '/acceso'] as $ruta) {
             $this->actingAs($a)->get($ruta)->assertOk();
         }
     }
