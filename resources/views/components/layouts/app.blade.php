@@ -27,10 +27,10 @@
     ];
 @endphp
 <nav class="bg-slate-900 text-white" x-data="{ abierto: false }">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        <a href="{{ route('inicio') }}" class="text-lg font-bold tracking-tight">🏋️ Gym Control <span class="text-xs font-normal text-slate-400">· Gimnasio Fénix</span></a>
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
+        <a href="{{ route('inicio') }}" class="shrink-0 whitespace-nowrap text-lg font-bold tracking-tight">🏋️ Gym Control <span class="text-xs font-normal text-slate-400">· Gimnasio Fénix</span></a>
         <button class="md:hidden rounded p-2 hover:bg-slate-800" x-on:click="abierto = !abierto" aria-label="Menú">☰</button>
-        <div class="hidden items-center gap-1 md:flex">
+        <div class="hidden flex-wrap items-center justify-end gap-1 md:flex">
             @foreach ($enlaces as [$ruta, $texto, $roles])
                 @if (in_array($u->rol, $roles, true))
                     <a href="{{ route($ruta) }}" class="rounded px-3 py-1.5 text-sm hover:bg-slate-700 {{ request()->routeIs(explode('.', $ruta)[0].'*') ? 'bg-slate-700' : '' }}">{{ $texto }}</a>

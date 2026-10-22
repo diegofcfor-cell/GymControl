@@ -79,6 +79,7 @@ app/Repositories/        AsistenciaRepository: consultas que comparten varios m�
 app/Support/             PlantillasRutina (biblioteca R01–R15)
 app/Console/Commands/    gym:actualizar-vencimientos (programado en routes/console.php)
 database/migrations/     modelo ER; las nuevas llevan fecha 2026_MM_DD_
+docs/manual/             manual de usuario con capturas (img/); actualizarlo si cambia una pantalla
 resources/views/         Blade por módulo; pdf/ para informes; components/layouts/ app, kiosco y portal
 tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Recepcion, Portal, Aforo, Chatbot, Rutina, Web, Gestion, Privacidad)
 tests/Unit/              reglas puras sin base de datos (período de pago, nivel de aforo, permanencia, chatbot)
@@ -195,7 +196,7 @@ Legislación). Al hacer un cambio, reforzá la evidencia de la fila que correspo
 | Programación I–IV | Algoritmos, POO, MVC, ciclo de una petición (index.php → middleware → ruta → controlador → modelo → vista), Controlador → Servicio → Repositorio, Eloquent, autenticación, Policies, Form Request, APIs REST con Sanctum, tiempo real con Reverb + Echo | `routes/web.php`, `routes/api.php`, `app/Http`, `app/Models`, `app/Services`, componentes Livewire |
 | Base de Datos I y II | MER → modelo relacional, PK/FK, integridad referencial, normalización 1FN–3FN, índices, DDL/DML, funciones agregadas, GROUP BY/HAVING, respaldos | `database/migrations`, consultas del dashboard y de `AforoService`, `mysqldump` en `DEPLOY.md` |
 | Metodología de Sistemas I y II | Análisis, casos de uso, UML, ciclo de vida; Git y PR, SOLID, patrones de diseño, refactorización, deuda técnica, CI/CD, verificación y validación, pirámide de pruebas | Ramas y PR en GitHub, `app/Services`, `.github/workflows/tests.yml`, `tests/Feature` |
-| Gestión de Desarrollo de Software | Ciclo de vida y modelos de proceso, Scrum/Kanban, ingeniería de requerimientos, ERS IEEE, casos de uso, alcance y EDT, Puntos de Función, COCOMO, PERT, ISO/IEC 25010, KPIs, manuales | RF01–RF09, RNF01–RNF06 y HU1–HU12 del Plan; Gantt y PERT; README (manual técnico) |
+| Gestión de Desarrollo de Software | Ciclo de vida y modelos de proceso, Scrum/Kanban, ingeniería de requerimientos, ERS IEEE, casos de uso, alcance y EDT, Puntos de Función, COCOMO, PERT, ISO/IEC 25010, KPIs, manuales | RF01–RF09, RNF01–RNF06 y HU1–HU12 del Plan; Gantt y PERT; README (manual técnico); `docs/manual/manual-usuario.md` (manual de usuario) |
 | Arquitectura y Sistemas Operativos | Cliente-servidor, Linux, procesos y servicios, contenedores, despliegue | `Dockerfile`, `docker/`, `docker-compose.yml`, `render.yaml`, tarea programada |
 | Matemática | Lógica, conjuntos, relaciones, cálculo | Condiciones de acceso (Y lógico), cálculo de vencimientos y permanencia, porcentaje de aforo |
 | Probabilidad y Estadística | Estadística descriptiva, promedios, interpretación de indicadores, PERT (te = (a + 4m + b) / 6) | Dashboard, promedio de horas pico de 4 semanas en el aforo |
