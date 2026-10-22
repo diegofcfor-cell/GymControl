@@ -12,6 +12,7 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 | Módulo | Descripción |
 |---|---|
 | Autenticación y roles | Login/logout, roles `administrador`, `recepcionista` y `profesor`, middleware `rol:`, operadores activos/inactivos |
+| **Cuentas del personal** | El administrador crea, edita, desactiva y restablece la contraseña de los operadores en *Operadores*. Cada operador cambia la suya en *Mi contraseña* (clic en su nombre), escribiendo la actual. Contraseñas con bcrypt, mínimo 8 caracteres con letras y números; al cambiarla o desactivar la cuenta se cierran sus sesiones abiertas. Si nadie puede entrar: `php artisan gym:clave-operador correo` (HU30) |
 | Socios | Alta, edición, baja lógica, búsqueda reactiva (Livewire) por nombre, DNI o PIN, ficha en PDF |
 | PIN y QR | PIN único de 6 dígitos + código QR (UUID) por socio; credencial imprimible |
 | Membresías | Planes Básica / Media / Premium (pase libre) con precio, duración y tope de horas diarias |
@@ -54,7 +55,7 @@ php artisan serve         # → http://localhost:8000
 | Recepcionista | `recepcion@gymcontrol.test` | `Recepcion1234!` |
 | Profesor | `profesor@gymcontrol.test` | `Profesor1234!` |
 
-**Cambiar estas contraseñas en producción** (variables `ADMIN_EMAIL` / `ADMIN_PASSWORD`).
+**En producción no usar estas contraseñas.** El administrador inicial se crea una sola vez con `ADMIN_EMAIL` / `ADMIN_PASSWORD` (en producción no hay contraseña por defecto); después se cambia desde *Mi contraseña*. Ver `DEPLOY.md`, sección 3-ter.
 
 ### Probar el acceso
 1. Iniciar sesión y abrir *Pantalla de acceso* desde el menú.

@@ -16,7 +16,7 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Datos base (siempre): membresías y administrador inicial.
+     * Datos base (siempre): membresías y administrador inicial (si no existe).
      * Datos de demostración (solo si SEED_DEMO=true): operador, socios, pagos, aptos y asistencias.
      */
     public function run(): void
@@ -30,17 +30,36 @@ class DatabaseSeeder extends Seeder
             Membresia::firstOrCreate(['nombre' => $p['nombre']], $p + ['estado' => 'activa']);
         }
 
-        $admin = User::firstOrCreate(
-            ['email' => env('ADMIN_EMAIL', 'admin@gymcontrol.test')],
-            ['name' => env('ADMIN_NAME', 'Administrador'), 'password' => env('ADMIN_PASSWORD', 'Admin1234!'), 'rol' => User::ROL_ADMIN, 'activo' => true]
-        );
+        $this->administradorInicial();
 
         if (filter_var(env('SEED_DEMO', false), FILTER_VALIDATE_BOOLEAN)) {
-            $this->demo($admin);
+            $this->demo();
         }
     }
 
-    protected function demo(User $admin): void
+    /**
+     * Crea el primer administrador solo si todavía no existe; si ya existe no se toca, así que una contraseña
+     * cambiada desde el panel no vuelve a la de la variable en el próximo deploy. En producción la contraseña
+     * sale solo de ADMIN_PASSWORD (cargada en Render, nunca en el repositorio): sin ella no se crea nadie.
+     */
+    protected function administradorInicial(): void
+    {
+        $email = env('ADMIN_EMAIL', 'admin@gymcontrol.test');
+        $clave = env('ADMIN_PASSWORD') ?: (app()->isProduction() ? null : 'Admin1234!');
+
+        if (User::where('email', $email)->exists()) {
+            return;
+        }
+        if ($clave === null) {
+            $this->command?->warn('No se creó el administrador inicial: falta la variable ADMIN_PASSWORD.');
+
+            return;
+        }
+
+        User::create(['email' => $email, 'name' => env('ADMIN_NAME', 'Administrador'), 'password' => $clave, 'rol' => User::ROL_ADMIN, 'activo' => true]);
+    }
+
+    protected function demo(): void
     {
         $recep = User::firstOrCreate(
             ['email' => 'recepcion@gymcontrol.test'],

@@ -195,9 +195,14 @@ el importe que se cobró.
 
 ### 5.4 Operadores
 
-En **Operadores** se dan de alta las cuentas del personal con nombre, correo, contraseña (mínimo 8 caracteres) y
-rol: administrador, recepcionista o profesor. Al editar un operador se puede cambiar su contraseña o
-**desactivarlo**: un operador inactivo ya no puede iniciar sesión.
+En **Operadores** se dan de alta las cuentas del personal con nombre, correo, contraseña (mínimo 8 caracteres, con
+letras y números) y rol: administrador, recepcionista o profesor. Al editar un operador se puede **restablecer su
+contraseña** (escribiendo una nueva) o **desactivarlo**: un operador inactivo ya no puede iniciar sesión. En los dos
+casos se cierran las sesiones que ese operador tenía abiertas. El administrador no puede quitarse a sí mismo el rol
+ni desactivarse.
+
+**Mi contraseña.** Cualquier operador cambia su propia contraseña haciendo clic en su nombre, arriba a la derecha
+(en el celular, *Mi contraseña* en el menú). Tiene que escribir la contraseña actual y dos veces la nueva.
 
 ![Operadores](img/11-operadores.png)
 
@@ -311,7 +316,8 @@ al menos 10 caracteres. El gimnasio responde dentro de los 5 días hábiles y la
 | Un socio olvidó su PIN | Buscarlo por DNI en *Socios*; el PIN está en su ficha y se puede reimprimir la credencial |
 | Un socio se fue sin marcar la salida | No le impide volver a ingresar otro día; esa visita queda sin egreso en el historial |
 | El lector de QR no funciona | Ingresar el PIN a mano: siempre está disponible como alternativa |
-| Un operador olvidó su contraseña | El administrador la cambia desde *Operadores*, editando la cuenta |
+| Un operador olvidó su contraseña | El administrador escribe una nueva en *Operadores*, editando la cuenta, y se la pasa en persona |
+| El administrador olvidó su contraseña | Otro administrador la restablece; si no hay otro, el responsable técnico ejecuta `php artisan gym:clave-operador correo` en el servidor |
 | Cambió el precio de un plan | Editarlo en *Membresías*; los pagos anteriores conservan el importe cobrado |
 | El aforo no cambia en el portal | Recargar la página; si la conexión en vivo falla, el aforo se actualiza solo cada 30 segundos |
 

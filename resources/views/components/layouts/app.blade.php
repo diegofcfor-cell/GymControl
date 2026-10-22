@@ -39,7 +39,7 @@
             <a href="{{ route('web') }}" target="_blank" class="rounded px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-700">Ver web ↗</a>
             <form method="POST" action="{{ route('logout') }}" class="ml-3 flex items-center gap-2 border-l border-slate-700 pl-3">
                 @csrf
-                <span class="text-xs text-slate-300">{{ $u->name }} <span class="text-slate-500">({{ $u->rol }})</span></span>
+                <a href="{{ route('cuenta.clave') }}" class="text-xs text-slate-300 hover:underline" title="Cambiar mi contraseña">{{ $u->name }} <span class="text-slate-500">({{ $u->rol }})</span></a>
                 <button class="rounded bg-slate-700 px-3 py-1.5 text-sm hover:bg-red-600">Salir</button>
             </form>
         </div>
@@ -51,6 +51,7 @@
             @endif
         @endforeach
         <a href="{{ route('web') }}" target="_blank" class="block rounded px-3 py-2 text-sm text-slate-300 hover:bg-slate-700">Ver web ↗</a>
+        <a href="{{ route('cuenta.clave') }}" class="block rounded px-3 py-2 text-sm hover:bg-slate-700">Mi contraseña</a>
         <form method="POST" action="{{ route('logout') }}">@csrf<button class="w-full rounded bg-slate-700 px-3 py-2 text-left text-sm">Salir ({{ $u->name }})</button></form>
     </div>
 </nav>
