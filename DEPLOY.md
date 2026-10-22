@@ -19,7 +19,7 @@ git push -u origin main
    - `gym-control-db` (servicio privado, MySQL 8) con disco de 5 GB.
 2. Cuando lo pida, completar las variables marcadas `sync: false`:
    - `APP_URL` → la URL pública, p. ej. `https://gym-control.onrender.com` (se conoce al crear el servicio; se puede editar después).
-   - `ADMIN_EMAIL` y `ADMIN_PASSWORD` → credenciales del administrador inicial.
+   - `ADMIN_EMAIL` y `ADMIN_PASSWORD` → credenciales del administrador inicial (solo se usan si todavía no existe; ver 3-ter).
 3. Esperar el primer *deploy*. El contenedor, al iniciar, espera a MySQL, ejecuta `migrate` y `db:seed` (crea los planes Básica/Media/Premium y el administrador) y deja la aplicación escuchando en `$PORT`.
 4. Abrir la URL, iniciar sesión con el administrador y crear los recepcionistas desde *Operadores*.
 
@@ -41,7 +41,7 @@ Render → **New → Web Service** → repositorio GymControl → *Language: Doc
 | `SESSION_DRIVER` | `database` |
 | `CACHE_STORE` | `database` |
 | `ADMIN_EMAIL` | correo del administrador |
-| `ADMIN_PASSWORD` | contraseña del administrador (mínimo 8 caracteres) |
+| `ADMIN_PASSWORD` | contraseña del administrador inicial (mínimo 8 caracteres, con letras y números; solo se usa en el primer deploy) |
 | `SEED_DEMO` | `true` |
 
 Para el aforo en tiempo real (ver sección 3-bis) agregar también `BROADCAST_CONNECTION` = `reverb`, `REVERB_APP_ID`
@@ -96,6 +96,22 @@ socio de prueba, hacer *Manual Deploy* en Render y comprobar que el socio sigue 
   esperar los 30 segundos.
 - **Si falla.** Si Reverb no responde, el ingreso se registra igual: el error queda en el log y el aforo se
   sigue actualizando cada 30 s con `wire:poll`.
+
+## 3-ter. Contraseñas del personal (HU30)
+El seeder crea el administrador inicial **una sola vez**: si ya existe, no lo toca, así que cambiar
+`ADMIN_PASSWORD` en Render después del primer deploy no cambia nada. En producción (`APP_ENV=production`) no hay
+contraseña por defecto: sin `ADMIN_PASSWORD` no se crea ningún administrador.
+
+- **Cambiar la propia contraseña:** iniciar sesión → clic en el nombre arriba a la derecha → *Mi contraseña*. Pide la
+  actual y cierra las demás sesiones abiertas con ese usuario.
+- **Crear o restablecer cuentas del personal:** el administrador lo hace en *Operadores* (alta, edición, nueva
+  contraseña, desactivar).
+- **Si nadie puede entrar:** en Render → servicio → *Shell*, ejecutar
+  `php artisan gym:clave-operador correo@del-admin` y escribir la contraseña nueva dos veces (no se muestra en
+  pantalla y no queda en el repositorio ni en las variables).
+
+Si la base se sembró con `SEED_DEMO=true`, los usuarios `recepcion@gymcontrol.test` y `profesor@gymcontrol.test`
+tienen contraseñas públicas (están en el README): en producción, cambiarlas o desactivarlos desde *Operadores*.
 
 ## 4. Respaldos (RNF03)
 Un respaldo es una copia de la base en un archivo `.sql` con las sentencias que la vuelven a crear (`CREATE TABLE`
