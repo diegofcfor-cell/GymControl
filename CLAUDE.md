@@ -117,11 +117,59 @@ tests/Feature/           una prueba por módulo (Acceso, Pago, Roles, Portal, Af
 
 - Ingreso: socio activo **y** cuota vigente **y** apto físico vigente. El egreso **siempre** se permite y
   calcula la permanencia. Se avisa si se supera el tope diario del plan (Premium no tiene tope).
-- Cada pago actualiza el vencimiento de la cuota (`PagoService`).
+- Pagos (`PagoService`, en una transacción): si la cuota sigue vigente, el nuevo período empieza el día
+  siguiente al vencimiento; si ya venció, empieza el día del pago. `periodo_hasta` = inicio + `duracion_dias` − 1
+  y pasa a `socios.fecha_vencimiento`; el socio queda activo con la membresía pagada.
+- Apto vigente = tiene un apto con `fecha_vencimiento >= hoy`. El comando `gym:actualizar-vencimientos` corre
+  todos los días a las 00:05 y marca como `vencido` el `estado` de los aptos vencidos.
 - PIN de 6 dígitos y QR (UUID) únicos por socio.
 - Aforo: presentes = asistencias de hoy sin egreso; nivel libre < 50 %, moderado < 80 %, lleno ≥ 80 % de la
   capacidad configurada.
 - Chatbot sin IA ni costo: busca por palabras clave; planes, precios y aforo se responden con datos en vivo.
+
+## Modelo de datos (3FN)
+
+Seis tablas núcleo en tercera forma normal, con PK `id`, FK con `constrained()` e índices en DNI, PIN, QR y
+fechas:
+
+| Tabla | Campos clave | Relaciones y notas |
+|---|---|---|
+| `users` | `email` (UK), `password` (bcrypt), `rol`, `activo` | Operadores: administrador, recepcionista, profesor |
+| `membresias` | `nombre`, `precio`, `duracion_dias`, `horas_diarias_max` (NULL = pase libre), `estado` | Planes Básica, Media y Premium |
+| `socios` | `dni` (UK), `pin` (UK, 6 dígitos), `qr_codigo` (UK, UUID), `estado`, `fecha_alta`, `fecha_vencimiento`, `deleted_at` | FK a `membresias` y a `users` (quién lo dio de alta); baja lógica |
+| `pagos` | `importe`, `fecha_pago`, `periodo_desde`, `periodo_hasta`, `metodo_pago` | FK a `socios`, `membresias` y `users` (quién cobró) |
+| `aptos_fisicos` | `fecha_emision`, `fecha_vencimiento`, `estado`, `archivo` (disco privado) | FK a `socios` y `users` |
+| `asistencias` | `fecha` (índice), `hora_ingreso`, `hora_salida` (NULL = en sala), `tiempo_permanencia` | FK a `socios`; índice (`socio_id`, `fecha`) |
+
+**Redundancias controladas (justificarlas en la defensa):** `pagos.importe` guarda el precio cobrado para que un
+cambio de tarifa no altere el historial; `socios.fecha_vencimiento` guarda el fin de la cuota para validar el
+acceso con una sola consulta. Tablas agregadas después del Plan: `configuraciones`, `preguntas_frecuentes`,
+rutinas (`solicitudes_rutina`, `rutinas`, `rutina_ejercicios`) y `personal_access_tokens` (Sanctum).
+
+## Matriz de permisos
+
+| Funcionalidad | Admin | Recepción | Profesor | Socio (portal/API) |
+|---|---|---|---|---|
+| Socios (alta, edición, PIN/QR), aptos, pagos, pantalla de acceso, historiales y PDF | Sí | Sí | — | — |
+| Baja lógica de socios, membresías, operadores, preguntas, configuración, dashboard económico | Sí | — | — | — |
+| Rutinas: ver pedidos, armar y editar, biblioteca R01–R15 | Sí | — | Sí | — |
+| Ver su membresía, asistencias, pagos, aptos, aforo, chatbot y pedir rutina | — | — | — | Sí |
+
+El Plan del TIF solo tiene las columnas de administrador y recepcionista (ver "Brechas", punto 1).
+
+## Planificación del Plan de Trabajo
+
+450 horas de equipo (150 por integrante) en 13 semanas (65 días hábiles): 5 semanas de análisis y diseño y
+4 sprints de 2 semanas. Scrum Master: Heretichi. Product Owner: la tutora.
+
+- **Sprint 1 — base y seguridad:** HU1 login/logout, HU10 gestión de operadores, HU12 rutas protegidas por
+  middleware.
+- **Sprint 2 — gestión central:** HU2 socios con buscador Livewire, HU3 membresías, HU8 aptos físicos.
+- **Sprint 3 — finanzas e identificación:** HU4 pagos y vencimientos, HU5 PIN y QR.
+- **Sprint 4 — acceso, dashboard y despliegue:** HU6 acceso por PIN, HU7 acceso por QR, HU11 historial en PDF,
+  HU9 dashboard; pruebas PHPUnit, Dockerfile y Render.
+
+Las funciones posteriores (portal, aforo, chatbot, rutinas, API) todavía no tienen HU asignadas.
 
 ## Mapa del TIF: asignatura → concepto → dónde se ve en Gym Control
 
@@ -256,6 +304,7 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
 
 ## Fuentes de esta guía
 
-NotebookLM no tiene conexión con Claude: esta guía se armó con los documentos de Google Drive y los seis
-resúmenes de cátedra de la colección `UTN_Tecnico_Programacion` que compartió Diego. Si llega material de otra
+NotebookLM no tiene conexión con Claude: esta guía se armó con los documentos de Google Drive, los seis
+resúmenes de cátedra de la colección `UTN_Tecnico_Programacion` y el resumen del proyecto Gym Control (modelo de
+datos, reglas, permisos y sprints) que compartió Diego, verificados contra el código. Si llega material de otra
 asignatura, sumarlo a "Exigencias por asignatura", al "Mapa del TIF" y a "Brechas".
