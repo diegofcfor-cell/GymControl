@@ -10,7 +10,7 @@ consecuencia negativa introduce?
 | 1 | Repository | HU23 | Aplicado |
 | 2 | Observer | HU21 | Aplicado |
 | 3 | Strategy | HU22 | Aplicado |
-| 4 | Facade | HU24 | Pendiente (Sprint 4) |
+| 4 | Facade | HU24 | Documentado (ya estaba en el código) |
 
 ## 1. Repository — consulta de "presentes hoy" (HU23)
 
@@ -135,3 +135,116 @@ refactor no rompió el comportamiento (verificación).
   buscarla (se indica en el docblock del constructor).
 - Se descartó dar a cada regla una prioridad o dejar que una regla corte la evaluación, porque hoy no hace
   falta: sería un cambio imaginario.
+
+## 4. Facade — los servicios como fachada de cada módulo (HU24)
+
+A diferencia de los tres patrones anteriores, este no se agregó: **ya estaba en el diseño** desde que se separó
+la lógica de los controladores (Controlador → Servicio → Modelo). Esta entrada lo identifica y lo justifica, que
+es lo que pide la cátedra: reconocer un patrón en el código propio y explicar qué problema resuelve.
+
+**Qué es.** Una *fachada* ofrece una interfaz simple (uno o dos métodos) a un subsistema que por dentro tiene
+varias piezas. El cliente llama a la fachada y no conoce esas piezas, así que puede cambiar el interior sin
+tocar al cliente. No hay que confundirlo con las *Facades* de Laravel (`Log::`, `DB::`, `Event::`): esas son
+accesos estáticos a servicios del contenedor. El nombre es parecido, pero el propósito es otro.
+
+**Síntoma que evita.** Sin los servicios, el controlador de pagos tendría que abrir la transacción, calcular el
+período, crear el pago y actualizar al socio. La pantalla de acceso tendría que limitar intentos, buscar al
+socio por PIN o QR, evaluar las reglas, registrar la asistencia y disparar eventos. Esa lógica quedaría repetida
+en cada punto de entrada (panel web, Livewire, una futura API) y mezclada con la presentación (viola SRP).
+
+### PagoService: fachada del cobro
+
+`PagoController::store()` solo llama a `registrar()`. Detrás de esa llamada hay una transacción, el cálculo del
+período y la actualización de dos tablas.
+
+```mermaid
+classDiagram
+    class PagoController {
+        +store(PagoRequest, Socio, PagoService)
+    }
+    class PagoService {
+        +registrar(Socio, Membresia, metodo, User, fechaPago) Pago
+        +calcularPeriodo(fechaPago, vencimientoActual, duracionDias) array
+    }
+    class DB {
+        <<transacción>>
+    }
+    class Pago
+    class Socio
+    class Membresia
+    PagoController --> PagoService : registrar()
+    PagoService ..> DB : transaction()
+    PagoService ..> Pago : create()
+    PagoService ..> Socio : update(vencimiento, estado)
+    PagoService ..> Membresia : precio, duración
+```
+
+### AccesoService: fachada del control de acceso
+
+La pantalla de acceso (`PantallaAcceso`, Livewire) solo llama a `procesar(codigo, ip)` y recibe un resultado
+listo para mostrar. Detrás de la fachada trabajan los otros tres patrones del proyecto: el **Repository** de
+asistencias, las **Strategy** de ingreso y los eventos del **Observer**.
+
+```mermaid
+classDiagram
+    class PantallaAcceso {
+        <<Livewire>>
+        +registrar(AccesoService)
+    }
+    class AccesoService {
+        +procesar(codigo, ip) array
+        +calcularPermanencia(ingreso, salida) string
+    }
+    class RateLimiter {
+        <<límite de intentos>>
+    }
+    class AsistenciaRepository {
+        +abiertaDeHoy(Socio)
+        +minutosHoy(Socio)
+    }
+    class ReglaIngreso {
+        <<interface>>
+        +motivoDeRechazo(Socio) string
+    }
+    class IngresoRegistrado {
+        <<evento>>
+    }
+    class EgresoRegistrado {
+        <<evento>>
+    }
+    class AccesoDenegado {
+        <<evento>>
+    }
+    PantallaAcceso --> AccesoService : procesar()
+    AccesoService ..> RateLimiter
+    AccesoService --> AsistenciaRepository
+    AccesoService --> "4" ReglaIngreso
+    AccesoService ..> IngresoRegistrado : dispatch
+    AccesoService ..> EgresoRegistrado : dispatch
+    AccesoService ..> AccesoDenegado : dispatch
+```
+
+**Beneficios que se pueden mostrar en la defensa.**
+- Los refactors de HU21, HU22 y HU23 cambiaron el interior de `AccesoService` y `PantallaAcceso` no se tocó:
+  ese es el beneficio concreto de la fachada.
+- Las reglas de negocio se prueban llamando a la fachada (`app(AccesoService::class)->procesar(...)` en
+  `AccesoTest`), sin pasar por la interfaz.
+- Si el sistema sumara otro punto de entrada (por ejemplo, un molinete que use la API), reutilizaría el mismo
+  método.
+
+**Consecuencia negativa asumida.**
+- Una fachada puede crecer hasta convertirse en un "objeto dios" que sabe todo. Por eso cada servicio cubre un
+  solo módulo, y cuando `AccesoService` empezó a acumular responsabilidades se las delegó al repositorio, a las
+  reglas y a los eventos.
+- `procesar()` devuelve un arreglo asociativo y no un objeto tipado: es simple para la vista, pero el
+  compilador no controla sus claves. Un *DTO* (objeto de transferencia de datos) lo resolvería; queda como
+  deuda menor, porque hoy lo consume una sola vista.
+
+## Resumen para la defensa
+
+| Patrón | Problema que resuelve en Gym Control | Dónde verlo | Prueba |
+|---|---|---|---|
+| Repository | La regla "presente hoy" estaba copiada cinco veces | `app/Repositories/AsistenciaRepository.php` | `AsistenciaRepositoryTest` |
+| Observer | El acceso tenía que avisar a varios interesados sin conocerlos | `app/Events`, `app/Listeners` | `AccesoEventosTest` |
+| Strategy | Sumar una condición de ingreso obligaba a modificar el servicio | `app/Services/ReglasIngreso` | `ReglasIngresoTest` |
+| Facade | La lógica del cobro y del acceso no debía vivir en la presentación | `PagoService`, `AccesoService` | `PagoTest`, `AccesoTest` |
