@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OperadorRequest;
 use App\Models\User;
+use App\Services\OperadorService;
 
 class OperadorController extends Controller
 {
@@ -17,9 +18,9 @@ class OperadorController extends Controller
         return view('operadores.form', ['operador' => new User(['rol' => User::ROL_RECEPCION, 'activo' => true])]);
     }
 
-    public function store(OperadorRequest $request)
+    public function store(OperadorRequest $request, OperadorService $operadores)
     {
-        User::create($request->safe()->except('activo') + ['activo' => true]);
+        $operadores->crear($request->safe()->except('activo'));
 
         return redirect()->route('operadores.index')->with('ok', 'Operador creado.');
     }
@@ -29,22 +30,9 @@ class OperadorController extends Controller
         return view('operadores.form', compact('operador'));
     }
 
-    public function update(OperadorRequest $request, User $operador)
+    public function update(OperadorRequest $request, User $operador, OperadorService $operadores)
     {
-        $datos = $request->validated();
-
-        $datos['activo'] = $request->boolean('activo');
-
-        // El administrador no puede quitarse a sí mismo el rol ni desactivarse.
-        if ($operador->id === $request->user()->id) {
-            $datos['rol'] = User::ROL_ADMIN;
-            $datos['activo'] = true;
-        }
-        if (empty($datos['password'])) {
-            unset($datos['password']);
-        }
-
-        $operador->update($datos);
+        $operadores->actualizar($operador, ['activo' => $request->boolean('activo')] + $request->validated(), $request->user());
 
         return redirect()->route('operadores.index')->with('ok', 'Operador actualizado.');
     }

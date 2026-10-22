@@ -10,6 +10,7 @@ use App\Services\ReglasIngreso\ReglaIngreso;
 use App\Services\ReglasIngreso\SocioActivo;
 use App\Services\ReglasIngreso\TopeHorasDiarias;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
@@ -35,5 +36,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Las acciones Livewire del portal (chatbot, aforo) vuelven a exigir la sesión del socio.
         Livewire::addPersistentMiddleware([SocioAutenticado::class]);
+
+        // Política de contraseñas del personal (HU30): mínimo 8 caracteres, con letras y números.
+        Password::defaults(fn () => Password::min(8)->letters()->numbers());
     }
 }

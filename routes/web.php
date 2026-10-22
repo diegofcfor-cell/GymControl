@@ -4,6 +4,7 @@ use App\Http\Controllers\AptoFisicoController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Controllers\CuentaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\OperadorController;
@@ -37,6 +38,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'rol:administrador,recepcionista,profesor'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/panel', fn () => redirect()->route(auth()->user()->rutaInicio()))->name('inicio');
+    // Mi contraseña (HU30): cada operador cambia la suya; se limita para que no se pueda adivinar la actual.
+    Route::get('/mi-clave', [CuentaController::class, 'editarClave'])->name('cuenta.clave');
+    Route::put('/mi-clave', [CuentaController::class, 'actualizarClave'])->name('cuenta.clave.update')->middleware('throttle:5,1');
 });
 
 // Rutinas: las arma un profesor (o el administrador) a pedido del socio.
