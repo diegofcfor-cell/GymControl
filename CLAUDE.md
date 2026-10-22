@@ -299,8 +299,9 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
    ahora, usar la convención de la cátedra.
 8. ~~Licencia y titularidad~~ **resuelta:** titular el Grupo 13 (Cardozo, Heretichi, López); el Gimnasio
    Fénix usa la versión de prueba gratuita y las próximas versiones serán pagas. Ver `LICENSE` (Ley 11.723).
-9. **Datos personales** (Legislación): no hay texto de privacidad ni consentimiento para los datos de salud,
-   ni un procedimiento para que el socio pida rectificar o suprimir sus datos.
+9. **Datos personales** (Legislación): ya hay aviso de privacidad (`/privacidad`) y consentimiento con fecha
+   (`socios.consentimiento_datos_at`), exigido para cargar el apto. Falta el pedido de rectificación o
+   supresión desde el portal (HU27).
 
 ## Fuentes de esta guía
 
