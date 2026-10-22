@@ -8,21 +8,30 @@ use App\Events\IngresoRegistrado;
 use App\Models\Asistencia;
 use App\Models\Socio;
 use App\Repositories\AsistenciaRepository;
+use App\Services\ReglasIngreso\ReglaIngreso;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\RateLimiter;
 
 /**
  * Reglas de negocio del control de acceso (PIN / QR):
- *  - El ingreso exige socio activo, cuota vigente y apto físico vigente.
+ *  - El ingreso exige cumplir todas las reglas de ingreso (Strategy, ver app/Services/ReglasIngreso):
+ *    socio activo, cuota vigente, apto físico vigente y tope de horas diarias. Se muestran todos los motivos.
  *  - El egreso SIEMPRE se permite y calcula el tiempo de permanencia.
- *  - Si la membresía tiene tope de horas diarias, se informa al superarlo.
+ *  - Si la membresía tiene tope de horas diarias, se avisa en el egreso al superarlo.
  *  - Cada ingreso, egreso o rechazo se anuncia con un evento; quien necesite enterarse lo escucha (Observer).
  */
 class AccesoService
 {
     public const MAX_INTENTOS_FALLIDOS = 8;
 
-    public function __construct(private AsistenciaRepository $asistencias) {}
+    /** @var list<ReglaIngreso> */
+    private array $reglas;
+
+    /** Las reglas y su orden se configuran en AppServiceProvider. */
+    public function __construct(private AsistenciaRepository $asistencias, ReglaIngreso ...$reglas)
+    {
+        $this->reglas = $reglas;
+    }
 
     /** @return array{ok:bool,tipo:string,mensaje:string,motivos:array,socio:?Socio,hora:?string,permanencia:?string,aviso:?string} */
     public function procesar(string $codigo, ?string $ip = null): array
@@ -59,19 +68,7 @@ class AccesoService
 
     protected function ingreso(Socio $socio): array
     {
-        $motivos = [];
-        if (! $socio->estaActivo()) {
-            $motivos[] = 'Socio dado de baja o inactivo.';
-        }
-        if (! $socio->cuotaAlDia()) {
-            $motivos[] = 'Cuota vencida: regularice su pago en recepción.';
-        }
-        if (! $socio->aptoVigente()) {
-            $motivos[] = 'Apto físico vencido o no presentado.';
-        }
-        if (! $motivos && $this->topeAlcanzado($socio)) {
-            $motivos[] = 'Alcanzó el tope de horas diarias de su membresía.';
-        }
+        $motivos = array_values(array_filter(array_map(fn (ReglaIngreso $regla) => $regla->motivoDeRechazo($socio), $this->reglas)));
 
         if ($motivos) {
             AccesoDenegado::dispatch($socio, $motivos);
@@ -106,7 +103,7 @@ class AccesoService
 
         $aviso = null;
         $max = $socio->membresia?->horas_diarias_max;
-        if ($max !== null && $this->minutosHoy($socio) > $max * 60) {
+        if ($max !== null && $this->asistencias->minutosHoy($socio) > $max * 60) {
             $aviso = "Superó el tope diario de {$max} h de su membresía.";
         }
 
@@ -121,22 +118,6 @@ class AccesoService
         $segundos = (int) max(0, floor($ingreso->diffInSeconds($salida, false)));
 
         return gmdate('H:i:s', min($segundos, 86399));
-    }
-
-    protected function topeAlcanzado(Socio $socio): bool
-    {
-        $max = $socio->membresia?->horas_diarias_max;
-
-        return $max !== null && $this->minutosHoy($socio) >= $max * 60;
-    }
-
-    protected function minutosHoy(Socio $socio): int
-    {
-        return (int) $socio->asistencias()
-            ->whereDate('fecha', today())
-            ->whereNotNull('tiempo_permanencia')
-            ->get()
-            ->sum(fn (Asistencia $a) => $a->minutosPermanencia() ?? 0);
     }
 
     protected function resultado(bool $ok, string $tipo, string $mensaje, ?Socio $socio = null, array $motivos = [], ?string $hora = null, ?string $permanencia = null, ?string $aviso = null): array

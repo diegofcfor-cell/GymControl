@@ -65,6 +65,7 @@ Usuarios de prueba (`SEED_DEMO=true`): `admin@gymcontrol.test` / `Admin1234!`, `
 
 ```
 app/Services/            reglas de negocio (Acceso, Pago, Aforo, Chatbot, AutenticacionSocio, SolicitudDatos): acá va la lógica
+  ReglasIngreso/         una clase por condición de ingreso (Strategy); el orden está en AppServiceProvider
 app/Http/Controllers/    panel de operadores; Portal/ = portal del socio; Api/ = API REST
 app/Http/Middleware/     RolMiddleware (`rol:`), SocioAutenticado (`socio`), SocioConToken (`socio.token`)
 app/Http/Requests/       Form Requests de cada formulario; Resources/ = respuestas JSON de la API
@@ -223,7 +224,8 @@ Legislación). Al hacer un cambio, reforzá la evidencia de la fila que correspo
   (depender de abstracciones e inyectar dependencias).
 - **Patrones de la cátedra:** Factory, Strategy, Observer, Adapter, Decorator, Facade, MVC + Repository.
   Aplicados y documentados en `docs/DEUDA-TECNICA.md`: Repository (`AsistenciaRepository`) y Observer
-  (eventos `IngresoRegistrado`, `EgresoRegistrado` y `AccesoDenegado` con el listener `RegistrarAccesoEnLog`).
+  (eventos `IngresoRegistrado`, `EgresoRegistrado` y `AccesoDenegado` con el listener `RegistrarAccesoEnLog`) y
+  Strategy (reglas de ingreso en `app/Services/ReglasIngreso`, configuradas en `AppServiceProvider`).
   Otros candidatos para explicar (verificarlos antes de afirmarlo): servicios como Facade de cada módulo,
   eventos de modelo de Eloquent (`Socio::booted`), middleware como cadena de filtros.
 - **CI/CD:** el pipeline hace instalación limpia → linter → pruebas en cada push y PR, y bloquea el merge si
@@ -303,8 +305,8 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
 5. ~~CI incompleto~~ **resuelta:** `.github/workflows/tests.yml` corre en `main` y en cada PR con
    instalación → Pint (`pint --test`) → pruebas. Falta que la regla de la rama `main` exija el check en verde
    (se configura en GitHub, Settings → Rules).
-6. **`docs/DEUDA-TECNICA.md` iniciado** (Metodología II): documenta Repository (HU23) y Observer (HU21).
-   Faltan Strategy y Facade, cada uno con su rama y PR.
+6. **`docs/DEUDA-TECNICA.md` iniciado** (Metodología II): documenta Repository (HU23), Observer (HU21) y
+   Strategy (HU22). Falta Facade, con su rama y PR.
 7. **Convenciones Git:** las ramas existentes usan `feature/…` y los commits no siguen `tipo(ámbito):`. Desde
    ahora, usar la convención de la cátedra.
 8. ~~Licencia y titularidad~~ **resuelta:** titular el Grupo 13 (Cardozo, Heretichi, López); el Gimnasio
