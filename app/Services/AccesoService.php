@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Events\AccesoDenegado;
+use App\Events\EgresoRegistrado;
+use App\Events\IngresoRegistrado;
 use App\Models\Asistencia;
 use App\Models\Socio;
 use App\Repositories\AsistenciaRepository;
@@ -13,6 +16,7 @@ use Illuminate\Support\Facades\RateLimiter;
  *  - El ingreso exige socio activo, cuota vigente y apto físico vigente.
  *  - El egreso SIEMPRE se permite y calcula el tiempo de permanencia.
  *  - Si la membresía tiene tope de horas diarias, se informa al superarlo.
+ *  - Cada ingreso, egreso o rechazo se anuncia con un evento; quien necesite enterarse lo escucha (Observer).
  */
 class AccesoService
 {
@@ -70,15 +74,18 @@ class AccesoService
         }
 
         if ($motivos) {
+            AccesoDenegado::dispatch($socio, $motivos);
+
             return $this->resultado(false, 'denegado', 'Acceso denegado', $socio, $motivos);
         }
 
         $ahora = now();
-        Asistencia::create([
+        $asistencia = Asistencia::create([
             'socio_id' => $socio->id,
             'fecha' => $ahora->toDateString(),
             'hora_ingreso' => $ahora->format('H:i:s'),
         ]);
+        IngresoRegistrado::dispatch($asistencia);
 
         $aviso = null;
         if ($socio->fecha_vencimiento && today()->diffInDays($socio->fecha_vencimiento, false) <= 3) {
@@ -95,6 +102,7 @@ class AccesoService
             'hora_salida' => $ahora->format('H:i:s'),
             'tiempo_permanencia' => $this->calcularPermanencia($abierta->momentoIngreso(), $ahora),
         ]);
+        EgresoRegistrado::dispatch($abierta);
 
         $aviso = null;
         $max = $socio->membresia?->horas_diarias_max;
