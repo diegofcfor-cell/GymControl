@@ -72,6 +72,7 @@ app/Policies/            permisos por registro: SocioPolicy, AptoFisicoPolicy, R
 routes/api.php           API REST: /api/aforo pública; /api/socio/* con token de Sanctum (DNI + PIN)
 app/Livewire/            PantallaAcceso, SociosIndex, AforoEnVivo, ChatbotFaq
 app/Models/              Eloquent; Socio usa SoftDeletes (baja lógica)
+app/Repositories/        AsistenciaRepository: consultas que comparten varios módulos (presentes hoy)
 app/Support/             PlantillasRutina (biblioteca R01–R15)
 app/Console/Commands/    gym:actualizar-vencimientos (programado en routes/console.php)
 database/migrations/     modelo ER; las nuevas llevan fecha 2026_MM_DD_
@@ -200,8 +201,9 @@ Legislación). Al hacer un cambio, reforzá la evidencia de la fila que correspo
 
 ### Programación IV (backend profesional con Laravel)
 
-- **Arquitectura:** MVC extendido a Controlador → Servicio → Repositorio. Gym Control ya tiene la capa de
-  servicios; un repositorio se justifica solo si una consulta se repite en varios servicios.
+- **Arquitectura:** MVC extendido a Controlador → Servicio → Repositorio. Un repositorio se justifica solo si
+  una consulta se repite en varios lugares: por eso existe `AsistenciaRepository` (presentes hoy, HU23) y no
+  uno por tabla.
 - **Seguridad:** Form Request para validar, Policies (`viewAny`, `view`, `update`, `delete`) para permisos
   por registro, contraseñas con hash, `APP_DEBUG=false` y `composer install --no-dev --optimize-autoloader` en
   producción.
@@ -299,7 +301,8 @@ Cuando una tarea toque alguna de estas partes, recordale a Diego la brecha. No l
 5. ~~CI incompleto~~ **resuelta:** `.github/workflows/tests.yml` corre en `main` y en cada PR con
    instalación → Pint (`pint --test`) → pruebas. Falta que la regla de la rama `main` exija el check en verde
    (se configura en GitHub, Settings → Rules).
-6. **Falta `docs/DEUDA-TECNICA.md`** y la documentación de los 4 patrones con su rama y PR (Metodología II).
+6. **`docs/DEUDA-TECNICA.md` iniciado** (Metodología II): documenta Repository (HU23). Faltan Observer,
+   Strategy y Facade, cada uno con su rama y PR.
 7. **Convenciones Git:** las ramas existentes usan `feature/…` y los commits no siguen `tipo(ámbito):`. Desde
    ahora, usar la convención de la cátedra.
 8. ~~Licencia y titularidad~~ **resuelta:** titular el Grupo 13 (Cardozo, Heretichi, López); el Gimnasio

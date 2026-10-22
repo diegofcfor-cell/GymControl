@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Asistencia;
 use App\Models\Socio;
+use App\Repositories\AsistenciaRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\RateLimiter;
 class AccesoService
 {
     public const MAX_INTENTOS_FALLIDOS = 8;
+
+    public function __construct(private AsistenciaRepository $asistencias) {}
 
     /** @return array{ok:bool,tipo:string,mensaje:string,motivos:array,socio:?Socio,hora:?string,permanencia:?string,aviso:?string} */
     public function procesar(string $codigo, ?string $ip = null): array
@@ -45,7 +48,7 @@ class AccesoService
 
         RateLimiter::clear($clave);
 
-        $abierta = $socio->asistencias()->abiertas()->whereDate('fecha', today())->latest('id')->first();
+        $abierta = $this->asistencias->abiertaDeHoy($socio);
 
         return $abierta ? $this->egreso($socio, $abierta) : $this->ingreso($socio);
     }

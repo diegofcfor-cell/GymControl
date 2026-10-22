@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Asistencia;
+use App\Repositories\AsistenciaRepository;
 use App\Services\AccesoService;
 use Carbon\Carbon;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +13,7 @@ class PermanenciaTest extends TestCase
 {
     protected function permanencia(string $ingreso, string $salida): string
     {
-        return (new AccesoService)->calcularPermanencia(Carbon::parse($ingreso), Carbon::parse($salida));
+        return (new AccesoService(new AsistenciaRepository))->calcularPermanencia(Carbon::parse($ingreso), Carbon::parse($salida));
     }
 
     public function test_calcula_la_diferencia_entre_ingreso_y_egreso(): void

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\AsistenciaRepository;
 use Illuminate\Http\Request;
 
 class PortalController extends Controller
 {
-    public function inicio(Request $request)
+    public function inicio(Request $request, AsistenciaRepository $repositorio)
     {
         $socio = $request->attributes->get('socio')->load('membresia');
 
@@ -15,7 +16,7 @@ class PortalController extends Controller
             ->orderByDesc('fecha')->orderByDesc('hora_ingreso')
             ->limit(20)->get();
 
-        $dentro = $socio->asistencias()->abiertas()->whereDate('fecha', today())->exists();
+        $dentro = $repositorio->estaDentro($socio);
 
         $delMes = $socio->asistencias()
             ->whereBetween('fecha', [today()->startOfMonth(), today()->endOfMonth()])
