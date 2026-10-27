@@ -5,6 +5,8 @@ Cliente: Gimnasio Fénix (Formosa). Autores: Cardozo, Diego Fabián · Heretichi
 
 **Manual de usuario:** [`docs/manual/manual-usuario.md`](docs/manual/manual-usuario.md), con capturas de cada pantalla por rol.
 
+**Gestión del proyecto:** [`docs/gestion-proyecto.md`](docs/gestion-proyecto.md), Scrum con tablero Kanban en GitHub Projects (backlog HU1–HU33 como issues).
+
 **Stack:** Laravel 12 · PHP 8.3 · Blade + Livewire 3 + Alpine.js · Tailwind CSS 4 · MySQL 8 · DomPDF · Simple QrCode · Docker · Render.
 
 ## Funcionalidades

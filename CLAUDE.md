@@ -24,7 +24,8 @@ en el código (ver "Mapa del TIF" y "Exigencias por asignatura").
 
 - **Requisitos técnicos:** resolver un problema real de gestión; aplicación web con base de datos estructurada
   y **desplegada en un hosting**; arquitectura cliente/servidor con frontend, backend, **API REST** y gestor de
-  base de datos; Git y GitHub más un tablero (Jira); Scrum con Product Backlog, sprints, historias de usuario
+  base de datos; Git y GitHub más un tablero (el Plan dice Jira; desde el Sprint 2 se usa GitHub Projects, ver
+  `docs/gestion-proyecto.md`); Scrum con Product Backlog, sprints, historias de usuario
   con criterios de aceptación y definición de hecho.
 - **Fases:** 1) preselección (3 propuestas); 2) Plan de Trabajo, maquetación de la BD, informe de avance y
   **video explicativo, preferentemente en inglés** (requisito para regularizar); 3) informe final y defensa
@@ -200,7 +201,7 @@ Legislación). Al hacer un cambio, reforzá la evidencia de la fila que correspo
 | Programación I–IV | Algoritmos, POO, MVC, ciclo de una petición (index.php → middleware → ruta → controlador → modelo → vista), Controlador → Servicio → Repositorio, Eloquent, autenticación, Policies, Form Request, APIs REST con Sanctum, tiempo real con Reverb + Echo | `routes/web.php`, `routes/api.php`, `app/Http`, `app/Models`, `app/Services`, componentes Livewire |
 | Base de Datos I y II | MER → modelo relacional, PK/FK, integridad referencial, normalización 1FN–3FN, índices, DDL/DML, funciones agregadas, GROUP BY/HAVING, respaldos | `database/migrations`, consultas del dashboard y de `AforoService`, `mysqldump` en `DEPLOY.md` |
 | Metodología de Sistemas I y II | Análisis, casos de uso, UML, ciclo de vida; Git y PR, SOLID, patrones de diseño, refactorización, deuda técnica, CI/CD, verificación y validación, pirámide de pruebas | Ramas y PR en GitHub, `app/Services`, `.github/workflows/tests.yml`, `tests/Feature` |
-| Gestión de Desarrollo de Software | Ciclo de vida y modelos de proceso, Scrum/Kanban, ingeniería de requerimientos, ERS IEEE, casos de uso, alcance y EDT, Puntos de Función, COCOMO, PERT, ISO/IEC 25010, KPIs, manuales | RF01–RF09, RNF01–RNF06 y HU1–HU12 del Plan; Gantt y PERT; README (manual técnico); `docs/manual/manual-usuario.md` (manual de usuario) |
+| Gestión de Desarrollo de Software | Ciclo de vida y modelos de proceso, Scrum/Kanban, ingeniería de requerimientos, ERS IEEE, casos de uso, alcance y EDT, Puntos de Función, COCOMO, PERT, ISO/IEC 25010, KPIs, manuales | RF01–RF09, RNF01–RNF06 y HU1–HU12 del Plan; Gantt y PERT; README (manual técnico); `docs/manual/manual-usuario.md` (manual de usuario); `docs/gestion-proyecto.md` (tablero en GitHub Projects) |
 | Arquitectura y Sistemas Operativos | Cliente-servidor, Linux, procesos y servicios, contenedores, despliegue | `Dockerfile`, `docker/`, `docker-compose.yml`, `render.yaml`, tarea programada |
 | Matemática | Lógica, conjuntos, relaciones, cálculo | Condiciones de acceso (Y lógico), cálculo de vencimientos y permanencia, porcentaje de aforo |
 | Probabilidad y Estadística | Estadística descriptiva, promedios, interpretación de indicadores, PERT (te = (a + 4m + b) / 6) | Dashboard, promedio de horas pico de 4 semanas en el aforo |

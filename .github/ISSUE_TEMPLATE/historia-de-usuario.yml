@@ -1,0 +1,49 @@
+name: Historia de usuario
+description: Una funcionalidad o tarea del backlog, con sus criterios de aceptación.
+title: "HUnn · "
+labels: ["historia-de-usuario"]
+body:
+  - type: textarea
+    id: historia
+    attributes:
+      label: Historia
+      description: Quién la pide, qué quiere y para qué.
+      placeholder: Como recepcionista quiero … para …
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Una casilla por condición verificable. La historia está hecha cuando se cumplen todas.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: requerimiento
+    attributes:
+      label: Requerimiento
+      description: RF o RNF que cubre (ver docs/plan-actualizacion.md).
+      placeholder: RF11
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - Esencial
+        - Útil
+        - Deseable
+    validations:
+      required: true
+  - type: textarea
+    id: trazabilidad
+    attributes:
+      label: Trazabilidad
+      description: Código y prueba que la verifican. Se completa al cerrar la historia.
+      placeholder: |
+        - Código: app/Services/…
+        - Prueba: tests/Feature/…
