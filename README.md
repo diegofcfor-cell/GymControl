@@ -78,6 +78,9 @@ Cubren: PIN/QR únicos, ingreso/egreso y permanencia, cuota vencida, apto vencid
 ## Despliegue en Render
 Ver `DEPLOY.md`.
 
+## Control de flujo del backend
+Ver [`docs/FLUJO-BACKEND.md`](docs/FLUJO-BACKEND.md): diagramas de las capas (ruta, middleware, controlador, servicio, modelo) y de los flujos de login, ingreso, aforo y chatbot.
+
 ## Estructura
 ```
 app/Services/AccesoService.php   reglas de ingreso/egreso y permanencia
