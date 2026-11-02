@@ -89,3 +89,6 @@ app/Livewire/                    PantallaAcceso, SociosIndex
 app/Http/Controllers/            Socios, Pagos, Aptos, Asistencias, Membresías, Operadores, Rutinas, Dashboard
 database/migrations/             modelo ER (users, membresias, socios, pagos, aptos_fisicos, asistencias)
 ```
+
+## Licencia
+Distribuido bajo la licencia MIT. Autor: Diego Fabián Cardozo. Ver [`LICENSE`](LICENSE).
