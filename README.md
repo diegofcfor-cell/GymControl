@@ -81,6 +81,9 @@ Ver `DEPLOY.md`.
 ## Control de flujo del backend
 Ver [`docs/FLUJO-BACKEND.md`](docs/FLUJO-BACKEND.md): diagramas de las capas (ruta, middleware, controlador, servicio, modelo) y de los flujos de login, ingreso, aforo y chatbot.
 
+## Informe técnico
+Ver [`docs/INFORME-TECNICO.md`](docs/INFORME-TECNICO.md): informe del TIF (objetivos, análisis, arquitectura, modelo de datos, patrones, funcionalidades, metodología y estado actual) con ejemplos.
+
 ## Estructura
 ```
 app/Services/AccesoService.php   reglas de ingreso/egreso y permanencia
